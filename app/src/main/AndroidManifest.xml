@@ -2,6 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+    <uses-feature android:name="android.hardware.camera.ar" />
+    <uses-feature
+        android:glEsVersion="0x00030000"
+        android:required="true" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -14,6 +24,15 @@
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"
+            android:exported="false" />
+
+        <meta-data
+            tools:replace="android:value"
+            android:name="com.google.ar.core"
+            android:value="required" />
+
+        <activity
+            android:name=".ARTrackingTest"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
