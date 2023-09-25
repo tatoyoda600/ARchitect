@@ -1,0 +1,33 @@
+package com.pfortbe22bgrupo2.architectapp.adapters
+
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import com.pfortbe22bgrupo2.architectapp.R
+import com.pfortbe22bgrupo2.architectapp.entities.Furniture
+import com.pfortbe22bgrupo2.architectapp.holders.FurnitureHolder
+import com.pfortbe22bgrupo2.architectapp.listeners.ShowDetailsFurniture
+
+class FurnitureAdapter(
+    private val furnitureList : MutableList<Furniture>,
+    private val showDetailsFurniture: ShowDetailsFurniture
+) : RecyclerView.Adapter<FurnitureHolder>() {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FurnitureHolder {
+        val view =  LayoutInflater.from(parent.context).inflate(R.layout.item,parent,false)
+        return (FurnitureHolder(view))
+    }
+
+    override fun getItemCount(): Int {
+        return furnitureList.size
+    }
+
+    override fun onBindViewHolder(holder: FurnitureHolder, position: Int) {
+        holder.setNombre(furnitureList[position].nombre)
+
+
+        holder.getCardLayout().setOnClickListener(){
+            showDetailsFurniture.showDetails(furnitureList[position])
+        }
+    }
+}

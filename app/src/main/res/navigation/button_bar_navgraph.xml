@@ -32,10 +32,22 @@
         android:id="@+id/detailsFragment"
         android:name="com.pfortbe22bgrupo2.architectapp.fragments.DetailsFragment"
         android:label="fragment_details"
-        tools:layout="@layout/fragment_details" />
+        tools:layout="@layout/fragment_details" >
+        <action
+            android:id="@+id/action_detailsFragment_to_ARTrackingTest"
+            app:destination="@id/ARTrackingTest" />
+        <argument
+            android:name="furniture_element"
+            app:argType="com.pfortbe22bgrupo2.architectapp.entities.Furniture" />
+    </fragment>
     <fragment
         android:id="@+id/editProfileFragment"
         android:name="com.pfortbe22bgrupo2.architectapp.fragments.EditProfileFragment"
         android:label="fragment_edit_profile"
         tools:layout="@layout/fragment_edit_profile" />
+    <fragment
+        android:id="@+id/foroFragment"
+        android:name="com.pfortbe22bgrupo2.architectapp.fragments.ForoFragment"
+        android:label="fragment_foro"
+        tools:layout="@layout/fragment_foro" />
 </navigation>
