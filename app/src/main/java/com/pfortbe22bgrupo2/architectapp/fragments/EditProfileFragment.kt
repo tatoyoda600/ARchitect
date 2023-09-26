@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import androidx.navigation.findNavController
 import com.pfortbe22bgrupo2.architectapp.R
 
 // TODO: Rename parameter arguments, choose names that match
@@ -22,6 +24,9 @@ class EditProfileFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    lateinit var v: View
+    lateinit var editButton: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -35,7 +40,17 @@ class EditProfileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_edit_profile, container, false)
+        v = inflater.inflate(R.layout.fragment_edit_profile, container, false)
+        editButton = v.findViewById(R.id.edit_button)
+        return v
+    }
+
+    override fun onStart() {
+        super.onStart()
+        editButton.setOnClickListener(){
+            //Acciones para editar el perdil del usuario
+            v.findNavController().navigateUp()
+        }
     }
 
     companion object {

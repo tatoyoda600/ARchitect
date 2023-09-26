@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.pfortbe22bgrupo2.architectapp.R
@@ -18,8 +19,10 @@ class SingUpFragment : Fragment() {
     }
 
     private lateinit var viewModel: SingUpViewModel
+
     lateinit var v : View
     lateinit var singUpButton : Button
+    lateinit var imagenButton : ImageButton
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,6 +30,7 @@ class SingUpFragment : Fragment() {
     ): View? {
         v = inflater.inflate(R.layout.fragment_sing_up, container, false)
         singUpButton = v.findViewById(R.id.second_singUpbutton)
+        imagenButton = v.findViewById(R.id.singup_imagen_button)
         return v
     }
 
@@ -35,6 +39,10 @@ class SingUpFragment : Fragment() {
         singUpButton.setOnClickListener(){
             val action = SingUpFragmentDirections.actionSingUpFragmentToLoginFragment()
             v.findNavController().navigate(action)
+        }
+
+        imagenButton.setOnClickListener(){
+            v.findNavController().navigateUp()
         }
     }
 

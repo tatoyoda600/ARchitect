@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.pfortbe22bgrupo2.architectapp.R
@@ -18,8 +19,10 @@ class LoginFragment : Fragment() {
     }
 
     private lateinit var viewModel: LoginViewModel
+
     lateinit var v : View
     lateinit var loginButton : Button
+    lateinit var imagenButton : ImageButton
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,6 +30,7 @@ class LoginFragment : Fragment() {
     ): View? {
         v = inflater.inflate(R.layout.fragment_login, container, false)
         loginButton = v.findViewById(R.id.second_login_button)
+        imagenButton = v.findViewById(R.id.login_imagen_button)
         return v
     }
 
@@ -35,6 +39,10 @@ class LoginFragment : Fragment() {
         loginButton.setOnClickListener(){
             val action = LoginFragmentDirections.actionLoginFragmentToCatalogoActivity()
             v.findNavController().navigate(action)
+        }
+
+        imagenButton.setOnClickListener(){
+            v.findNavController().navigateUp()
         }
     }
 
