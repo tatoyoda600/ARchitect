@@ -9,11 +9,12 @@
 
     <ImageButton
         android:id="@+id/singup_imagen_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@android:drawable/ic_menu_revert"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/back_icon"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        />
 
     <TextView
         android:id="@+id/textView3"

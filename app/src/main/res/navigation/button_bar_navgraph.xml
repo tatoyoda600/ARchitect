@@ -49,5 +49,18 @@
         android:id="@+id/foroFragment"
         android:name="com.pfortbe22bgrupo2.architectapp.fragments.ForoFragment"
         android:label="fragment_foro"
-        tools:layout="@layout/fragment_foro" />
+        tools:layout="@layout/fragment_foro" >
+        <action
+            android:id="@+id/action_foroFragment_to_foroDetailsFragment"
+            app:destination="@id/foroDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/foroDetailsFragment"
+        android:name="com.pfortbe22bgrupo2.architectapp.fragments.ForoDetailsFragment"
+        android:label="fragment_foro_details"
+        tools:layout="@layout/fragment_foro_details" >
+        <argument
+            android:name="posteo"
+            app:argType="com.pfortbe22bgrupo2.architectapp.entities.Post" />
+    </fragment>
 </navigation>

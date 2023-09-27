@@ -33,9 +33,8 @@ class DetailsFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        //var movie = DetatailsFragmentArgs.fromBundle(requireArguments()).movie
-        var furniture = DetailsFragmentArgs.fromBundle(requireArguments()).furnitureElement
-        var nombre = v.findViewById<TextView>(R.id.detail_textView)
+        val furniture = DetailsFragmentArgs.fromBundle(requireArguments()).furnitureElement
+        val nombre = v.findViewById<TextView>(R.id.detail_textView)
         nombre.text = furniture.nombre
 
 

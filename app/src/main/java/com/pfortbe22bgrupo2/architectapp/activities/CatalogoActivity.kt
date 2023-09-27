@@ -9,8 +9,8 @@ import com.pfortbe22bgrupo2.architectapp.R
 
 class CatalogoActivity : AppCompatActivity() {
 
-    lateinit var buttonBar : BottomNavigationView
-    lateinit var navHost : NavHostFragment
+    private lateinit var buttonBar : BottomNavigationView
+    private lateinit var navHost : NavHostFragment
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_catalogo)
@@ -20,5 +20,7 @@ class CatalogoActivity : AppCompatActivity() {
         buttonBar = findViewById(R.id.catalogue_bottom_bar)
         NavigationUI.setupWithNavController(buttonBar, navHost.navController)
     }
+
+
 
 }

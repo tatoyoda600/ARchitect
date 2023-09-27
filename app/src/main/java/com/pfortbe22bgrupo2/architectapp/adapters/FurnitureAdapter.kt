@@ -14,7 +14,7 @@ class FurnitureAdapter(
 ) : RecyclerView.Adapter<FurnitureHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FurnitureHolder {
-        val view =  LayoutInflater.from(parent.context).inflate(R.layout.item,parent,false)
+        val view =  LayoutInflater.from(parent.context).inflate(R.layout.furniture_item,parent,false)
         return (FurnitureHolder(view))
     }
 
