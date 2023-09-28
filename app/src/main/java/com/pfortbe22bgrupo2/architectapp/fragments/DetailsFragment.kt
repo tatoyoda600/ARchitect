@@ -9,7 +9,9 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.pfortbe22bgrupo2.architectapp.R
+import com.pfortbe22bgrupo2.architectapp.databinding.FragmentDetailsBinding
 
 class DetailsFragment : Fragment() {
 
@@ -19,28 +21,26 @@ class DetailsFragment : Fragment() {
 
     private lateinit var viewModel: DetailsViewModel
 
-    lateinit var v : View
-    lateinit var arButton : Button
+    private lateinit var binding: FragmentDetailsBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        v = inflater.inflate(R.layout.fragment_details, container, false)
-        arButton = v.findViewById(R.id.details_ar_button)
-        return v
+        binding = FragmentDetailsBinding.inflate(inflater,container,false)
+        return binding.root
     }
 
     override fun onStart() {
         super.onStart()
         val furniture = DetailsFragmentArgs.fromBundle(requireArguments()).furnitureElement
-        val nombre = v.findViewById<TextView>(R.id.detail_textView)
+        val nombre = binding.detailTextView
         nombre.text = furniture.nombre
 
 
-        arButton.setOnClickListener(){
+        binding.detailsArButton.setOnClickListener(){
             val action = DetailsFragmentDirections.actionDetailsFragmentToARTrackingTest()
-            v.findNavController().navigate(action)
+            findNavController().navigate(action)
         }
     }
 

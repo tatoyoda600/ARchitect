@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pfortbe22bgrupo2.architectapp.R
@@ -14,6 +15,7 @@ import com.pfortbe22bgrupo2.architectapp.adapters.FurnitureAdapter
 import com.pfortbe22bgrupo2.architectapp.adapters.PostAdapter
 import com.pfortbe22bgrupo2.architectapp.data.FurnitureList
 import com.pfortbe22bgrupo2.architectapp.data.PostList
+import com.pfortbe22bgrupo2.architectapp.databinding.FragmentForoBinding
 import com.pfortbe22bgrupo2.architectapp.entities.Post
 import com.pfortbe22bgrupo2.architectapp.listeners.ShowDetailsPost
 
@@ -25,7 +27,7 @@ class ForoFragment : Fragment(), ShowDetailsPost {
 
     private lateinit var viewModel: ForoViewModel
 
-    lateinit var v:View
+    private lateinit var binding: FragmentForoBinding
 
     lateinit var postRecycler : RecyclerView
     private lateinit var postAdapter: PostAdapter
@@ -36,14 +38,14 @@ class ForoFragment : Fragment(), ShowDetailsPost {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        v = inflater.inflate(R.layout.fragment_foro, container, false)
-        postRecycler = v.findViewById(R.id.foro_recyclerView)
-        return v
+        binding = FragmentForoBinding.inflate(inflater,container,false)
+        return binding.root
     }
 
     override fun onStart() {
         super.onStart()
 
+        postRecycler = binding.foroRecyclerView
         postRecycler.setHasFixedSize(true)
         linearLayoutManager = LinearLayoutManager(context)
         postRecycler.layoutManager = linearLayoutManager
@@ -60,8 +62,7 @@ class ForoFragment : Fragment(), ShowDetailsPost {
 
     override fun showDetails(posteo: Post) {
         val action = ForoFragmentDirections.actionForoFragmentToForoDetailsFragment(posteo)
-        v.findNavController().navigate(action)
-
+        findNavController().navigate(action)
     }
 
 }

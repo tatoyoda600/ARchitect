@@ -6,14 +6,16 @@
     android:layout_height="match_parent"
     tools:context=".activities.CatalogoActivity">
 
+
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/containerView_catalogue"
         android:name="androidx.navigation.fragment.NavHostFragment"
-        android:layout_width="409dp"
-        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:defaultNavHost="true"
         app:layout_constraintBottom_toTopOf="@+id/catalogue_bottom_bar"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:navGraph="@navigation/button_bar_navgraph" />
@@ -26,6 +28,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/containerView_catalogue"
-        app:menu="@menu/button_bar_menu"/>
+        app:menu="@menu/button_bar_menu" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

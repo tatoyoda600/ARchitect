@@ -3,19 +3,23 @@ package com.pfortbe22bgrupo2.architectapp.entities
 import android.os.Parcel
 import android.os.Parcelable
 
-class Furniture(nombre: String?) : Parcelable{
+class Furniture(nombre: String?, category : String?) : Parcelable{
     var nombre:String = ""
+    var category:String = ""
 
     constructor(parcel: Parcel) : this (
+        parcel.readString(),
         parcel.readString()
     )
 
     init {
         this.nombre = nombre!!
+        this.category = category!!
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(nombre)
+        parcel.writeString(category)
     }
 
     override fun describeContents(): Int {

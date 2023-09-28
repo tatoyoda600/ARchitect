@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.pfortbe22bgrupo2.architectapp.R
+import com.pfortbe22bgrupo2.architectapp.databinding.FragmentForoDetailsBinding
 
 class ForoDetailsFragment : Fragment() {
 
@@ -16,23 +17,21 @@ class ForoDetailsFragment : Fragment() {
     }
 
     private lateinit var viewModel: ForoDetailsViewModel
-    lateinit var v:View
-    lateinit var foroDetailsTextView: TextView
+
+    private lateinit var binding: FragmentForoDetailsBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        v = inflater.inflate(R.layout.fragment_foro_details, container, false)
-        foroDetailsTextView = v.findViewById(R.id.post_details_textView)
-        return v
+        binding = FragmentForoDetailsBinding.inflate(inflater,container,false)
+        return binding.root
     }
 
     override fun onStart() {
         super.onStart()
         val post = ForoDetailsFragmentArgs.fromBundle(requireArguments()).posteo
-        foroDetailsTextView.text = post.posteo
-
+        binding.postDetailsTextView.text = post.posteo
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

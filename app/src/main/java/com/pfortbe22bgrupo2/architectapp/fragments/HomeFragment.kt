@@ -10,6 +10,7 @@ import android.widget.Button
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.pfortbe22bgrupo2.architectapp.R
+import com.pfortbe22bgrupo2.architectapp.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {
 
@@ -18,31 +19,25 @@ class HomeFragment : Fragment() {
     }
 
     private lateinit var viewModel: HomeViewModel
-    lateinit var v : View
-    lateinit var signUpButton : Button
-    lateinit var loginButton : Button
+    private lateinit var binding: FragmentHomeBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        v = inflater.inflate(R.layout.fragment_home, container, false)
-        signUpButton = v.findViewById(R.id.firt_signUp_button)
-        loginButton = v.findViewById(R.id.firt_login_button)
-        return v
+        binding = FragmentHomeBinding.inflate(inflater,container,false)
+        return binding.root
     }
 
     override fun onStart() {
         super.onStart()
-        signUpButton.setOnClickListener(){
+        binding.firtSignUpButton.setOnClickListener(){
             val action = HomeFragmentDirections.actionHomeFragmentToSingUpFragment()
-            //v.findNavController().navigate(action)
-            v.findNavController().navigate(action)
+            findNavController().navigate(action)
         }
-        loginButton.setOnClickListener(){
+        binding.firtLoginButton.setOnClickListener(){
             val action = HomeFragmentDirections.actionHomeFragmentToLoginFragment()
-            //this.findNavController().navigate(action)
-            v.findNavController().navigate(action)
+            findNavController().navigate(action)
         }
 
     }

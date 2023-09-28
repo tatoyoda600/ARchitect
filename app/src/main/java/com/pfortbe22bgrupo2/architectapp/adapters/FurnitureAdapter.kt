@@ -9,7 +9,7 @@ import com.pfortbe22bgrupo2.architectapp.holders.FurnitureHolder
 import com.pfortbe22bgrupo2.architectapp.listeners.ShowDetailsFurniture
 
 class FurnitureAdapter(
-    private val furnitureList : MutableList<Furniture>,
+    private var furnitureList : MutableList<Furniture>,
     private val showDetailsFurniture: ShowDetailsFurniture
 ) : RecyclerView.Adapter<FurnitureHolder>() {
 
@@ -29,5 +29,10 @@ class FurnitureAdapter(
         holder.getCardLayout().setOnClickListener(){
             showDetailsFurniture.showDetails(furnitureList[position])
         }
+    }
+
+    fun updatesFurnitures(furnitureList: List<Furniture>){
+        this.furnitureList = furnitureList.toMutableList()
+        notifyDataSetChanged()
     }
 }
