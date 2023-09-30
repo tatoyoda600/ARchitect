@@ -4,13 +4,19 @@ import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.core.widget.addTextChangedListener
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pfortbe22bgrupo2.architectapp.R
+import com.pfortbe22bgrupo2.architectapp.activities.CatalogoActivity
 import com.pfortbe22bgrupo2.architectapp.adapters.FurnitureAdapter
 import com.pfortbe22bgrupo2.architectapp.adapters.PostAdapter
 import com.pfortbe22bgrupo2.architectapp.data.FurnitureList
@@ -28,7 +34,6 @@ class ForoFragment : Fragment(), ShowDetailsPost {
     private lateinit var viewModel: ForoViewModel
 
     private lateinit var binding: FragmentForoBinding
-
     lateinit var postRecycler : RecyclerView
     private lateinit var postAdapter: PostAdapter
     var posts : PostList = PostList()
@@ -39,18 +44,30 @@ class ForoFragment : Fragment(), ShowDetailsPost {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentForoBinding.inflate(inflater,container,false)
+        val toolbar : Toolbar = binding.foroSearchToolbar
+        (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
+        setHasOptionsMenu(true)
+        (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
+
+        binding.foroSearchEditTextToolbar.addTextChangedListener { postFilter ->
+            startFiltering()
+            val postFiltered = posts.posts.filter {
+                post -> post.posteo.lowercase().contains(postFilter.toString().lowercase())
+            }
+            postAdapter.updatesPost(postFiltered)
+        }
         return binding.root
     }
 
     override fun onStart() {
         super.onStart()
-
         postRecycler = binding.foroRecyclerView
         postRecycler.setHasFixedSize(true)
         linearLayoutManager = LinearLayoutManager(context)
         postRecycler.layoutManager = linearLayoutManager
         postAdapter = PostAdapter(posts.posts,this)
         postRecycler.adapter = postAdapter
+        finishFiltering()
 
     }
 
@@ -63,6 +80,14 @@ class ForoFragment : Fragment(), ShowDetailsPost {
     override fun showDetails(posteo: Post) {
         val action = ForoFragmentDirections.actionForoFragmentToForoDetailsFragment(posteo)
         findNavController().navigate(action)
+    }
+
+    private fun startFiltering() {
+        (activity as? CatalogoActivity)?.setToolbarFiltering(true)
+    }
+
+    fun finishFiltering() {
+        (activity as? CatalogoActivity)?.setToolbarFiltering(false)
     }
 
 }

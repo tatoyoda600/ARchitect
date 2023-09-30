@@ -36,6 +36,12 @@ class CatalogoActivity : AppCompatActivity() {
     private val callback = object  : OnBackPressedCallback(true){
         override fun handleOnBackPressed() {
             val currentFragment = navHost.navController.currentDestination
+            if (currentFragment?.id == R.id.foroFragment)
+                if (isFiltering){
+                    setToolbarFiltering(false)
+                    Toast.makeText(this@CatalogoActivity, "esta entrando al filter del foro, pero no carga la lista original", Toast.LENGTH_SHORT).show()
+                    loadOriginalPotsList()
+                }
             if (currentFragment?.id == R.id.catalogueFragment){
                 if (isFiltering) {
                     setToolbarFiltering(false)
@@ -52,6 +58,11 @@ class CatalogoActivity : AppCompatActivity() {
      private fun loadOriginalCatalogue() {
         val bundle = Bundle()
         navHost.navController.navigate(R.id.catalogueFragment, bundle)
+    }
+
+    private fun loadOriginalPotsList(){
+        val bundle = Bundle()
+        navHost.navController.navigate(R.id.foroFragment, bundle)
     }
 
     fun setToolbarFiltering(isFiltering: Boolean) {

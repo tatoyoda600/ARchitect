@@ -44,12 +44,12 @@ class CatalogueFragment : Fragment(), ShowDetailsFurniture {
     ): View? {
         binding = FragmentCatalogueBinding.inflate(inflater,container,false)
 
-        val toolbar : Toolbar = binding.catalagueSearchToolbar
+        val toolbar : Toolbar = binding.catalogoSearchToolbar
         (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
         setHasOptionsMenu(true)
         (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        binding.searchEditText.addTextChangedListener { fornitureFilter ->
+        binding.searchEditTextToolbar.addTextChangedListener { fornitureFilter ->
             startFiltering()
             val furnitureFiltered = furnitures.furnitures.filter {
                     furniture -> furniture.nombre.lowercase().contains(fornitureFilter.toString().lowercase())
@@ -74,8 +74,6 @@ class CatalogueFragment : Fragment(), ShowDetailsFurniture {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.toolbar_search_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
-
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -113,7 +111,6 @@ class CatalogueFragment : Fragment(), ShowDetailsFurniture {
     }
 
     private fun startFiltering() {
-        // activa el estado de filtrado
         (activity as? CatalogoActivity)?.setToolbarFiltering(true)
     }
 

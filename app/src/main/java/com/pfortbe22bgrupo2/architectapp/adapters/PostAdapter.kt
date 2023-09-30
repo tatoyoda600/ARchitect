@@ -4,13 +4,14 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.pfortbe22bgrupo2.architectapp.R
+import com.pfortbe22bgrupo2.architectapp.entities.Furniture
 import com.pfortbe22bgrupo2.architectapp.entities.Post
 import com.pfortbe22bgrupo2.architectapp.holders.FurnitureHolder
 import com.pfortbe22bgrupo2.architectapp.holders.PostHolder
 import com.pfortbe22bgrupo2.architectapp.listeners.ShowDetailsPost
 
 class PostAdapter(
-    private val postList : MutableList<Post>,
+    private var postList : MutableList<Post>,
     private val showDetailsPost: ShowDetailsPost
 ) : RecyclerView.Adapter<PostHolder>() {
 
@@ -32,5 +33,8 @@ class PostAdapter(
         }
     }
 
-
+    fun updatesPost(postList: List<Post>){
+        this.postList = postList.toMutableList()
+        notifyDataSetChanged()
+    }
 }
