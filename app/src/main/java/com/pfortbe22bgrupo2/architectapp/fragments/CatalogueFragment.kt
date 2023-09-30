@@ -16,6 +16,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pfortbe22bgrupo2.architectapp.R
+import com.pfortbe22bgrupo2.architectapp.activities.CatalogoActivity
 import com.pfortbe22bgrupo2.architectapp.adapters.FurnitureAdapter
 import com.pfortbe22bgrupo2.architectapp.data.FurnitureList
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentCatalogueBinding
@@ -49,6 +50,7 @@ class CatalogueFragment : Fragment(), ShowDetailsFurniture {
         (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
 
         binding.searchEditText.addTextChangedListener { fornitureFilter ->
+            startFiltering()
             val furnitureFiltered = furnitures.furnitures.filter {
                     furniture -> furniture.nombre.lowercase().contains(fornitureFilter.toString().lowercase())
             }
@@ -60,28 +62,33 @@ class CatalogueFragment : Fragment(), ShowDetailsFurniture {
 
     override fun onStart() {
         super.onStart()
-
         furnitureRecycler = binding.catalogueRecyclerView
         furnitureRecycler.setHasFixedSize(true)
         linearLayoutManager = LinearLayoutManager(context)
         furnitureRecycler.layoutManager = linearLayoutManager
         furnitureAdapter = FurnitureAdapter(furnitures.furnitures, this)
         furnitureRecycler.adapter = furnitureAdapter
+        finishFiltering()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.toolbar_search_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
+
+
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_option_filter1 -> {
                 filterDataByCategory("living")
+                startFiltering()
                 true
+
             }
             R.id.menu_option_filter2 -> {
                 filterDataByCategory("habitacion")
+                startFiltering()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -91,6 +98,7 @@ class CatalogueFragment : Fragment(), ShowDetailsFurniture {
     private fun filterDataByCategory(category:String){
         val filteredList = furnitures.furnitures.filter{ item -> item.category.lowercase() == category.lowercase() }
         furnitureAdapter.updatesFurnitures(filteredList)
+
     }
 
     override fun showDetails(furniture: Furniture) {
@@ -104,6 +112,14 @@ class CatalogueFragment : Fragment(), ShowDetailsFurniture {
         // TODO: Use the ViewModel
     }
 
+    private fun startFiltering() {
+        // activa el estado de filtrado
+        (activity as? CatalogoActivity)?.setToolbarFiltering(true)
+    }
+
+    fun finishFiltering() {
+        (activity as? CatalogoActivity)?.setToolbarFiltering(false)
+    }
 
 
 

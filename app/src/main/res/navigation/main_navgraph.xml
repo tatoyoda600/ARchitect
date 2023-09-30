@@ -16,6 +16,9 @@
         <action
             android:id="@+id/action_homeFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_catalogoActivity"
+            app:destination="@id/catalogoActivity" />
     </fragment>
     <fragment
         android:id="@+id/singUpFragment"
@@ -37,12 +40,11 @@
             android:id="@+id/action_loginFragment_to_catalogoActivity"
             app:destination="@id/catalogoActivity"
             app:popUpTo="@id/main_navgraph"
-            app:popUpToInclusive="false" />
+            app:popUpToInclusive="true" />
     </fragment>
     <activity
         android:id="@+id/catalogoActivity"
         android:name="com.pfortbe22bgrupo2.architectapp.activities.CatalogoActivity"
         android:label="activity_catalogo"
         tools:layout="@layout/activity_catalogo" />
-    <include app:graph="@navigation/button_bar_navgraph" />
 </navigation>

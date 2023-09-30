@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.widget.EditText
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.Toolbar
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
@@ -17,43 +19,43 @@ class CatalogoActivity : AppCompatActivity() {
 
     private lateinit var buttonBar : BottomNavigationView
     private lateinit var navHost : NavHostFragment
-
     lateinit var binding : ActivityCatalogoBinding
+    private var isFiltering: Boolean = false
 
-    //private var _binding: FragmentCatalogueBinding? = null
-    //private val binding get() = _binding!!
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //setContentView(R.layout.activity_catalogo)
         binding = ActivityCatalogoBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        //val toolbar: Toolbar = findViewById(R.id.catalogue_toolbar)
-       // val toolbar : Toolbar = binding.catalogueToolbar
-       // setSupportActionBar(toolbar)
-
-
         navHost = supportFragmentManager.findFragmentById(R.id.containerView_catalogue) as NavHostFragment
         buttonBar = findViewById(R.id.catalogue_bottom_bar)
         NavigationUI.setupWithNavController(buttonBar, navHost.navController)
 
+        onBackPressedDispatcher.addCallback(this, callback)
 
-        //val editTextSearch: EditText = binding.editTextSearch
-
-        //editTextSearch.setOnClickListener(){text ->
-         //   binding.
-        //}
-
-        //editTextSearch.setOnTextChangedListener { text ->
-          //  adapter.filter(text)
-        //}
     }
-/*
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
-    }*/
+    private val callback = object  : OnBackPressedCallback(true){
+        override fun handleOnBackPressed() {
+            val currentFragment = navHost.navController.currentDestination
+            if (currentFragment?.id == R.id.catalogueFragment){
+                if (isFiltering) {
+                    setToolbarFiltering(false)
+                    loadOriginalCatalogue()
+                } else {
+                    finishAffinity()
+                }
+            }else{
+                navHost.navController.navigateUp()
+            }
+        }
+    }
 
+     private fun loadOriginalCatalogue() {
+        val bundle = Bundle()
+        navHost.navController.navigate(R.id.catalogueFragment, bundle)
+    }
 
+    fun setToolbarFiltering(isFiltering: Boolean) {
+        this.isFiltering = isFiltering
+    }
 
 }

@@ -20,6 +20,8 @@ class HomeFragment : Fragment() {
 
     private lateinit var viewModel: HomeViewModel
     private lateinit var binding: FragmentHomeBinding
+    //ahora esta harkcodeado a morir
+    var isLogin : Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,6 +39,13 @@ class HomeFragment : Fragment() {
         }
         binding.firtLoginButton.setOnClickListener(){
             val action = HomeFragmentDirections.actionHomeFragmentToLoginFragment()
+            findNavController().navigate(action)
+        }
+
+        //aca habria que guardar referencia al usuario, si esta logeado o no y en base a eso
+        //direccionar al catalogo o al home
+        if (isLogin){
+            val action = HomeFragmentDirections.actionHomeFragmentToCatalogoActivity()
             findNavController().navigate(action)
         }
 
