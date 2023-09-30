@@ -37,11 +37,12 @@
             android:id="@+id/action_loginFragment_to_catalogoActivity"
             app:destination="@id/catalogoActivity"
             app:popUpTo="@id/main_navgraph"
-            app:popUpToInclusive="true" />
+            app:popUpToInclusive="false" />
     </fragment>
     <activity
         android:id="@+id/catalogoActivity"
         android:name="com.pfortbe22bgrupo2.architectapp.activities.CatalogoActivity"
         android:label="activity_catalogo"
         tools:layout="@layout/activity_catalogo" />
+    <include app:graph="@navigation/button_bar_navgraph" />
 </navigation>

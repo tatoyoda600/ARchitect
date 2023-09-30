@@ -20,15 +20,6 @@
         android:label="activity_artracking_test"
         tools:layout="@layout/activity_artracking_test" />
     <fragment
-        android:id="@+id/catalogueFragment"
-        android:name="com.pfortbe22bgrupo2.architectapp.fragments.CatalogueFragment"
-        android:label="fragment_catalogue"
-        tools:layout="@layout/fragment_catalogue" >
-        <action
-            android:id="@+id/action_catalogueFragment_to_detailsFragment"
-            app:destination="@id/detailsFragment" />
-    </fragment>
-    <fragment
         android:id="@+id/detailsFragment"
         android:name="com.pfortbe22bgrupo2.architectapp.fragments.DetailsFragment"
         android:label="fragment_details"
@@ -62,5 +53,14 @@
         <argument
             android:name="posteo"
             app:argType="com.pfortbe22bgrupo2.architectapp.entities.Post" />
+    </fragment>
+    <fragment
+        android:id="@+id/catalogueFragment"
+        android:name="com.pfortbe22bgrupo2.architectapp.fragments.CatalogueFragment"
+        android:label="fragment_catalogue"
+        tools:layout="@layout/fragment_catalogue" >
+        <action
+            android:id="@+id/action_catalogueFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
     </fragment>
 </navigation>
