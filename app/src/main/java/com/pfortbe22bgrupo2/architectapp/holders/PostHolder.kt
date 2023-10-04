@@ -10,20 +10,12 @@ import com.pfortbe22bgrupo2.architectapp.databinding.PostItemBinding
 class PostHolder(v:View) : RecyclerView.ViewHolder(v) {
 
     private val binding = PostItemBinding.bind(v)
-/*
-    private var view = v
-
-    init {
-        this.view = v
-    }*/
 
     fun setPosteo(posteo:String){
         binding.postTextView.text = posteo
-        //this.view.findViewById<TextView>(R.id.post_textView).text = posteo
     }
 
     fun getCardLayout () : CardView {
-        //return view.findViewById(R.id.post_cardView)
         return binding.postCardView
     }
 

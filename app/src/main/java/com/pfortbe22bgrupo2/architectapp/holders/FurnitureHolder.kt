@@ -5,19 +5,18 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.pfortbe22bgrupo2.architectapp.R
+import com.pfortbe22bgrupo2.architectapp.databinding.FurnitureItemBinding
+import com.pfortbe22bgrupo2.architectapp.databinding.PostItemBinding
 
 class FurnitureHolder(v :View) : RecyclerView.ViewHolder(v) {
-    private var view = v
 
-    init {
-        this.view = v
-    }
+    private val binding = FurnitureItemBinding.bind(v)
 
     fun setNombre(nombre:String){
-        this.view.findViewById<TextView>(R.id.furniture_name_textView).text = nombre
+        binding.furnitureNameTextView.text = nombre
     }
 
     fun getCardLayout () : CardView {
-        return view.findViewById(R.id.furniture_cardView)
+        return binding.furnitureCardView
     }
 }
