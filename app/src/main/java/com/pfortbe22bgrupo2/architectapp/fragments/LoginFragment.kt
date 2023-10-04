@@ -13,7 +13,7 @@ import androidx.navigation.fragment.findNavController
 import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentLoginBinding
 
-class LoginFragment : Fragment() {
+class LoginFragment: Fragment() {
 
     companion object {
         fun newInstance() = LoginFragment()
@@ -26,7 +26,7 @@ class LoginFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentLoginBinding.inflate(inflater,container,false)
+        binding = FragmentLoginBinding.inflate(inflater, container,false)
         //loginButton = v.findViewById(R.id.second_login_button)
         //imagenButton = v.findViewById(R.id.login_imagen_button)
         return binding.root
@@ -34,12 +34,12 @@ class LoginFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        binding.secondLoginButton.setOnClickListener(){
+        binding.secondLoginButton.setOnClickListener() {
             val action = LoginFragmentDirections.actionLoginFragmentToCatalogoActivity()
             findNavController().navigate(action)
         }
 
-        binding.loginImagenButton.setOnClickListener(){
+        binding.loginImagenButton.setOnClickListener() {
             findNavController().navigateUp()
         }
     }
@@ -49,7 +49,4 @@ class LoginFragment : Fragment() {
         viewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
         // TODO: Use the ViewModel
     }
-
-
-
 }

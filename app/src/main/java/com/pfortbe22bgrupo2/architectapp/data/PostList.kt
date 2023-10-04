@@ -4,7 +4,7 @@ import com.pfortbe22bgrupo2.architectapp.entities.Post
 
 class PostList {
 
-    var posts : MutableList<Post> = mutableListOf()
+    var posts: MutableList<Post> = mutableListOf()
 
     init {
         posts.add(Post("post 1"))
@@ -23,9 +23,5 @@ class PostList {
         posts.add(Post("post 14"))
         posts.add(Post("post 15"))
         posts.add(Post("post 16"))
-
-
-
-
     }
 }

@@ -5,5 +5,5 @@ import com.pfortbe22bgrupo2.architectapp.entities.Post
 
 interface ShowDetailsPost {
 
-    fun showDetails(posteo : Post)
+    fun showDetails(posteo: Post)
 }

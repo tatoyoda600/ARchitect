@@ -5,10 +5,10 @@
     android:id="@+id/signUp_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.SingUpFragment">
+    tools:context=".fragments.SignUpFragment">
 
     <ImageButton
-        android:id="@+id/singup_imagen_button"
+        android:id="@+id/signup_imagen_button"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:src="@drawable/back_icon"
@@ -20,11 +20,11 @@
         android:id="@+id/textView3"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Sing Up Fragment"
+        android:text="Sign Up Fragment"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/singup_imagen_button" />
+        app:layout_constraintTop_toBottomOf="@+id/signup_imagen_button" />
 
     <LinearLayout
         android:id="@+id/linearLayout3"
@@ -36,11 +36,11 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <Button
-            android:id="@+id/second_singUpbutton"
+            android:id="@+id/second_signUpbutton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Sing Up" />
+            android:text="Sign Up" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

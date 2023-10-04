@@ -4,7 +4,7 @@ import com.pfortbe22bgrupo2.architectapp.entities.Furniture
 
 class FurnitureList {
 
-    var furnitures : MutableList<Furniture> = mutableListOf()
+    var furnitures: MutableList<Furniture> = mutableListOf()
 
     init {
         furnitures.add(Furniture("silla","living"))
@@ -23,8 +23,5 @@ class FurnitureList {
         furnitures.add(Furniture("mesa ratonera","living"))
         furnitures.add(Furniture("sillon 3 piezas","living"))
         furnitures.add(Furniture("cama","habitacion"))
-
     }
-
-
 }
