@@ -4,26 +4,21 @@ import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.widget.addTextChangedListener
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.activities.CatalogoActivity
-import com.pfortbe22bgrupo2.architectapp.adapters.FurnitureAdapter
 import com.pfortbe22bgrupo2.architectapp.adapters.PostAdapter
-import com.pfortbe22bgrupo2.architectapp.data.FurnitureList
 import com.pfortbe22bgrupo2.architectapp.data.PostList
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentForoBinding
 import com.pfortbe22bgrupo2.architectapp.entities.Post
 import com.pfortbe22bgrupo2.architectapp.listeners.ShowDetailsPost
+import com.pfortbe22bgrupo2.architectapp.viewModels.ForoViewModel
 
 class ForoFragment: Fragment(), ShowDetailsPost {
 

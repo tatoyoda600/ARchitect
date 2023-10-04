@@ -1,4 +1,4 @@
-package com.pfortbe22bgrupo2.architectapp.fragments
+package com.pfortbe22bgrupo2.architectapp.viewModels
 
 import androidx.lifecycle.ViewModel
 

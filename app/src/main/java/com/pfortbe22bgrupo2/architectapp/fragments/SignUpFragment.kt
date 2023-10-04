@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentSignUpBinding
+import com.pfortbe22bgrupo2.architectapp.viewModels.SignUpViewModel
 
 class SignUpFragment: Fragment() {
 

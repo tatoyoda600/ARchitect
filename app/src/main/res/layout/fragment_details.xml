@@ -11,7 +11,7 @@
         android:id="@+id/textView5"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Details Fragment"
+        android:text="@string/furniture_details_fragment"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -19,9 +19,8 @@
 
     <TextView
         android:id="@+id/detail_textView"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Furniture"
         app:layout_constraintBottom_toTopOf="@+id/details_ar_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -31,7 +30,7 @@
         android:id="@+id/details_ar_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="AR"
+        android:text="@string/redirect_AR_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

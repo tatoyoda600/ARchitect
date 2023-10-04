@@ -11,7 +11,7 @@
         android:id="@+id/textView6"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Post Details Fragment"
+        android:text="@string/foro_details_fragment"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -20,7 +20,6 @@
         android:id="@+id/post_details_textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Posteo"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

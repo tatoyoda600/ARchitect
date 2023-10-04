@@ -6,11 +6,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentHomeBinding
+import com.pfortbe22bgrupo2.architectapp.viewModels.HomeViewModel
 
 class HomeFragment: Fragment() {
 

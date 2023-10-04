@@ -7,12 +7,11 @@
     android:layout_height="match_parent"
     tools:context=".fragments.EditProfileFragment">
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
         android:id="@+id/textView7"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:text="Edit Profile"
+        android:text="@string/edit_profile_fragment"
         app:layout_constraintBottom_toTopOf="@+id/edit_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,7 +21,7 @@
         android:id="@+id/edit_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Editar"
+        android:text="@string/edit_profile_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -22,6 +22,7 @@ import com.pfortbe22bgrupo2.architectapp.data.FurnitureList
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentCatalogueBinding
 import com.pfortbe22bgrupo2.architectapp.entities.Furniture
 import com.pfortbe22bgrupo2.architectapp.listeners.ShowDetailsFurniture
+import com.pfortbe22bgrupo2.architectapp.viewModels.CatalogueViewModel
 
 
 class CatalogueFragment: Fragment(), ShowDetailsFurniture {

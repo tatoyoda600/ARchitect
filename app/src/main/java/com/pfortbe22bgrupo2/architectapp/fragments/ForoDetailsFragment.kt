@@ -6,9 +6,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentForoDetailsBinding
+import com.pfortbe22bgrupo2.architectapp.viewModels.ForoDetailsViewModel
 
 class ForoDetailsFragment: Fragment() {
 

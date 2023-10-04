@@ -6,12 +6,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageButton
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentLoginBinding
+import com.pfortbe22bgrupo2.architectapp.viewModels.LoginViewModel
 
 class LoginFragment: Fragment() {
 
