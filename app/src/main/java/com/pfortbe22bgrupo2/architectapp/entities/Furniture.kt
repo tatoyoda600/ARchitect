@@ -3,11 +3,11 @@ package com.pfortbe22bgrupo2.architectapp.entities
 import android.os.Parcel
 import android.os.Parcelable
 
-class Furniture(nombre: String?, category : String?) : Parcelable{
+class Furniture(nombre: String?, category: String?): Parcelable{
     var nombre:String = ""
     var category:String = ""
 
-    constructor(parcel: Parcel) : this (
+    constructor(parcel: Parcel): this (
         parcel.readString(),
         parcel.readString()
     )
@@ -26,7 +26,7 @@ class Furniture(nombre: String?, category : String?) : Parcelable{
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<Furniture> {
+    companion object CREATOR: Parcelable.Creator<Furniture> {
         override fun createFromParcel(parcel: Parcel): Furniture {
             return Furniture(parcel)
         }

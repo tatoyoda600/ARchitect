@@ -24,7 +24,7 @@ import com.pfortbe22bgrupo2.architectapp.entities.Furniture
 import com.pfortbe22bgrupo2.architectapp.listeners.ShowDetailsFurniture
 
 
-class CatalogueFragment : Fragment(), ShowDetailsFurniture {
+class CatalogueFragment: Fragment(), ShowDetailsFurniture {
 
     companion object {
         fun newInstance() = CatalogueFragment()
@@ -32,33 +32,32 @@ class CatalogueFragment : Fragment(), ShowDetailsFurniture {
 
     private lateinit var viewModel: CatalogueViewModel
 
-    private lateinit var binding : FragmentCatalogueBinding
-    lateinit var furnitureRecycler : RecyclerView
-    private lateinit var furnitureAdapter : FurnitureAdapter
-    var furnitures : FurnitureList = FurnitureList()
+    private lateinit var binding: FragmentCatalogueBinding
+    lateinit var furnitureRecycler: RecyclerView
+    private lateinit var furnitureAdapter: FurnitureAdapter
+    var furnitures: FurnitureList = FurnitureList()
     private lateinit var linearLayoutManager: LinearLayoutManager
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentCatalogueBinding.inflate(inflater,container,false)
+        binding = FragmentCatalogueBinding.inflate(inflater, container,false)
 
-        val toolbar : Toolbar = binding.catalogoSearchToolbar
+        val toolbar: Toolbar = binding.catalogoSearchToolbar
         (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
         setHasOptionsMenu(true)
         (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        binding.searchEditTextToolbar.addTextChangedListener { fornitureFilter ->
+        binding.searchEditTextToolbar.addTextChangedListener { furnitureFilter ->
             startFiltering()
             val furnitureFiltered = furnitures.furnitures.filter {
-                    furniture -> furniture.nombre.lowercase().contains(fornitureFilter.toString().lowercase())
+                    furniture -> furniture.nombre.lowercase().contains(furnitureFilter.toString().lowercase())
             }
             furnitureAdapter.updatesFurnitures(furnitureFiltered)
         }
         return binding.root
     }
-
 
     override fun onStart() {
         super.onStart()
@@ -82,7 +81,6 @@ class CatalogueFragment : Fragment(), ShowDetailsFurniture {
                 filterDataByCategory("living")
                 startFiltering()
                 true
-
             }
             R.id.menu_option_filter2 -> {
                 filterDataByCategory("habitacion")
@@ -93,10 +91,9 @@ class CatalogueFragment : Fragment(), ShowDetailsFurniture {
         }
     }
 
-    private fun filterDataByCategory(category:String){
+    private fun filterDataByCategory(category:String) {
         val filteredList = furnitures.furnitures.filter{ item -> item.category.lowercase() == category.lowercase() }
         furnitureAdapter.updatesFurnitures(filteredList)
-
     }
 
     override fun showDetails(furniture: Furniture) {
@@ -117,7 +114,4 @@ class CatalogueFragment : Fragment(), ShowDetailsFurniture {
     fun finishFiltering() {
         (activity as? CatalogoActivity)?.setToolbarFiltering(false)
     }
-
-
-
 }

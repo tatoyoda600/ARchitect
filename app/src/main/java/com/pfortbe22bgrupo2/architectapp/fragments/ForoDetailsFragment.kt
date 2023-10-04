@@ -10,7 +10,7 @@ import android.widget.TextView
 import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentForoDetailsBinding
 
-class ForoDetailsFragment : Fragment() {
+class ForoDetailsFragment: Fragment() {
 
     companion object {
         fun newInstance() = ForoDetailsFragment()
@@ -24,7 +24,7 @@ class ForoDetailsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentForoDetailsBinding.inflate(inflater,container,false)
+        binding = FragmentForoDetailsBinding.inflate(inflater, container,false)
         return binding.root
     }
 
@@ -39,5 +39,4 @@ class ForoDetailsFragment : Fragment() {
         viewModel = ViewModelProvider(this).get(ForoDetailsViewModel::class.java)
         // TODO: Use the ViewModel
     }
-
 }

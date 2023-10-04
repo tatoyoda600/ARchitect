@@ -4,10 +4,10 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.compose.runtime.currentComposer
 
-class Post (posteo:String?) : Parcelable {
+class Post (posteo:String?): Parcelable {
     var posteo:String =""
 
-    constructor(parcel: Parcel) : this(
+    constructor(parcel: Parcel): this(
         parcel.readString()
     )
 
@@ -23,7 +23,7 @@ class Post (posteo:String?) : Parcelable {
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<Post> {
+    companion object CREATOR: Parcelable.Creator<Post> {
         override fun createFromParcel(parcel: Parcel): Post {
             return Post(parcel)
         }

@@ -25,7 +25,7 @@ import com.pfortbe22bgrupo2.architectapp.databinding.FragmentForoBinding
 import com.pfortbe22bgrupo2.architectapp.entities.Post
 import com.pfortbe22bgrupo2.architectapp.listeners.ShowDetailsPost
 
-class ForoFragment : Fragment(), ShowDetailsPost {
+class ForoFragment: Fragment(), ShowDetailsPost {
 
     companion object {
         fun newInstance() = ForoFragment()
@@ -34,9 +34,9 @@ class ForoFragment : Fragment(), ShowDetailsPost {
     private lateinit var viewModel: ForoViewModel
 
     private lateinit var binding: FragmentForoBinding
-    lateinit var postRecycler : RecyclerView
+    lateinit var postRecycler: RecyclerView
     private lateinit var postAdapter: PostAdapter
-    var posts : PostList = PostList()
+    var posts: PostList = PostList()
     private lateinit var linearLayoutManager: LinearLayoutManager
 
     override fun onCreateView(
@@ -44,7 +44,7 @@ class ForoFragment : Fragment(), ShowDetailsPost {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentForoBinding.inflate(inflater,container,false)
-        val toolbar : Toolbar = binding.foroSearchToolbar
+        val toolbar: Toolbar = binding.foroSearchToolbar
         (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
         setHasOptionsMenu(true)
         (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
@@ -89,5 +89,4 @@ class ForoFragment : Fragment(), ShowDetailsPost {
     fun finishFiltering() {
         (activity as? CatalogoActivity)?.setToolbarFiltering(false)
     }
-
 }

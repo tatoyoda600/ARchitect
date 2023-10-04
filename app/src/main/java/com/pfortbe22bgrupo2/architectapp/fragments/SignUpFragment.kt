@@ -6,47 +6,41 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageButton
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import com.pfortbe22bgrupo2.architectapp.R
-import com.pfortbe22bgrupo2.architectapp.databinding.FragmentSingUpBinding
+import com.pfortbe22bgrupo2.architectapp.databinding.FragmentSignUpBinding
 
-class SingUpFragment : Fragment() {
+class SignUpFragment: Fragment() {
 
     companion object {
-        fun newInstance() = SingUpFragment()
+        fun newInstance() = SignUpFragment()
     }
 
-    private lateinit var viewModel: SingUpViewModel
-
-    private lateinit var binding: FragmentSingUpBinding
+    private lateinit var viewModel: SignUpViewModel
+    private lateinit var binding: FragmentSignUpBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentSingUpBinding.inflate(inflater,container,false)
+        binding = FragmentSignUpBinding.inflate(inflater,container,false)
         return binding.root
     }
 
     override fun onStart() {
         super.onStart()
-        binding.secondSingUpbutton.setOnClickListener(){
-            val action = SingUpFragmentDirections.actionSingUpFragmentToLoginFragment()
+        binding.secondSignUpbutton.setOnClickListener() {
+            val action = SignUpFragmentDirections.actionSingUpFragmentToLoginFragment()
             findNavController().navigate(action)
         }
 
-        binding.singupImagenButton.setOnClickListener(){
+        binding.signupImagenButton.setOnClickListener() {
             findNavController().navigateUp()
         }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(SingUpViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(SignUpViewModel::class.java)
         // TODO: Use the ViewModel
     }
-
 }
