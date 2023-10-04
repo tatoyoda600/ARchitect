@@ -27,7 +27,7 @@ class CatalogoActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityCatalogoBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val navHost: NavHostFragment = binding.containerViewCatalogue as NavHostFragment
+        val navHost: NavHostFragment = binding.containerViewCatalogue.getFragment() as NavHostFragment
         navController = navHost.navController
         buttonBar = binding.catalogueBottomBar
         NavigationUI.setupWithNavController(buttonBar, navController)
