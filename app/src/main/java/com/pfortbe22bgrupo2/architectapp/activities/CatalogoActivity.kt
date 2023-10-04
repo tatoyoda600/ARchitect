@@ -2,19 +2,14 @@ package com.pfortbe22bgrupo2.architectapp.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.Menu
-import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.widget.Toolbar
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.databinding.ActivityCatalogoBinding
-import com.pfortbe22bgrupo2.architectapp.databinding.ActivityMainBinding
-import com.pfortbe22bgrupo2.architectapp.databinding.FragmentCatalogueBinding
 
 class CatalogoActivity: AppCompatActivity() {
 
@@ -27,8 +22,12 @@ class CatalogoActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityCatalogoBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val navHost: NavHostFragment = binding.containerViewCatalogue as NavHostFragment
-        navController = navHost.navController
+        //Aca no va "binding" porque despues no lo puede castear a "NavHostFragment y da error
+        //val navHost: NavHostFragment = binding.containerViewCatalogue as NavHostFragment
+        //navController = navHost.navController
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.containerView_catalogue) as NavHostFragment
+        navController = navHostFragment.navController
+
         buttonBar = binding.catalogueBottomBar
         NavigationUI.setupWithNavController(buttonBar, navController)
 

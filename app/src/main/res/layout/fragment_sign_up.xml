@@ -20,7 +20,7 @@
         android:id="@+id/textView3"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/login"
+        android:text="@string/sign_up_"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -40,7 +40,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/login" />
+            android:text="@string/sign_up_" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
