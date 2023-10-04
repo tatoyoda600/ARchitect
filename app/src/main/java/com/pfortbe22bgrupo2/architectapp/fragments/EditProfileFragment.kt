@@ -12,7 +12,7 @@ import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentEditProfileBinding
 
 
-class EditProfileFragment : Fragment() {
+class EditProfileFragment: Fragment() {
 
     private lateinit var binding: FragmentEditProfileBinding
 
@@ -20,16 +20,15 @@ class EditProfileFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentEditProfileBinding.inflate(inflater,container,false)
+        binding = FragmentEditProfileBinding.inflate(inflater, container,false)
         return binding.root
     }
 
     override fun onStart() {
         super.onStart()
-        binding.editButton.setOnClickListener(){
+        binding.editButton.setOnClickListener() {
             //Acciones para editar el perdil del usuario
             findNavController().navigateUp()
         }
     }
-
 }

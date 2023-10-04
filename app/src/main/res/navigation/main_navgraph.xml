@@ -22,9 +22,9 @@
     </fragment>
     <fragment
         android:id="@+id/singUpFragment"
-        android:name="com.pfortbe22bgrupo2.architectapp.fragments.SingUpFragment"
+        android:name="com.pfortbe22bgrupo2.architectapp.fragments.SignUpFragment"
         android:label="fragment_sing_up"
-        tools:layout="@layout/fragment_sing_up" >
+        tools:layout="@layout/fragment_sign_up" >
         <action
             android:id="@+id/action_singUpFragment_to_loginFragment"
             app:destination="@id/loginFragment"

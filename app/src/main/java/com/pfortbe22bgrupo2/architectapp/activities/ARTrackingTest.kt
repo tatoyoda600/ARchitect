@@ -23,7 +23,7 @@ private const val MIN_NEIGHBORS = 3
 private const val CLEAN_UP_CELL_MIN_POINTS = 2 // Cells with less than this many points will be emptied
 private const val CLEAN_UP_CELL_MAX_POINTS = 4 // Cells with more than this many points will be culled
 
-class ARTrackingTest : AppCompatActivity() {
+class ARTrackingTest: AppCompatActivity() {
     class Point(
         val id: Int,
         val position: Position
@@ -67,7 +67,7 @@ class ARTrackingTest : AppCompatActivity() {
             Log.d("Stats", "Points: ${pointIds.size}}")
             Log.d("Stats", "Confirmed Points: ${confirmedPoints.size}}")
 
-            val pointCloud : PointCloud = arFrame.frame.acquirePointCloud()
+            val pointCloud: PointCloud = arFrame.frame.acquirePointCloud()
             if (pointCloud.ids != null && pointCloud.timestamp != lastFrame?.frame?.timestamp) {
                 lastFrame = arFrame
 

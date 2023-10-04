@@ -12,7 +12,7 @@ import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentProfileBinding
 
 
-class ProfileFragment : Fragment() {
+class ProfileFragment: Fragment() {
 
     private lateinit var binding: FragmentProfileBinding
 
@@ -21,17 +21,16 @@ class ProfileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = FragmentProfileBinding.inflate(inflater,container,false)
+        binding = FragmentProfileBinding.inflate(inflater, container,false)
         //editButton = v.findViewById(R.id.edit_profile_button)
         return binding.root
     }
 
     override fun onStart() {
         super.onStart()
-        binding.editProfileButton.setOnClickListener(){
+        binding.editProfileButton.setOnClickListener() {
             val action = ProfileFragmentDirections.actionProfileFragmentToEditProfileFragment()
             findNavController().navigate(action)
         }
     }
-
 }

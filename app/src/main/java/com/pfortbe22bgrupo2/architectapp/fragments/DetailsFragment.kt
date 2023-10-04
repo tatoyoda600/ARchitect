@@ -13,7 +13,7 @@ import androidx.navigation.fragment.findNavController
 import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentDetailsBinding
 
-class DetailsFragment : Fragment() {
+class DetailsFragment: Fragment() {
 
     companion object {
         fun newInstance() = DetailsFragment()
@@ -27,7 +27,7 @@ class DetailsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentDetailsBinding.inflate(inflater,container,false)
+        binding = FragmentDetailsBinding.inflate(inflater, container,false)
         return binding.root
     }
 
@@ -38,7 +38,7 @@ class DetailsFragment : Fragment() {
         nombre.text = furniture.nombre
 
 
-        binding.detailsArButton.setOnClickListener(){
+        binding.detailsArButton.setOnClickListener() {
             val action = DetailsFragmentDirections.actionDetailsFragmentToARTrackingTest()
             findNavController().navigate(action)
         }
