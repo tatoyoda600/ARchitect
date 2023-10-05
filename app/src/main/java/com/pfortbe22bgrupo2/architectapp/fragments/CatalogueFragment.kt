@@ -34,9 +34,8 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
     private lateinit var viewModel: CatalogueViewModel
 
     private lateinit var binding: FragmentCatalogueBinding
-    lateinit var furnitureRecycler: RecyclerView
     private lateinit var furnitureAdapter: FurnitureAdapter
-    var furnitures: FurnitureList = FurnitureList()
+    private var furnitures: FurnitureList = FurnitureList()
     private lateinit var linearLayoutManager: LinearLayoutManager
 
     override fun onCreateView(
@@ -44,12 +43,25 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentCatalogueBinding.inflate(inflater, container,false)
+        return binding.root
+    }
 
+    private fun initToolbar(){
         val toolbar: Toolbar = binding.catalogoSearchToolbar
         (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
         setHasOptionsMenu(true)
         (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
+    }
 
+    override fun onStart() {
+        super.onStart()
+        initToolbar()
+        initSearchToolbar()
+        initRecyclerView()
+        finishFiltering()
+    }
+
+    private fun initSearchToolbar(){
         binding.searchEditTextToolbar.addTextChangedListener { furnitureFilter ->
             startFiltering()
             val furnitureFiltered = furnitures.furnitures.filter {
@@ -57,18 +69,13 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
             }
             furnitureAdapter.updatesFurnitures(furnitureFiltered)
         }
-        return binding.root
     }
-
-    override fun onStart() {
-        super.onStart()
-        furnitureRecycler = binding.catalogueRecyclerView
-        furnitureRecycler.setHasFixedSize(true)
+    private fun initRecyclerView(){
+        binding.catalogueRecyclerView.setHasFixedSize(true)
         linearLayoutManager = LinearLayoutManager(context)
-        furnitureRecycler.layoutManager = linearLayoutManager
+        binding.catalogueRecyclerView.layoutManager = linearLayoutManager
         furnitureAdapter = FurnitureAdapter(furnitures.furnitures, this)
-        furnitureRecycler.adapter = furnitureAdapter
-        finishFiltering()
+        binding.catalogueRecyclerView.adapter = furnitureAdapter
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

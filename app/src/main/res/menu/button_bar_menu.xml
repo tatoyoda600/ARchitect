@@ -15,12 +15,7 @@
         android:title="AR"
         android:icon="@drawable/ar_icon"
         />
-    <item
-        android:id="@+id/foroFragment"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:title="Foro"
-        android:icon="@drawable/foro_icon"/>
+
     <item
         android:id="@+id/catalogueFragment"
         android:layout_width="wrap_content"
