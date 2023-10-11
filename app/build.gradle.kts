@@ -2,6 +2,8 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("androidx.navigation.safeargs.kotlin")
+    /*id("com.android.application")*/
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -55,11 +57,11 @@ dependencies {
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
-    val nav_version = "2.7.3"
+    val nav_version = "2.7.4"
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.9.0")
+    implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
@@ -77,5 +79,10 @@ dependencies {
 
     // ARCore and SceneView (Androidx version of Sceneform: https://github.com/SceneView/sceneview-android)
     implementation("io.github.sceneview:arsceneview:0.10.2")
+
+    implementation("androidx.viewpager2:viewpager2:1.0.0")
+
+    implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
+    implementation("com.google.firebase:firebase-analytics-ktx")
 
 }

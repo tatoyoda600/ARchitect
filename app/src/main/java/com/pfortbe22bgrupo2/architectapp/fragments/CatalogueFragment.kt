@@ -14,13 +14,12 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.widget.addTextChangedListener
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.activities.CatalogoActivity
 import com.pfortbe22bgrupo2.architectapp.adapters.FurnitureAdapter
 import com.pfortbe22bgrupo2.architectapp.data.FurnitureList
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentCatalogueBinding
-import com.pfortbe22bgrupo2.architectapp.entities.Furniture
+import com.pfortbe22bgrupo2.architectapp.models.Furniture
 import com.pfortbe22bgrupo2.architectapp.listeners.ShowDetailsFurniture
 import com.pfortbe22bgrupo2.architectapp.viewModels.CatalogueViewModel
 

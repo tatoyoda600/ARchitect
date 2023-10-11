@@ -1,9 +1,9 @@
-package com.pfortbe22bgrupo2.architectapp.entities
+package com.pfortbe22bgrupo2.architectapp.models
 
 import android.os.Parcel
 import android.os.Parcelable
 
-class Furniture(nombre: String?, category: String?): Parcelable{
+class Furniture(name: String?, category: String?): Parcelable{
     var nombre:String = ""
     var category:String = ""
 
@@ -13,7 +13,7 @@ class Furniture(nombre: String?, category: String?): Parcelable{
     )
 
     init {
-        this.nombre = nombre!!
+        this.nombre = name!!
         this.category = category!!
     }
 

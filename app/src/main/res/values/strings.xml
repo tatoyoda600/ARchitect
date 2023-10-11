@@ -14,7 +14,9 @@
     <string name="sign_up_">Registrarse</string>
     <string name="login">Iniciar Secion</string>
     <string name="login_fragment">Log In</string>
-    <string name="profile_fragment">Perfil del Usuario</string>
+    <string name="saved_design">Diseños Guardados</string>
+    <string name="custom_wall">Paredes Custom Guardados</string>
+
 
 
 </resources>
