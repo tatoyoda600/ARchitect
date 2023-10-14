@@ -1,10 +1,12 @@
-package com.pfortbe22bgrupo2.architectapp
+package com.pfortbe22bgrupo2.architectapp.activities
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.pfortbe22bgrupo2.architectapp.R
+import com.pfortbe22bgrupo2.architectapp.Render3D
 import com.pfortbe22bgrupo2.architectapp.databinding.ActivityArModelBinding
 import io.github.sceneview.ar.ArSceneView
 

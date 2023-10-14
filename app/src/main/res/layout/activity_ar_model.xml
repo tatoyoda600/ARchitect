@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#302F2F"
-    tools:context=".AR_Model">
+    tools:context=".activities.AR_Model">
 
 
     <io.github.sceneview.ar.ArSceneView

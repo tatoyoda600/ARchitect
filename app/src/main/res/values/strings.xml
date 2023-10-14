@@ -23,4 +23,5 @@
     <string name="HomeFragment">Home Page</string>
     <string name="hello_view_node">Hello ViewNode</string>
     <string name="put">Colocar</string>
+    <string name="profile_fragment">Profile Name</string>
 </resources>

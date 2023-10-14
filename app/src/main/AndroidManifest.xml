@@ -23,7 +23,7 @@
         android:theme="@style/Theme.ARchitect"
         tools:targetApi="31">
         <activity
-            android:name=".AR_Model"
+            android:name=".activities.AR_Model"
             android:exported="false" />
         <activity
             android:name=".activities.CatalogoActivity"
@@ -35,7 +35,7 @@
             android:value="required" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:configChanges="orientation|screenSize"
             android:exported="true"
             android:screenOrientation="locked">
