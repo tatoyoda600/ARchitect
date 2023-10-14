@@ -2,6 +2,24 @@
     <string name="app_name">ARchitect</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="search_toolbar">Buscar</string>
+    <string name="catalogue_fragment">Catalogo de Productos</string>
+    <string name="furniture_details_fragment">Detalles del Producto</string>
+    <string name="redirect_AR_button">AR</string>
+    <string name="edit_profile_fragment">Editar Perfil</string>
+    <string name="edit_profile_button">Editar</string>
+    <string name="foro_fragment">Foro</string>
+    <string name="foro_details_fragment">Detalles del Posteo</string>
+    <string name="home_fragment">Home</string>
+    <string name="sign_up_">Registrarse</string>
+    <string name="login">Iniciar Secion</string>
+    <string name="login_fragment">Log In</string>
+    <string name="saved_design">Diseños Guardados</string>
+    <string name="custom_wall">Paredes Custom Guardados</string>
+
+
+
     <string name="HomeFragment">Home Page</string>
     <string name="hello_view_node">Hello ViewNode</string>
     <string name="put">Colocar</string>
