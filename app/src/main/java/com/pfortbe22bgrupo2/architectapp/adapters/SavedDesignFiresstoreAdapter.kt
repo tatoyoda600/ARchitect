@@ -2,28 +2,22 @@ package com.pfortbe22bgrupo2.architectapp.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
-import com.pfortbe22bgrupo2.architectapp.databinding.FurnitureItemBinding
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter
+import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.pfortbe22bgrupo2.architectapp.databinding.SavedDesignItemBinding
-import com.pfortbe22bgrupo2.architectapp.holders.FurnitureHolder
 import com.pfortbe22bgrupo2.architectapp.holders.SavedDesignHolder
 import com.pfortbe22bgrupo2.architectapp.models.SavedDesign
 
-class SavedDesignAdapter(
-    private var savedDesignList: MutableList<SavedDesign>
-): RecyclerView.Adapter<SavedDesignHolder>() {
+class SavedDesignFiresstoreAdapter(
+    private val options: FirestoreRecyclerOptions<SavedDesign>
+): FirestoreRecyclerAdapter<SavedDesign,SavedDesignHolder>(options) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SavedDesignHolder {
         val binding = SavedDesignItemBinding.inflate(LayoutInflater.from(parent.context),parent,false)
         return (SavedDesignHolder(binding))
     }
 
-    override fun getItemCount(): Int = savedDesignList.size
-
-
-    override fun onBindViewHolder(holder: SavedDesignHolder, position: Int) {
-        holder.setDescription(savedDesignList[position].description)
-
-
+    override fun onBindViewHolder(holder: SavedDesignHolder, position: Int, model: SavedDesign) {
+        holder.setDescription(model.description)
     }
 }

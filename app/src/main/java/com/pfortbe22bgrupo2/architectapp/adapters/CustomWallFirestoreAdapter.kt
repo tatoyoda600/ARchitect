@@ -9,7 +9,7 @@ import com.pfortbe22bgrupo2.architectapp.holders.CustomWallHolder
 import com.pfortbe22bgrupo2.architectapp.models.CustomWall
 
 class CustomWallFirestoreAdapter(
-    options: FirestoreRecyclerOptions<CustomWall>
+    private val options: FirestoreRecyclerOptions<CustomWall>
 ): FirestoreRecyclerAdapter<CustomWall,CustomWallHolder>(options) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomWallHolder {
