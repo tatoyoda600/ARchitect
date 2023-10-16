@@ -32,7 +32,7 @@ class HomeFragment: Fragment() {
     override fun onStart() {
         super.onStart()
         binding.firstSignUpButton.setOnClickListener() {
-            val action = HomeFragmentDirections.actionHomeFragmentToSingUpFragment()
+            val action = HomeFragmentDirections.actionHomeFragmentToSignUpFragment()
             findNavController().navigate(action)
         }
         binding.firstLoginButton.setOnClickListener() {

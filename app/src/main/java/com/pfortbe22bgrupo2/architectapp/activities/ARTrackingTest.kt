@@ -16,9 +16,8 @@ class ARTrackingTest: AppCompatActivity() {
         binding = ActivityArtrackingTestBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        arTracking = ARTracking(5)
+        arTracking = ARTracking(5, binding.sceneView)
         arTracking.setup(
-            binding.sceneView,
             arTracking::pointScanning,
             arTracking::onConfirmedPoint
         )

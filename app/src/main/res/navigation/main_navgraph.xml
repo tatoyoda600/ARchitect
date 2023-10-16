@@ -11,8 +11,8 @@
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" >
         <action
-            android:id="@+id/action_homeFragment_to_singUpFragment"
-            app:destination="@id/singUpFragment" />
+            android:id="@+id/action_homeFragment_to_signUpFragment"
+            app:destination="@id/signUpFragment" />
         <action
             android:id="@+id/action_homeFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
@@ -21,14 +21,14 @@
             app:destination="@id/catalogoActivity" />
     </fragment>
     <fragment
-        android:id="@+id/singUpFragment"
+        android:id="@+id/signUpFragment"
         android:name="com.pfortbe22bgrupo2.architectapp.fragments.SignUpFragment"
         android:label="fragment_sing_up"
         tools:layout="@layout/fragment_sign_up" >
         <action
-            android:id="@+id/action_singUpFragment_to_loginFragment"
+            android:id="@+id/action_signUpFragment_to_loginFragment"
             app:destination="@id/loginFragment"
-            app:popUpTo="@id/singUpFragment"
+            app:popUpTo="@id/signUpFragment"
             app:popUpToInclusive="true" />
     </fragment>
     <fragment
