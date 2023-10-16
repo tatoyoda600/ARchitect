@@ -7,9 +7,13 @@ import dev.romainguy.kotlin.math.Float3
 import io.github.sceneview.ar.ArSceneView
 import io.github.sceneview.ar.arcore.ArFrame
 import io.github.sceneview.math.Position
+import io.github.sceneview.math.Rotation
 import io.github.sceneview.math.toVector3
+import io.github.sceneview.node.Node
 import kotlin.math.abs
 import kotlin.math.sign
+
+private const val CONFIRMED_POINT_MODEL = "models/square.glb"
 
 private const val MAX_CHECKS_PER_SECOND = 5
 private const val MAX_EXCESS_POINTS = 5000
@@ -23,24 +27,42 @@ private const val CLEAN_UP_CELL_MIN_POINTS = 2 // Cells with less than this many
 private const val CLEAN_UP_CELL_MAX_POINTS = 4 // Cells with more than this many points will be culled
 private const val MIN_FLOOR_POINTS = 20
 private const val CONFIRMED_POINTS_FLOOR_CHECK_STEP = 50
-private const val ONE_POINT_PER_CELL = false // Points that fall into an occupied cell are discarded (Confirmed points will replace unconfirmed points)
+private const val ONE_POINT_PER_CELL = true // Points that fall into an occupied cell are discarded (Confirmed points will replace unconfirmed points)
 
-class Point(
+open class Point(
     val id: Int,
     val position: Position
 )
+
+class ModelPoint(
+    val model: Node,
+    id: Int,
+    position: Position
+): Point(id, position)
 
 class Int3(
     val x: Int,
     val y: Int,
     val z: Int,
-)
+) {
+    operator fun plus(other: Int3): Int3 { return Int3(x + other.x, y + other.y, z + other.z) }
+    fun toFloat3(): Float3 { return Float3(x.toFloat(), y.toFloat(), z.toFloat()) }
+}
 
 class Outline(
     val points: List<List<Position>>
 )
 
+class Floor(
+    // Boolean is temporary, there should be a more useful value to store per floor cell
+    val grid: MutableMap<Int, MutableMap<Int, Boolean>>,
+    val height: Int
+)
+
 class ARTracking {
+    private val renderer: Render3D
+    private val sceneView: ArSceneView
+
     private val ChecksPerSecond: Int
     private var lastFrame: ArFrame? = null
     private var lastExcessCleanUpStep = 0
@@ -57,19 +79,21 @@ class ARTracking {
     private val points = mutableMapOf<Int,MutableMap<Int,MutableMap<Int,MutableList<Point>>>>()
     // Currently new points that have enough neighbors are marked as confirmed
     // Points that get neighbors added afterwards are not added
-    private val confirmedPoints = mutableListOf<Point>()
+    private val confirmedPoints = mutableListOf<ModelPoint>()
 
-    constructor(checksPerSecond: Int) {
+    constructor(checksPerSecond: Int, sceneView: ArSceneView) {
         ChecksPerSecond = Math.min(checksPerSecond, MAX_CHECKS_PER_SECOND)
+        this.sceneView = sceneView
+        renderer = Render3D(sceneView)
     }
 
     fun setup(
-        sceneView: ArSceneView,
         frameUpdateFunction: (ArFrame) -> Unit,
         onConfirmedPointFunction: (Point) -> Unit
     ) {
         this.frameUpdateFunction = frameUpdateFunction
         this.onConfirmedPointFunction = onConfirmedPointFunction
+        val supportsDepth = sceneView.arSession != null && sceneView.arSession!!.isDepthModeSupported(Config.DepthMode.AUTOMATIC)
 
         sceneView.apply {
             lightEstimationMode = Config.LightEstimationMode.DISABLED
@@ -77,9 +101,9 @@ class ARTracking {
             instantPlacementEnabled = true
             planeRenderer.isEnabled = false
             environment = null
-            isDepthOcclusionEnabled = true
-            depthMode = Config.DepthMode.AUTOMATIC
-            planeFindingMode = Config.PlaneFindingMode.HORIZONTAL_AND_VERTICAL
+            isDepthOcclusionEnabled = supportsDepth
+            depthMode = if (supportsDepth) Config.DepthMode.AUTOMATIC else Config.DepthMode.DISABLED
+            planeFindingMode = Config.PlaneFindingMode.HORIZONTAL
             onArFrame = this@ARTracking::onArFrame
             onArTrackingFailureChanged = { reason ->
                 Log.w("ARTracking", reason.toString())
@@ -127,6 +151,45 @@ class ARTracking {
         }
     }
 
+    /*
+    /** Displays the depth texture of the camera to an ImageView */
+    fun rawDepth(arFrame: ArFrame) {
+        if (curImage != null)
+            curImage?.close()
+
+        try {
+            // Depth image is in uint16, at GPU aspect ratio, in native orientation.
+            arFrame.frame.acquireRawDepthImage16Bits().use { rawDepth ->
+                curImage = rawDepth
+
+                // Confidence image is in uint8, matching the depth image size.
+                arFrame.frame.acquireRawDepthConfidenceImage().use { rawDepthConfidence ->
+                    // Compare timestamps to determine whether depth is is based on new
+                    // depth data, or is a reprojection based on device movement.
+                    val thisFrameHasNewDepthData = arFrame.frame.timestamp == rawDepth.timestamp
+                    if (thisFrameHasNewDepthData) {
+                        val depthData = rawDepth.planes[0].buffer
+                        val confidenceData = rawDepthConfidence.planes[0].buffer
+                        val width = rawDepth.width
+                        val height = rawDepth.height
+
+                        val buffer: ByteBuffer = depthData
+
+                        if (imageView != null) {
+                            var bytes = ByteArray(buffer.remaining())
+                            buffer.get(bytes)
+                            val myBitmap: Bitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.size,null);
+                            imageView?.setImageBitmap(myBitmap)
+                        }
+                    }
+                }
+            }
+        } catch (e: NotYetAvailableException) {
+            // Depth image is not (yet) available.
+        }
+    }
+    */
+
     fun pointScanning(arFrame: ArFrame) {
         if (!setup) {
             Log.e("ARTracking", "ARTracking not set up correctly")
@@ -153,8 +216,6 @@ class ARTracking {
                         val point = Point(pointCloud.ids[i], position)
                         if (addPoint(point) >= MIN_NEIGHBORS) {
                             if (!useFloorHeight || convertAxisToIndex(position.y) == floorHeight) {
-                                confirmedPoints += point
-
                                 onConfirmedPointFunction(point)
                             }
                         }
@@ -182,11 +243,23 @@ class ARTracking {
     fun onConfirmedPoint(point: Point) {
         Log.w("ARTracking Stats", "Confirmed Points: ${point.position}")
 
+        confirmedPoints += ModelPoint(
+            renderer.render(
+                modelPath = CONFIRMED_POINT_MODEL,
+                position = convertPosToIndexes(point.position).toFloat3() / DICT_COORD_ZOOM.toFloat(),
+                rotation = Rotation()
+            ),
+            point.id,
+            point.position
+        )
+
         if (confirmedPoints.size > lastConfirmedFloorCheckStep + CONFIRMED_POINTS_FLOOR_CHECK_STEP) {
             lastConfirmedFloorCheckStep += CONFIRMED_POINTS_FLOOR_CHECK_STEP
             val floor = calculateFloorHeight()
             if (floor.second > MIN_FLOOR_POINTS) {
                 floorHeight = floor.first
+                useFloorHeight = true
+                clearNonFloorPoints()
                 Log.w("ARTracking Stats", "Floor Height: ${floorHeight}")
             }
         }
@@ -347,6 +420,7 @@ class ARTracking {
                     // Remove the point
                     pointIds.remove(confirmedPoints.get(point).id)
                     points.get(pointIndex.x)?.get(pointIndex.y)?.get(pointIndex.z)?.removeAll { it.id == confirmedPoints.get(point).id }
+                    confirmedPoints.get(point).model.destroy()
                     confirmedPoints.removeAt(point)
                     cleanUpCount++
                     break
@@ -388,6 +462,7 @@ class ARTracking {
                         // Remove the point
                         pointIds.remove(confirmedPoints[point].id)
                         points.get(pointIndex.x)?.get(pointIndex.y)?.get(pointIndex.z)?.removeAt(p)
+                        confirmedPoints.get(point).model.destroy()
                         confirmedPoints.removeAt(point)
                         cleanUpCount++
                         break
@@ -609,4 +684,33 @@ class ARTracking {
         return null
     }
 
+    fun calculateFloorGrid(outline: Outline): Floor {
+        var grid = mutableMapOf<Int, MutableMap<Int, Boolean>>()
+        for (l in outline.points) {
+            for (p in l) {
+                grid.getOrPut(convertAxisToIndex(p.x)) {mutableMapOf()}
+                    .getOrPut(convertAxisToIndex(p.z)) {true}
+            }
+        }
+
+        var recursiveFill: (Int,Int) -> Unit = { x: Int, y: Int -> }
+        recursiveFill = { x: Int, z: Int ->
+            if (grid.get(x)?.get(z) == null) {
+                grid.getOrPut(x) {mutableMapOf()}
+                    .getOrPut(z) {true}
+                recursiveFill(x + 1, z)
+                recursiveFill(x - 1, z)
+                recursiveFill(x, z + 1)
+                recursiveFill(x, z - 1)
+            }
+        }
+
+        val firstCell: Position = outline.points.get(0).get(0)
+        val firstDir: Position = outline.points.get(0).get(1) - firstCell
+        val left: Int3 = Int3(-sign(firstDir.z).toInt(), 0, sign(firstDir.x).toInt())
+        val startCell: Int3 = convertPosToIndexes(firstCell) + left
+        recursiveFill(startCell.x, startCell.z)
+
+        return Floor(grid, floorHeight)
+    }
 }

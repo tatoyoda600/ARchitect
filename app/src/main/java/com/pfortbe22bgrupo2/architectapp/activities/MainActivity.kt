@@ -8,7 +8,6 @@ import com.pfortbe22bgrupo2.architectapp.R
 
 import com.pfortbe22bgrupo2.architectapp.databinding.ActivityMainBinding
 
-
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var binding: ActivityMainBinding
     private lateinit var bottomNavigationView: BottomNavigationView
@@ -27,7 +26,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 R.id.ItemHome -> {}
 
                 R.id.Item3D -> {
-                    startActivity(Intent(applicationContext, AR_Model::class.java))
+                    startActivity(Intent(applicationContext, ARTrackingTest::class.java))
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
                     finish()
                 }

@@ -30,7 +30,7 @@ class SignUpFragment: Fragment() {
     override fun onStart() {
         super.onStart()
         binding.secondSignUpbutton.setOnClickListener() {
-            val action = SignUpFragmentDirections.actionSingUpFragmentToLoginFragment()
+            val action = SignUpFragmentDirections.actionSignUpFragmentToLoginFragment()
             findNavController().navigate(action)
         }
 
