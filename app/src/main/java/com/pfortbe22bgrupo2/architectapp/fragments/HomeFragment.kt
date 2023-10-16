@@ -1,12 +1,15 @@
 package com.pfortbe22bgrupo2.architectapp.fragments
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentHomeBinding
 import com.pfortbe22bgrupo2.architectapp.viewModels.HomeViewModel
 
@@ -18,6 +21,7 @@ class HomeFragment: Fragment() {
 
     private lateinit var viewModel: HomeViewModel
     private lateinit var binding: FragmentHomeBinding
+    private lateinit var auth: FirebaseAuth
     //ahora esta harkcodeado a morir
     var isLogin: Boolean = false
 
@@ -26,6 +30,7 @@ class HomeFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentHomeBinding.inflate(inflater, container,false)
+        auth = Firebase.auth
         return binding.root
     }
 
@@ -42,10 +47,11 @@ class HomeFragment: Fragment() {
 
         //aca habria que guardar referencia al usuario, si esta logeado o no y en base a eso
         //direccionar al catalogo o al home
-        if (isLogin) {
+ /*        val currentUser = auth.currentUser
+        if (currentUser != null) {
             val action = HomeFragmentDirections.actionHomeFragmentToCatalogoActivity()
             findNavController().navigate(action)
-        }
+        }*/
 
     }
 
