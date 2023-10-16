@@ -13,6 +13,12 @@
         <action
             android:id="@+id/action_profileFragment_to_editProfileFragment"
             app:destination="@id/editProfileFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_savedDesignsFragment"
+            app:destination="@id/savedDesignsFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_designWallContainerFragment"
+            app:destination="@id/designWallContainerFragment" />
     </fragment>
     <activity
         android:id="@+id/ARTrackingTest"
@@ -29,13 +35,8 @@
             app:destination="@id/ARTrackingTest" />
         <argument
             android:name="furniture_element"
-            app:argType="com.pfortbe22bgrupo2.architectapp.entities.Furniture" />
+            app:argType="com.pfortbe22bgrupo2.architectapp.models.Furniture" />
     </fragment>
-    <fragment
-        android:id="@+id/editProfileFragment"
-        android:name="com.pfortbe22bgrupo2.architectapp.fragments.EditProfileFragment"
-        android:label="fragment_edit_profile"
-        tools:layout="@layout/fragment_edit_profile" />
     <fragment
         android:id="@+id/catalogueFragment"
         android:name="com.pfortbe22bgrupo2.architectapp.fragments.CatalogueFragment"
@@ -45,4 +46,19 @@
             android:id="@+id/action_catalogueFragment_to_detailsFragment"
             app:destination="@id/detailsFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.pfortbe22bgrupo2.architectapp.fragments.EditProfileFragment"
+        android:label="fragment_edit_profile"
+        tools:layout="@layout/fragment_edit_profile" />
+    <fragment
+        android:id="@+id/savedDesignsFragment"
+        android:name="com.pfortbe22bgrupo2.architectapp.fragments.SavedDesignsFragment"
+        android:label="fragment_designs_saved"
+        tools:layout="@layout/fragment_designs_saved" />
+    <fragment
+        android:id="@+id/designWallContainerFragment"
+        android:name="com.pfortbe22bgrupo2.architectapp.fragments.DesignWallContainerFragment"
+        android:label="fragment_design_wall_container"
+        tools:layout="@layout/fragment_design_wall_container" />
 </navigation>
