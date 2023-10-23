@@ -81,4 +81,5 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
     implementation("com.google.firebase:firebase-analytics-ktx")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")
 }

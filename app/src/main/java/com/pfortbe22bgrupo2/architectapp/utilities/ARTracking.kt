@@ -14,20 +14,24 @@ import kotlin.math.abs
 import kotlin.math.sign
 
 private const val CONFIRMED_POINT_MODEL = "models/square.glb"
+private const val OUTLINE_POINT_MODEL = "models/outline_square.glb"
 
+private const val ONE_POINT_PER_CELL = true // Points that fall into an occupied cell are discarded (Confirmed points will replace unconfirmed points)
 private const val MAX_CHECKS_PER_SECOND = 5
-private const val MAX_EXCESS_POINTS = 5000
+private const val MAX_EXCESS_POINTS = ONE_POINT_PER_CELL.compareTo(false) * 3000 + (1 - ONE_POINT_PER_CELL.compareTo(false)) * 5000 // Kotlin doesn't allow preprocessing branches for constants
 private const val EXCESS_POINTS_CLEAN_UP_STEP = 1000
 private const val CONFIRMED_POINTS_CLEAN_UP_STEP = 500
 private const val MIN_CONFIDENCE = 0.5
-private const val DICT_COORD_ZOOM = 10
-private const val MAX_DISTANCE = 0.1f
+private const val DICT_COORD_ZOOM = 10 // Equivalent to ~10cm (1u ~= 1m)
+private const val MAX_CELL_DISTANCE = 1
+private const val MAX_DISTANCE = MAX_CELL_DISTANCE.toFloat() / DICT_COORD_ZOOM.toFloat()
 private const val MIN_NEIGHBORS = 3
+private const val FLOOR_HEIGHT_CELL_LEEWAY = 1 // Make use of points that aren't at the floor height, but are close enough and have a lot of neighbors
+private const val FLOOR_LEEWAY_MIN_NEIGHBORS = 5
 private const val CLEAN_UP_CELL_MIN_POINTS = 2 // Cells with less than this many points will be emptied
 private const val CLEAN_UP_CELL_MAX_POINTS = 4 // Cells with more than this many points will be culled
 private const val MIN_FLOOR_POINTS = 20
 private const val CONFIRMED_POINTS_FLOOR_CHECK_STEP = 50
-private const val ONE_POINT_PER_CELL = true // Points that fall into an occupied cell are discarded (Confirmed points will replace unconfirmed points)
 
 open class Point(
     val id: Int,
@@ -35,7 +39,7 @@ open class Point(
 )
 
 class ModelPoint(
-    val model: Node,
+    var model: Node,
     id: Int,
     position: Position
 ): Point(id, position)
@@ -46,6 +50,8 @@ class Int3(
     val z: Int,
 ) {
     operator fun plus(other: Int3): Int3 { return Int3(x + other.x, y + other.y, z + other.z) }
+    operator fun minus(other: Int3): Int3 { return Int3(x - other.x, y - other.y, z - other.z) }
+    override operator fun equals(other: Any?): Boolean { return (other is Int3) && x == other.x && y == other.y && z == other.z }
     fun toFloat3(): Float3 { return Float3(x.toFloat(), y.toFloat(), z.toFloat()) }
 }
 
@@ -70,10 +76,12 @@ class ARTracking {
     private var lastConfirmedFloorCheckStep = 0
 
     private var setup: Boolean = false
+    private var paused: Boolean = false
     private var useFloorHeight = false
     private var floorHeight = Int.MAX_VALUE
-    private lateinit var onConfirmedPointFunction: (Point) -> Unit
     private lateinit var frameUpdateFunction: (ArFrame) -> Unit
+    private lateinit var onConfirmedPointFunction: (Point) -> Unit
+    private lateinit var onFloorDetectedFunction: () -> Unit
 
     private val pointIds = mutableListOf<Int>()
     private val points = mutableMapOf<Int,MutableMap<Int,MutableMap<Int,MutableList<Point>>>>()
@@ -89,10 +97,12 @@ class ARTracking {
 
     fun setup(
         frameUpdateFunction: (ArFrame) -> Unit,
-        onConfirmedPointFunction: (Point) -> Unit
+        onConfirmedPointFunction: (Point) -> Unit,
+        onFloorDetectedFunction: () -> Unit = fun(){}
     ) {
         this.frameUpdateFunction = frameUpdateFunction
         this.onConfirmedPointFunction = onConfirmedPointFunction
+        this.onFloorDetectedFunction = onFloorDetectedFunction
         val supportsDepth = sceneView.arSession != null && sceneView.arSession!!.isDepthModeSupported(Config.DepthMode.AUTOMATIC)
 
         sceneView.apply {
@@ -111,6 +121,22 @@ class ARTracking {
         }
 
         setup = true
+    }
+
+    fun reset() {
+        lastExcessCleanUpStep = 0
+        lastConfirmedCleanUpStep = 0
+        lastConfirmedFloorCheckStep = 0
+        paused = false
+        //sceneView.arSession?.resume()
+        useFloorHeight = false
+        floorHeight = Int.MAX_VALUE
+        pointIds.clear()
+        points.clear()
+        for (p in confirmedPoints) {
+            p.model.destroy()
+        }
+        confirmedPoints.clear()
     }
 
     fun findFirstConfirmedPointInCell(cellIndex: Int3): Int? {
@@ -143,7 +169,7 @@ class ARTracking {
     }
 
     private fun onArFrame(arFrame: ArFrame) {
-        if (arFrame.fps(lastFrame) < ChecksPerSecond) {
+        if (arFrame.fps(lastFrame) < ChecksPerSecond && !paused) {
             Log.d("ARTracking Stats", "Points: ${pointIds.size}}")
             Log.d("ARTracking Stats", "Confirmed Points: ${confirmedPoints.size}}")
 
@@ -212,11 +238,36 @@ class ARTracking {
                     val confidence = pointCloud.points[index + 3]
 
                     if (confidence > MIN_CONFIDENCE) {
-                        pointIds += pointCloud.ids[i]
-                        val point = Point(pointCloud.ids[i], position)
-                        if (addPoint(point) >= MIN_NEIGHBORS) {
-                            if (!useFloorHeight || convertAxisToIndex(position.y) == floorHeight) {
+                        if (!useFloorHeight || convertAxisToIndex(position.y) == floorHeight) {
+                            val point = Point(pointCloud.ids[i], position)
+                            if (addPoint(point) >= MIN_NEIGHBORS) {
                                 onConfirmedPointFunction(point)
+                            }
+                        }
+                        // Not at floor height
+                        else {
+                            // Within leeway range
+                            if (convertAxisToIndex(abs(convertAxisToIndex(position.y) - floorHeight).toFloat()) < FLOOR_HEIGHT_CELL_LEEWAY) {
+                                position.y = floorHeight.toFloat()
+                                val point = Point(pointCloud.ids[i], position)
+                                if (addPoint(point, leeway = true) >= FLOOR_LEEWAY_MIN_NEIGHBORS) {
+                                    onConfirmedPointFunction(point)
+                                }
+                                else {
+                                    var keys = convertPosToIndexes(position)
+
+                                    clearExcessPoints(keys.x, keys.y, keys.z)
+
+                                    if ((points.get(keys.x)?.get(keys.y)?.get(keys.z)?.size ?: 0) == 0) {
+                                        points.get(keys.x)?.get(keys.y)?.remove(keys.z)
+                                        if ((points.get(keys.x)?.get(keys.y)?.size ?: 0) == 0) {
+                                            points.get(keys.x)?.remove(keys.y)
+                                            if ((points.get(keys.x)?.size ?: 0) == 0) {
+                                                points.remove(keys.x)
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -260,17 +311,19 @@ class ARTracking {
                 floorHeight = floor.first
                 useFloorHeight = true
                 clearNonFloorPoints()
+                onFloorDetectedFunction()
                 Log.w("ARTracking Stats", "Floor Height: ${floorHeight}")
             }
         }
     }
 
-    fun addPoint(point: Point): Int {
+    fun addPoint(point: Point, leeway: Boolean = false): Int {
         if (!setup) {
             Log.e("ARTracking", "ARTracking not set up correctly")
             return -1
         }
 
+        pointIds += point.id
         val position = point.position
         val pointIndex = convertPosToIndexes(position)
         val cellPoints = points.get(pointIndex.x)?.get(pointIndex.y)?.get(pointIndex.z)
@@ -278,9 +331,9 @@ class ARTracking {
         // If each cell is limited to 1 point and the cell for this point already contains a point
         if (ONE_POINT_PER_CELL && (cellPoints?.size?: 0) > 0) {
             // If the point in the cell is not a confirmed point
-            if (confirmedPoints.find { it.id == cellPoints?.get(0)?.id } == null) {
+            if (confirmedPoints.find { it.id == cellPoints?.elementAtOrNull(0)?.id } == null) {
                 // Remove the point in the cell
-                pointIds.remove(cellPoints?.get(0)?.id)
+                pointIds.remove(cellPoints?.elementAtOrNull(0)?.id)
                 points.get(pointIndex.x)?.get(pointIndex.y)?.get(pointIndex.z)?.removeAt(0)
             }
             // If the point in the cell is a confirmed point
@@ -299,7 +352,7 @@ class ARTracking {
         for (p in cellPoints?: emptyList()) {
             if ((p.position.xyz - position.xyz).toVector3().length() < MAX_DISTANCE) {
                 neighborCount++
-                if (neighborCount >= MIN_NEIGHBORS) return neighborCount
+                if ((leeway && neighborCount > FLOOR_LEEWAY_MIN_NEIGHBORS) || neighborCount >= MIN_NEIGHBORS) return neighborCount
             }
         }
 
@@ -309,13 +362,38 @@ class ARTracking {
                     for (p in cellPoints?: emptyList()) {
                         if ((p.position.xyz - position.xyz).toVector3().length() < MAX_DISTANCE) {
                             neighborCount++
-                            if (neighborCount >= MIN_NEIGHBORS) return neighborCount
+                            if ((leeway && neighborCount > FLOOR_LEEWAY_MIN_NEIGHBORS) || neighborCount >= MIN_NEIGHBORS) return neighborCount
                         }
                     }
                 }
             }
         }
         return neighborCount
+    }
+
+    fun deleteEmptyCells() {
+        for (xi in (points.keys.size?: 0) - 1 downTo 0) {
+            val xKey = points.keys.elementAt(xi)
+
+            for (yi in (points.get(xKey)?.keys?.size?: 0) - 1 downTo 0) {
+                val yKey = points.get(xKey)?.keys?.elementAt(yi)
+
+                for (zi in (points.get(xKey)?.get(yKey)?.keys?.size?: 0) - 1 downTo 0) {
+                    val zKey = points.get(xKey)?.get(yKey)?.keys?.elementAt(zi)
+                    if ((points.get(xKey)?.get(yKey)?.get(zKey)?.size?: 0) == 0) {
+                        points.get(xKey)?.get(yKey)?.remove(zKey)
+                    }
+                }
+
+                if ((points.get(xKey)?.get(yKey)?.size ?: 0) == 0) {
+                    points.get(xKey)?.remove(yKey)
+                }
+            }
+
+            if ((points.get(xKey)?.size ?: 0) == 0) {
+                points.remove(xKey)
+            }
+        }
     }
 
     fun cleanUpCells(pointDelete: (Int,Int,Int) -> Int): Int {
@@ -328,29 +406,34 @@ class ARTracking {
         // Iterate through every cell in the dictionary
         for (xKey in points.keys) {
             for (yKey in points.get(xKey)?.keys?: mutableSetOf()) {
-                val yDict = points.get(xKey)?.get(yKey)
-
-                for (zKey in yDict?.keys?: mutableSetOf()) {
+                for (zKey in points.get(xKey)?.get(yKey)?.keys?: mutableSetOf()) {
                     cleanUpCount += pointDelete(xKey, yKey, zKey)
-                }
-
-                for (zKey in (yDict?.keys?.size?: -1)downTo 0) {
-                    if ((yDict?.get(zKey)?.size ?: 0) == 0) {
-                        points.get(xKey)?.get(yKey)?.remove(zKey)
-                    }
-                }
-            }
-
-            for (yKey in (points.get(xKey)?.keys?.size?: -1)downTo 0) {
-                if ((points.get(xKey)?.get(yKey)?.size ?: 0) == 0) {
-                    points.get(xKey)?.remove(yKey)
                 }
             }
         }
 
-        for (xKey in points.keys.size downTo 0) {
+        deleteEmptyCells()
+
+        for (xi in (points.keys.size?: 0) - 1 downTo 0) {
+            val xKey = points.keys.elementAt(xi)
+
+            for (yi in (points.get(xKey)?.keys?.size?: 0) - 1 downTo 0) {
+                val yKey = points.get(xKey)?.keys?.elementAt(yi)
+
+                for (zi in (points.get(xKey)?.get(yKey)?.keys?.size?: 0) - 1 downTo 0) {
+                    val zKey = points.get(xKey)?.get(yKey)?.keys?.elementAt(zi)
+                    if ((points.get(xKey)?.get(yKey)?.get(zKey)?.size?: 0) == 0) {
+                        Log.e("DELETION ERROR", "Cell [${xKey}, ${yKey}, ${zKey}] is empty")
+                    }
+                }
+
+                if ((points.get(xKey)?.get(yKey)?.size ?: 0) == 0) {
+                    Log.e("DELETION ERROR", "Cell [${xKey}, ${yKey}, *] is empty")
+                }
+            }
+
             if ((points.get(xKey)?.size ?: 0) == 0) {
-                points.remove(xKey)
+                Log.e("DELETION ERROR", "Cell [${xKey}, *] is empty")
             }
         }
 
@@ -423,14 +506,7 @@ class ARTracking {
                     confirmedPoints.get(point).model.destroy()
                     confirmedPoints.removeAt(point)
                     cleanUpCount++
-                    break
                 }
-            }
-        }
-
-        for (xKey in points.keys.size downTo 0) {
-            if ((points.get(xKey)?.size ?: 0) == 0) {
-                points.remove(xKey)
             }
         }
 
@@ -471,23 +547,27 @@ class ARTracking {
             }
         }
 
-        // Remove all cells with Y different from the floor height, and all floor height cells that ended up empty
-        for (xKey in points.keys) {
-            for (yKey in (points.get(xKey)?.keys?.size?: -1)downTo 0) {
+        // Remove all cells with Y different from the floor height
+        for (xi in (points.keys.size?: 0) -1 downTo 0) {
+            val xKey = points.keys.elementAt(xi)
+
+            for (yi in (points.get(xKey)?.keys?.size?: 0) -1 downTo 0) {
+                val yKey = points.get(xKey)?.keys?.elementAt(yi)
+
                 if (yKey != floorHeight) {
-                    points.get(xKey)?.remove(yKey)
-                }
-                else {
-                    for (zKey in (points.get(xKey)?.get(floorHeight)?.keys?.size?: -1)downTo 0) {
-                        if ((points.get(xKey)?.get(floorHeight)?.get(zKey)?.size ?: 0) == 0) {
-                            points.get(xKey)?.get(floorHeight)?.remove(zKey)
+                    for (zi in (points.get(xKey)?.get(yKey)?.keys?.size?: 0) -1 downTo 0) {
+                        val zKey = points.get(xKey)?.get(yKey)?.keys?.elementAt(zi)
+                        if ((points.get(xKey)?.get(yKey)?.get(zKey)?.size?: 0) -1 == 0) {
+                            points.get(xKey)?.get(yKey)?.remove(zKey)
                         }
+                    }
+
+                    if ((points.get(xKey)?.get(yKey)?.size ?: 0) == 0) {
+                        points.get(xKey)?.remove(yKey)
                     }
                 }
             }
-        }
 
-        for (xKey in points.keys.size downTo 0) {
             if ((points.get(xKey)?.size ?: 0) == 0) {
                 points.remove(xKey)
             }
@@ -554,8 +634,12 @@ class ARTracking {
             Log.e("ARTracking", "Floor outline requires the floor height to be active")
             return Outline(emptyList())
         }
+        paused = true
+        //sceneView.arSession?.pause()
 
         clearNonFloorPoints()
+
+        // TODO("MAKE THIS FUNCTION NOT FREEZE EVERYTHING")
 
         val minX = Int3(
             points.keys.min(),
@@ -563,7 +647,7 @@ class ARTracking {
             points.get(points.keys.min())?.get(floorHeight)?.keys?.first() ?: Int.MAX_VALUE
         )
         val maxX = Int3(
-            points.keys.min(),
+            points.keys.max(),
             floorHeight,
             points.get(points.keys.max())?.get(floorHeight)?.keys?.first() ?: Int.MAX_VALUE
         )
@@ -619,11 +703,13 @@ class ARTracking {
             Int3(+1,0,0)
         )
 
+        paused = false
+        //sceneView.arSession?.resume()
         return Outline(listOf(pointList1, pointList2, pointList3, pointList4))
     }
 
     private fun findConnectedPoints(startingCell: Int3, startingDirection: Int3): List<Position> {
-        val startPoint: Point? = points.get(startingCell.x)?.get(startingCell.y)?.get(startingCell.z)?.get(0)
+        val startPoint: Point? = points.get(startingCell.x)?.get(startingCell.y)?.get(startingCell.z)?.first()
         if (startPoint != null) {
             val pointList = mutableListOf<Position>()
 
@@ -636,12 +722,14 @@ class ARTracking {
 
             while (nextPoint != null) {
                 pointList.add(nextPoint.position)
+                Log.d("NextPoint", "Next Point: ${nextPoint.position.toString()}")
                 if (convertAxisToIndex(nextPoint.position.x) == startIndex.x && convertAxisToIndex(nextPoint.position.z) == startIndex.z) {
                     // Looped around back to the starting point
                     break
                 }
-                val dir = nextPoint.position - prevPoint.position
-                direction = Int3(sign(dir.x).toInt(), 0, sign(dir.y).toInt())
+                val dir = convertPosToIndexes(nextPoint.position) - convertPosToIndexes(prevPoint.position)
+
+                direction = Int3(dir.x.sign, 0, dir.z.sign)
                 prevPoint = nextPoint
                 nextPoint = nextConnectedPoint(prevPoint, direction)
             }
@@ -685,6 +773,8 @@ class ARTracking {
     }
 
     fun calculateFloorGrid(outline: Outline): Floor {
+        TODO("MAKE THIS FUNCTION NOT CRASH THE APP")
+
         var grid = mutableMapOf<Int, MutableMap<Int, Boolean>>()
         for (l in outline.points) {
             for (p in l) {
@@ -705,12 +795,25 @@ class ARTracking {
             }
         }
 
-        val firstCell: Position = outline.points.get(0).get(0)
-        val firstDir: Position = outline.points.get(0).get(1) - firstCell
+        val firstCell: Position = outline.points.first().first()
+        val firstDir: Position = outline.points.first().get(1) - firstCell
         val left: Int3 = Int3(-sign(firstDir.z).toInt(), 0, sign(firstDir.x).toInt())
         val startCell: Int3 = convertPosToIndexes(firstCell) + left
         recursiveFill(startCell.x, startCell.z)
 
         return Floor(grid, floorHeight)
+    }
+
+    fun colorPoint(point: Position) {
+        val modelPoint: ModelPoint? = confirmedPoints.find { convertPosToIndexes(it.position) == convertPosToIndexes(point) }
+        if (modelPoint != null) {
+            val newModel: Node = renderer.render(
+                modelPath = OUTLINE_POINT_MODEL,
+                position = modelPoint.model.position,
+                rotation = modelPoint.model.rotation
+            )
+            modelPoint.model.destroy()
+            modelPoint.model = newModel
+        }
     }
 }

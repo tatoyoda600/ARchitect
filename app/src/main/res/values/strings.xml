@@ -24,4 +24,8 @@
     <string name="hello_view_node">Hello ViewNode</string>
     <string name="put">Colocar</string>
     <string name="profile_fragment">Profile Name</string>
+
+
+    <string name="rescan_floor">Rescan</string>
+    <string name="confirm_floor">Confirm</string>
 </resources>
