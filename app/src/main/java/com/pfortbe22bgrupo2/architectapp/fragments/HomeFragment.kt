@@ -7,9 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentHomeBinding
 import com.pfortbe22bgrupo2.architectapp.viewModels.HomeViewModel
 
@@ -21,37 +18,43 @@ class HomeFragment: Fragment() {
 
     private lateinit var viewModel: HomeViewModel
     private lateinit var binding: FragmentHomeBinding
-    private lateinit var auth: FirebaseAuth
-    //ahora esta harkcodeado a morir
-    var isLogin: Boolean = false
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentHomeBinding.inflate(inflater, container,false)
-        auth = Firebase.auth
         return binding.root
     }
 
     override fun onStart() {
         super.onStart()
-        binding.firstSignUpButton.setOnClickListener() {
+/*        binding.firstSignUpButton.setOnClickListener() {
             val action = HomeFragmentDirections.actionHomeFragmentToSingUpFragment()
             findNavController().navigate(action)
         }
         binding.firstLoginButton.setOnClickListener() {
             val action = HomeFragmentDirections.actionHomeFragmentToLoginFragment()
             findNavController().navigate(action)
-        }
-
-        //aca habria que guardar referencia al usuario, si esta logeado o no y en base a eso
-        //direccionar al catalogo o al home
- /*        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            val action = HomeFragmentDirections.actionHomeFragmentToCatalogoActivity()
-            findNavController().navigate(action)
         }*/
+
+        binding.customButton.setOnClickListener {
+            val x = view?.x
+            val width = view?.width
+
+            if (x!! < width!! / 2) {
+                val action = HomeFragmentDirections.actionHomeFragmentToSingUpFragment()
+                findNavController().navigate(action)
+                // Clic en la parte izquierda del botón
+                // Realiza la acción de registro aquí
+            } else {
+                val action = HomeFragmentDirections.actionHomeFragmentToLoginFragment()
+                findNavController().navigate(action)
+                // Clic en la parte derecha del botón
+                // Realiza la acción de inicio de sesión aquí
+            }
+        }
 
     }
 

@@ -1,6 +1,7 @@
 package com.pfortbe22bgrupo2.architectapp.fragments
 
 import android.content.ContentValues.TAG
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,6 +19,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.pfortbe22bgrupo2.architectapp.R
+import com.pfortbe22bgrupo2.architectapp.activities.MainActivity
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentProfileBinding
 
 
@@ -56,7 +58,6 @@ class ProfileFragment: Fragment() {
                         binding.profileUserTextView.text = userName
                         binding.profileEmailTextView.text = currentUser.email
                         Log.d(TAG, "DocumentSnapshot data: ${document.data}")
-                        Log.d(TAG, "DocumentSnapshot data nombre DEL usuario: ${userName}")
                     } else {
                         Log.d(TAG, "No such document")
                     }
@@ -90,6 +91,13 @@ class ProfileFragment: Fragment() {
                 navToSavedDesigns()
                 true
             }
+            R.id.logout_item -> {
+                auth.signOut()
+                val intent = Intent(requireActivity(), MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -99,7 +107,6 @@ class ProfileFragment: Fragment() {
         findNavController().navigate(action)
     }
     private fun navToSavedDesigns(){
-        //val action = ProfileFragmentDirections.actionProfileFragmentToSavedDesignsFragment()
         val action = ProfileFragmentDirections.actionProfileFragmentToDesignWallContainerFragment()
         findNavController().navigate(action)
     }

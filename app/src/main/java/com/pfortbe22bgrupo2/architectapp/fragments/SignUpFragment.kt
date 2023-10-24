@@ -7,7 +7,6 @@ import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -56,22 +55,31 @@ class SignUpFragment: Fragment() {
         val email = binding.registerEmailEditText.text.toString()
         val userName = binding.registerUserNameEditText.text.toString()
         val password = binding.resgisterPasswordEditText.text.toString()
+        val repeatPassword = binding.resgisterRepeatPasswordEditText.text.toString()
         if (!email.isEmpty() || !password.isEmpty() || !userName.isEmpty()) {
             if (userName.length >= 6) {
                 if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                     if (password.length >= 6){
-                        registerUser()
+                        if(password == repeatPassword){
+                            registerUser()
+                        }else{
+                            binding.resgisterPasswordEditText.error = "Contraseñas Diferentes"
+                            binding.resgisterRepeatPasswordEditText.error = "Contraseñas Diferentes"
+                        }
                     }else{
-                        Toast.makeText(requireActivity(), "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show()
+                        binding.resgisterPasswordEditText.error = "6 Caracteres como Minimo"
                     }
                 }else{
-                    Toast.makeText(requireContext(), "Correo electrónico inválido", Toast.LENGTH_SHORT).show()
+                    binding.registerEmailEditText.error = "Correo electrónico inválido"
                 }
             }else{
-                Toast.makeText(requireContext(), "El nombre de usuario debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show()
+                binding.registerUserNameEditText.error = "6 Caracteres como Minimo"
             }
         }else{
-            Toast.makeText(requireActivity(), "Los capos son obligatorios", Toast.LENGTH_SHORT).show()
+            binding.registerUserNameEditText.error = "Campo Obligatorio"
+            binding.registerEmailEditText.error = "Campo Obligatorio"
+            binding.resgisterPasswordEditText.error = "Campo Obligatorio"
+            binding.resgisterRepeatPasswordEditText.error = "Campo Obligatorio"
         }
     }
 
@@ -82,17 +90,13 @@ class SignUpFragment: Fragment() {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(requireActivity()) { task ->
                 if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
                     Log.d(ContentValues.TAG, "createUserWithEmail:success")
                     val user = auth.currentUser
                     val userUid: String = user?.uid ?: ""
                     addUserToFirestore(email, userName, userUid)
                     goToLoginFragment()
                 } else {
-                    // If sign in fails, display a message to the user.
                     Log.w(ContentValues.TAG, "createUserWithEmail:failure", task.exception)
-                    //Toast.makeText(requireActivity(), "Authentication failed.", Toast.LENGTH_SHORT,).show()
-                    //updateUI(null)
                 }
             }
     }
@@ -106,9 +110,10 @@ class SignUpFragment: Fragment() {
         val user = hashMapOf(
             "email" to email,
             "userName" to userName,
-            "id" to userUid
+            "id" to userUid,
+            "isAdmin" to false
         )
-        val newUserRef = db.collection("users").document(userUid).set(user)
+        db.collection("users").document(userUid).set(user)
     }
 
 

@@ -19,8 +19,19 @@
     <string name="email">Email</string>
     <string name="user_name">Nombre de Usuario</string>
     <string name="password">Contraseña</string>
+    <string name="repeat_password">Repetir Contraseña</string>
     <string name="profile_fragment">Perfil del Usuario</string>
     <string name="welcome">¡BIENVENIDO!</string>
+    <string name="logout">Cerrar Sesion</string>
+    <string name="forgot_password">¿Olvidaste tu Contraseña?</string>
+    <string name="send_email">Enviar Email</string>
+    <string name="send_email_text">Verificar con tu email el cambio de contraseña.</string>
+    <string name="living">Living</string>
+    <string name="main_room">Habitacion</string>
+    <string name="kitchen">Cocina</string>
+    <string name="bathroom">Baño</string>
+    <string name="dining_room">Comedor</string>
+    <string name="outside">Exterior</string>
 
 
 

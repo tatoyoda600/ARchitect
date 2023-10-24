@@ -24,39 +24,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/welcome"
-            android:textAlignment="center"/>
-
-<!--        <EditText
-            android:id="@+id/register_userName_editText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="text"
-            android:hint="@string/user_name"
-            android:autofillHints="name"/>
-
-        <EditText
-            android:id="@+id/register_email_editText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:autofillHints="emailAddress"
-            android:ems="10"
-            android:hint="@string/email"
-            android:inputType="text" />
-
-        <EditText
-            android:id="@+id/resgister_password_editText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="text"
-            android:hint="@string/password"
-            android:autofillHints="password"/>-->
-
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:textSize="30dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/register_userName_editText"
@@ -68,7 +43,8 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/register_email_editText"
@@ -83,7 +59,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:endIconDrawable="@drawable/visibility_icon"
-            app:endIconMode="password_toggle">
+            app:endIconMode="password_toggle"
+            android:layout_marginTop="10dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/resgister_password_editText"
@@ -94,11 +71,29 @@
                 android:inputType="textPassword"/>
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/resgister_repeatPassword_textInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:endIconDrawable="@drawable/visibility_icon"
+            app:endIconMode="password_toggle"
+            android:layout_marginTop="10dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/resgister_repeatPassword_editText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/repeat_password"
+                android:maxLines="1"
+                android:inputType="textPassword"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
         <Button
             android:id="@+id/second_SignUp_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/sign_up" />
+            android:text="@string/sign_up"
+            android:layout_marginTop="25dp"/>
 
     </LinearLayout>
 

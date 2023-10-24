@@ -1,6 +1,5 @@
 package com.pfortbe22bgrupo2.architectapp.activities
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -29,15 +28,6 @@ class CatalogoActivity: AppCompatActivity() {
         initBottomNavView()
         onBackPressedDispatcher.addCallback(this, callback)
         auth = Firebase.auth
-    }
-
-    override fun onStart() {
-        super.onStart()
-        binding.floatingActionButton.setOnClickListener(){
-            auth.signOut()
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-        }
     }
 
     private fun initBottomNavView(){

@@ -8,14 +8,16 @@
     tools:context=".fragments.HomeFragment">
 
     <TextView
-        android:id="@+id/textView2"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:id="@+id/home_textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="@string/home_fragment"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:textAlignment="center"
+        android:textSize="30dp"
+        android:textStyle="bold"/>
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -24,10 +26,9 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2">
+        app:layout_constraintStart_toStartOf="parent">
 
-        <Button
+<!--        <Button
             android:id="@+id/first_signUp_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -39,7 +40,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/login" />
+            android:text="@string/login" />-->
+
+        <Button
+            android:id="@+id/customButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/custom_button_background"
+            android:text="Registro o Iniciar Sesión"
+            android:textColor="#FFFFFF" />
+
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
