@@ -3,14 +3,14 @@ package com.pfortbe22bgrupo2.architectapp.models
 import android.os.Parcel
 import android.os.Parcelable
 
-class SavedDesign(description: String?): Parcelable {
+class CustomWall(description: String?): Parcelable {
     var description: String = ""
 
 
+    constructor() : this("")
     constructor(parcel: Parcel) : this(
         parcel.readString()
     )
-    constructor() : this("")
 
     init {
         this.description = description!!
@@ -24,15 +24,13 @@ class SavedDesign(description: String?): Parcelable {
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<SavedDesign> {
-        override fun createFromParcel(parcel: Parcel): SavedDesign {
-            return SavedDesign(parcel)
+    companion object CREATOR : Parcelable.Creator<CustomWall> {
+        override fun createFromParcel(parcel: Parcel): CustomWall {
+            return CustomWall(parcel)
         }
 
-        override fun newArray(size: Int): Array<SavedDesign?> {
+        override fun newArray(size: Int): Array<CustomWall?> {
             return arrayOfNulls(size)
         }
     }
-
-
 }

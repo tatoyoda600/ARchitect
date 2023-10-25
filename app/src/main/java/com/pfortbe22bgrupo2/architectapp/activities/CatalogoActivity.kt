@@ -1,13 +1,15 @@
 package com.pfortbe22bgrupo2.architectapp.activities
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.databinding.ActivityCatalogoBinding
 
@@ -17,6 +19,7 @@ class CatalogoActivity: AppCompatActivity() {
     private lateinit var navController: NavController
     lateinit var binding: ActivityCatalogoBinding
     private var isFiltering: Boolean = false
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,6 +27,7 @@ class CatalogoActivity: AppCompatActivity() {
         setContentView(binding.root)
         initBottomNavView()
         onBackPressedDispatcher.addCallback(this, callback)
+        auth = Firebase.auth
     }
 
     private fun initBottomNavView(){

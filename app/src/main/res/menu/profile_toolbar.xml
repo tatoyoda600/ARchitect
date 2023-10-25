@@ -3,9 +3,13 @@
 
     <item
         android:id="@+id/menu_item_edit_profile"
-        android:title="Editar Perfil" />
+        android:title="@string/edit_profile_fragment" />
 
     <item
         android:id="@+id/menu_item_designs"
-        android:title="Diseños Guardados" />
+        android:title="@string/saved_design" />
+
+    <item
+        android:id="@+id/logout_item"
+        android:title="@string/logout" />
 </menu>

@@ -12,7 +12,7 @@ class SavedDesignHolder(binding: SavedDesignItemBinding): RecyclerView.ViewHolde
     }
 
     fun setDescription(description:String) {
-        binding.descriptionDesignTextView.text = description
+        binding.savedDesignItemTextView.text = description
     }
 
     fun getCardLayout(): CardView {

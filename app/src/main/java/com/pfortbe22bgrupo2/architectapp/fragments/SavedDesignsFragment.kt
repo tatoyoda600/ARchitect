@@ -1,14 +1,15 @@
 package com.pfortbe22bgrupo2.architectapp.fragments
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.pfortbe22bgrupo2.architectapp.adapters.FurnitureAdapter
-import com.pfortbe22bgrupo2.architectapp.adapters.SavedDesignAdapter
+import com.firebase.ui.firestore.FirestoreRecyclerOptions
+import com.google.firebase.firestore.FirebaseFirestore
+import com.pfortbe22bgrupo2.architectapp.adapters.SavedDesignFiresstoreAdapter
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentDesignsSavedBinding
 import com.pfortbe22bgrupo2.architectapp.models.SavedDesign
 import com.pfortbe22bgrupo2.architectapp.viewModels.SavedDesignsViewModel
@@ -20,41 +21,40 @@ class SavedDesignsFragment : Fragment() {
     }
 
     private lateinit var viewModel: SavedDesignsViewModel
-
     private lateinit var binding: FragmentDesignsSavedBinding
-    private lateinit var savedDesignAdapter: SavedDesignAdapter
-    private lateinit var linearLayoutManager: LinearLayoutManager
-    private var savedDesigns: MutableList<SavedDesign> = mutableListOf()
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentDesignsSavedBinding.inflate(inflater,container,false)
-        harcodearMiniListaParaMostarAlgo()
+        initRecyclerView()
         return binding.root
-
     }
 
-    private fun harcodearMiniListaParaMostarAlgo() {
-        savedDesigns.add(SavedDesign("Diseño Guardado 1"))
-        savedDesigns.add(SavedDesign("Diseño Guardado 2"))
-        savedDesigns.add(SavedDesign("Diseño Guardado 3"))
-        savedDesigns.add(SavedDesign("Diseño Guardado 4"))
-        savedDesigns.add(SavedDesign("Diseño Guardado 5"))
-    }
+
 
     override fun onStart() {
         super.onStart()
-        initRecyclerView()
+        getFirebaseList()
     }
 
     private fun initRecyclerView(){
         binding.savedDesignRecyclerView.setHasFixedSize(true)
-        linearLayoutManager = LinearLayoutManager(context)
-        binding.savedDesignRecyclerView.layoutManager = linearLayoutManager
-        savedDesignAdapter = SavedDesignAdapter(savedDesigns)
-        binding.savedDesignRecyclerView.adapter = savedDesignAdapter
+        binding.savedDesignRecyclerView.layoutManager = LinearLayoutManager(context)
+    }
+
+    fun  getFirebaseList() {
+        val rootRef = FirebaseFirestore.getInstance()
+        val query = rootRef.collection("saved_designs").orderBy("description")
+        val options = FirestoreRecyclerOptions.Builder<SavedDesign>()
+            .setQuery(query,SavedDesign::class.java)
+            .build()
+        val adapter = SavedDesignFiresstoreAdapter(options)
+        adapter.startListening()
+        binding.savedDesignRecyclerView.adapter = adapter
     }
 
 

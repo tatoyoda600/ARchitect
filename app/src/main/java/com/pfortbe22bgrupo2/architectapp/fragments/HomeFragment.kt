@@ -1,11 +1,11 @@
 package com.pfortbe22bgrupo2.architectapp.fragments
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentHomeBinding
 import com.pfortbe22bgrupo2.architectapp.viewModels.HomeViewModel
@@ -18,8 +18,6 @@ class HomeFragment: Fragment() {
 
     private lateinit var viewModel: HomeViewModel
     private lateinit var binding: FragmentHomeBinding
-    //ahora esta harkcodeado a morir
-    var isLogin: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,19 +29,14 @@ class HomeFragment: Fragment() {
 
     override fun onStart() {
         super.onStart()
-        binding.firstSignUpButton.setOnClickListener() {
+
+      binding.firstSignUpButton.setOnClickListener() {
             val action = HomeFragmentDirections.actionHomeFragmentToSignUpFragment()
+
             findNavController().navigate(action)
         }
         binding.firstLoginButton.setOnClickListener() {
             val action = HomeFragmentDirections.actionHomeFragmentToLoginFragment()
-            findNavController().navigate(action)
-        }
-
-        //aca habria que guardar referencia al usuario, si esta logeado o no y en base a eso
-        //direccionar al catalogo o al home
-        if (isLogin) {
-            val action = HomeFragmentDirections.actionHomeFragmentToCatalogoActivity()
             findNavController().navigate(action)
         }
 

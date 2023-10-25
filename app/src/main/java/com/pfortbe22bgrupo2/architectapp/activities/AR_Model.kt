@@ -12,7 +12,6 @@ import io.github.sceneview.ar.node.ArModelNode
 class AR_Model: AppCompatActivity() {
 
     private lateinit var binding: ActivityArModelBinding
-    //private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var sceneView: ArSceneView
     private lateinit var placeButton: ExtendedFloatingActionButton
     private lateinit var render3D: Render3D
@@ -21,23 +20,6 @@ class AR_Model: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityArModelBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-/*        bottomNavigationView = binding.bottomNav
-        bottomNavigationView.selectedItemId = R.id.Item3D
-
-        binding.bottomNav.setOnItemSelectedListener {
-            when(it.itemId){
-                R.id.ItemHome -> {
-                    startActivity(Intent(applicationContext, MainActivity::class.java))
-                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
-                    finish()
-                }
-
-                R.id.Item3D -> {}
-            }
-            true
-        }*/
-
         sceneView = binding.arSceneView
         placeButton = binding.extendedFloatingActionButton
         render3D = Render3D(sceneView)

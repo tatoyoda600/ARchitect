@@ -14,9 +14,6 @@
             android:id="@+id/action_profileFragment_to_editProfileFragment"
             app:destination="@id/editProfileFragment" />
         <action
-            android:id="@+id/action_profileFragment_to_savedDesignsFragment"
-            app:destination="@id/savedDesignsFragment" />
-        <action
             android:id="@+id/action_profileFragment_to_designWallContainerFragment"
             app:destination="@id/designWallContainerFragment" />
     </fragment>
@@ -52,13 +49,13 @@
         android:label="fragment_edit_profile"
         tools:layout="@layout/fragment_edit_profile" />
     <fragment
-        android:id="@+id/savedDesignsFragment"
-        android:name="com.pfortbe22bgrupo2.architectapp.fragments.SavedDesignsFragment"
-        android:label="fragment_designs_saved"
-        tools:layout="@layout/fragment_designs_saved" />
-    <fragment
         android:id="@+id/designWallContainerFragment"
         android:name="com.pfortbe22bgrupo2.architectapp.fragments.DesignWallContainerFragment"
         android:label="fragment_design_wall_container"
         tools:layout="@layout/fragment_design_wall_container" />
+    <activity
+        android:id="@+id/AR_Model"
+        android:name="com.pfortbe22bgrupo2.architectapp.activities.AR_Model"
+        android:label="activity_ar_model"
+        tools:layout="@layout/activity_ar_model" />
 </navigation>

@@ -2,8 +2,8 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("androidx.navigation.safeargs.kotlin")
-    /*id("com.android.application")*/
     id("com.google.gms.google-services")
+
 }
 
 android {
@@ -46,20 +46,27 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    buildFeatures {
+        viewBinding = true
+        //dataBinding = true
+    }
+
 }
 
 dependencies {
 
+    val nav_version = "2.7.4"
+
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
-    val nav_version = "2.7.4"
-
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
+    //navegraph
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
     // Feature module Support
@@ -76,9 +83,16 @@ dependencies {
     // ARCore and SceneView (Androidx version of Sceneform: https://github.com/SceneView/sceneview-android)
     implementation("io.github.sceneview:arsceneview:0.10.2")
 
+    //viewpager2
     implementation("androidx.viewpager2:viewpager2:1.0.0")
 
+    //firebase
     implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
-    implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation ("com.firebaseui:firebase-ui-firestore:8.0.2")
+    implementation("com.google.firebase:firebase-auth-ktx")
+
+
+
 
 }
