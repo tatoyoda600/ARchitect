@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">ARchitect</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="log_in">Inicia Sesión</string>
+    <string name="sign_up">Regístrate</string>
+    <string name="app_subtitle">La forma más fácil de decorar tu hogar.</string>
 </resources>
