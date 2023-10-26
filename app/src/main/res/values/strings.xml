@@ -39,6 +39,6 @@
     <string name="hello_view_node">Hello ViewNode</string>
     <string name="put">Colocar</string>
     <string name="products_text">Productos</string>
-    <string name="greetings">Hola!</string>
+    <string name="greetings">¡Hola!</string>
     <string name="subtitle_login">Nos alegra que hayas vuelto!</string>
 </resources>

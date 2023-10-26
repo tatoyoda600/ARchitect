@@ -78,14 +78,15 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/login_password_editText"
+                android:maxLines="1"
+                android:hint="@string/password"
                 style="@style/InputContainer"
                 android:layout_width="269dp"
                 android:layout_height="50dp"
                 android:layout_gravity="center"
                 android:background="@drawable/input_text"
-                android:hint="@string/password"
                 android:inputType="textPassword"
-                android:maxLines="1" />
+                />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
@@ -94,9 +95,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
             android:layout_weight="1"
-            android:text="@string/forgot_password"
             android:textAlignment="center"
-            android:textColor="@color/black" />
+            android:textColor="@color/black"
+            android:text="@string/forgot_password"
+            />
 
         <Button
             android:id="@+id/second_login_button"
