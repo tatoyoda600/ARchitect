@@ -15,7 +15,7 @@
     <string name="foro_details_fragment">Detalles del Posteo</string>
     <string name="home_fragment">Home</string>
     <string name="sign_up">Registrarse</string>
-    <string name="login">Iniciar Secion</string>
+    <string name="login">Iniciar Sesión</string>
     <string name="login_fragment">Log In</string>
     <string name="saved_design">Diseños Guardados</string>
     <string name="custom_wall">Paredes Custom Guardados</string>
@@ -38,4 +38,7 @@
     <string name="HomeFragment">Home Page</string>
     <string name="hello_view_node">Hello ViewNode</string>
     <string name="put">Colocar</string>
+    <string name="products_text">Productos</string>
+    <string name="greetings">Hola!</string>
+    <string name="subtitle_login">Nos alegra que hayas vuelto!</string>
 </resources>

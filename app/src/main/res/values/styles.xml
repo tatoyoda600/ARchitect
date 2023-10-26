@@ -10,5 +10,13 @@
         <item name="android:layout_marginBottom">96dp</item>
     </style>
 
-
+    <style name="InputContainer">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">15dp</item>
+        <item name="android:layout_marginLeft">70dp</item>
+        <item name="android:layout_marginRight">70dp</item>
+        <item name="android:layout_marginTop">100dp</item>
+        <item name="android:maxLength">25</item>
+    </style>
 </resources>

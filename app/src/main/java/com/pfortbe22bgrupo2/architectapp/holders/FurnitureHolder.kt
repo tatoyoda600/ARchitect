@@ -19,6 +19,10 @@ class FurnitureHolder(binding: FurnitureItemBinding): RecyclerView.ViewHolder(bi
         binding.furnitureNameTextView.text = nombre
     }
 
+    fun setImageUrl(imageUrl : Int) {
+        binding.itemImageViewId.setImageResource(imageUrl)
+    }
+
     fun getCardLayout(): CardView {
         return binding.furnitureCardView
     }

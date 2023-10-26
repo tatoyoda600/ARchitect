@@ -23,8 +23,8 @@ class FurnitureAdapter(
 
 
     override fun onBindViewHolder(holder: FurnitureHolder, position: Int) {
-        holder.setName(furnitureList[position].nombre)
-
+        //holder.setName(furnitureList[position].nombre)
+        holder.setImageUrl(furnitureList[position].urlImage)
         holder.getCardLayout().setOnClickListener() {
             showDetailsFurniture.showDetails(furnitureList[position])
         }
