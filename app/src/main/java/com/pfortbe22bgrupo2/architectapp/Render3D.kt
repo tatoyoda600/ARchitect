@@ -2,8 +2,10 @@ package com.pfortbe22bgrupo2.architectapp
 
 
 import androidx.core.view.isGone
+import androidx.core.view.isVisible
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.ar.core.Config
 import io.github.sceneview.ar.ArSceneView
 import io.github.sceneview.ar.node.ArModelNode
@@ -14,7 +16,9 @@ import io.github.sceneview.math.Position
 interface Render3D {
     fun render(
         sceneView: ArSceneView,
-        placeButton: ExtendedFloatingActionButton
+        placeButton: ExtendedFloatingActionButton,
+        model: String,
+        progressBar: CircularProgressIndicator
     ) {
         lateinit var modelNode: ArModelNode
 
@@ -28,13 +32,13 @@ interface Render3D {
 
         modelNode = ArModelNode(sceneView.engine, PlacementMode.INSTANT).apply {
             loadModelGlbAsync(
-                glbFileLocation = "models/gaming_chair_free_download.glb",
+                glbFileLocation = model,
                 scaleToUnits = 1f,
                 centerOrigin = Position(-0.5f)
-
             )
             {
                 sceneView.planeRenderer.isVisible = true
+                progressBar.isVisible = false
                 val materialInstance = it.materialInstances[0]
             }
             onAnchorChanged = {

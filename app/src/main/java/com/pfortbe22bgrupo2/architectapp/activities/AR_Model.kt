@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.firebase.storage.FirebaseStorage
 import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.Render3D
 import com.pfortbe22bgrupo2.architectapp.databinding.ActivityArModelBinding
@@ -15,10 +17,11 @@ class AR_Model : AppCompatActivity(R.layout.activity_ar_model), Render3D {
     private lateinit var binding: ActivityArModelBinding
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var sceneView: ArSceneView
+    private lateinit var progressBar: CircularProgressIndicator
     private lateinit var placeButton: ExtendedFloatingActionButton
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivityArModelBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -45,6 +48,14 @@ class AR_Model : AppCompatActivity(R.layout.activity_ar_model), Render3D {
 
         placeButton = binding.extendedFloatingActionButton
 
-        render(sceneView, placeButton)
+        progressBar = binding.loadingView
+
+        val storage = FirebaseStorage.getInstance()
+
+        val modelRef = storage.reference.child("models/chair.glb")
+
+        modelRef.downloadUrl.addOnSuccessListener {
+            render(sceneView, placeButton, it.toString(), progressBar)
+        }
     }
 }
