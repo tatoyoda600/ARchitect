@@ -26,14 +26,21 @@
             android:name=".activities.ProductListActivity"
             android:exported="false" />
         <activity
+            android:name=".activities.AR_Model"
+            android:exported="false" />
+        <activity
+            android:name=".activities.CatalogoActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.menu"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
-            android:exported="true">
+            android:name=".activities.MainActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="true"
+            android:screenOrientation="locked">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

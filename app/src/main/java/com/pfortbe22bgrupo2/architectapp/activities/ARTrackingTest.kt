@@ -1,33 +1,27 @@
 package com.pfortbe22bgrupo2.architectapp.activities
-/*
-import androidx.appcompat.app.AppCompatActivity
+//https://github.com/SceneView/sceneview-android/blob/main/samples/ar-model-viewer/src/main/java/io/github/sceneview/sample/armodelviewer/MainActivity.kt
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import com.google.ar.core.Config
-import io.github.sceneview.ar.ArSceneView
-*/
-
-import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import com.google.ar.core.Config
 import com.pfortbe22bgrupo2.architectapp.R
-import io.github.sceneview.ar.ArSceneView
+import com.pfortbe22bgrupo2.architectapp.databinding.ActivityArtrackingTestBinding
+import com.pfortbe22bgrupo2.architectapp.utilities.ARTracking
 
-class ARTrackingTest : AppCompatActivity(R.layout.activity_artracking_test) {
-    lateinit var sceneView: ArSceneView
+class ARTrackingTest: AppCompatActivity() {
+
+    lateinit var binding: ActivityArtrackingTestBinding
+    lateinit var arTracking: ARTracking
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_artracking_test)
+        binding = ActivityArtrackingTestBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        sceneView = findViewById<ArSceneView?>(R.id.sceneView).apply {
-            lightEstimationMode = Config.LightEstimationMode.ENVIRONMENTAL_HDR
-            depthEnabled = true
-            instantPlacementEnabled = true
-            onArTrackingFailureChanged = { reason ->
-                Log.w("TAG", reason.toString())
-            }
-        }
+        arTracking = ARTracking(5, binding.sceneView)
+        arTracking.setup(
+            arTracking::pointScanning,
+            arTracking::onConfirmedPoint
+        )
     }
+
 }

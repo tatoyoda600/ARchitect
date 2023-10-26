@@ -2,6 +2,40 @@
     <string name="app_name">ARchitect</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="log_in">Inicia Sesión</string>
-    <string name="sign_up">Regístrate</string>
     <string name="app_subtitle">La forma más fácil de decorar tu hogar.</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="search_toolbar">Buscar</string>
+    <string name="catalogue_fragment">Catalogo de Productos</string>
+    <string name="furniture_details_fragment">Detalles del Producto</string>
+    <string name="redirect_AR_button">AR</string>
+    <string name="edit_profile_fragment">Editar Perfil</string>
+    <string name="edit_profile_button">Editar</string>
+    <string name="foro_fragment">Foro</string>
+    <string name="foro_details_fragment">Detalles del Posteo</string>
+    <string name="home_fragment">Home</string>
+    <string name="sign_up">Registrarse</string>
+    <string name="login">Iniciar Secion</string>
+    <string name="login_fragment">Log In</string>
+    <string name="saved_design">Diseños Guardados</string>
+    <string name="custom_wall">Paredes Custom Guardados</string>
+    <string name="email">Email</string>
+    <string name="user_name">Nombre de Usuario</string>
+    <string name="password">Contraseña</string>
+    <string name="repeat_password">Repetir Contraseña</string>
+    <string name="profile_fragment">Perfil del Usuario</string>
+    <string name="welcome">¡BIENVENIDO!</string>
+    <string name="logout">Cerrar Sesion</string>
+    <string name="forgot_password">¿Olvidaste tu Contraseña?</string>
+    <string name="send_email">Enviar Email</string>
+    <string name="send_email_text">Verificar con tu email el cambio de contraseña.</string>
+    <string name="living">Living</string>
+    <string name="main_room">Habitacion</string>
+    <string name="kitchen">Cocina</string>
+    <string name="bathroom">Baño</string>
+    <string name="dining_room">Comedor</string>
+    <string name="outside">Exterior</string>
+    <string name="HomeFragment">Home Page</string>
+    <string name="hello_view_node">Hello ViewNode</string>
+    <string name="put">Colocar</string>
 </resources>

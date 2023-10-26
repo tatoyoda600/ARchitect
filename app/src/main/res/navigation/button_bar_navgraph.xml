@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/button_bar_navgraph"
+    app:startDestination="@id/catalogueFragment">
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.pfortbe22bgrupo2.architectapp.fragments.ProfileFragment"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action_profileFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_designWallContainerFragment"
+            app:destination="@id/designWallContainerFragment" />
+    </fragment>
+    <activity
+        android:id="@+id/ARTrackingTest"
+        android:name="com.pfortbe22bgrupo2.architectapp.activities.ARTrackingTest"
+        android:label="activity_artracking_test"
+        tools:layout="@layout/activity_artracking_test" />
+    <fragment
+        android:id="@+id/detailsFragment"
+        android:name="com.pfortbe22bgrupo2.architectapp.fragments.DetailsFragment"
+        android:label="fragment_details"
+        tools:layout="@layout/fragment_details" >
+        <action
+            android:id="@+id/action_detailsFragment_to_ARTrackingTest"
+            app:destination="@id/ARTrackingTest" />
+        <argument
+            android:name="furniture_element"
+            app:argType="com.pfortbe22bgrupo2.architectapp.models.Furniture" />
+    </fragment>
+    <fragment
+        android:id="@+id/catalogueFragment"
+        android:name="com.pfortbe22bgrupo2.architectapp.fragments.CatalogueFragment"
+        android:label="fragment_catalogue"
+        tools:layout="@layout/fragment_catalogue" >
+        <action
+            android:id="@+id/action_catalogueFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.pfortbe22bgrupo2.architectapp.fragments.EditProfileFragment"
+        android:label="fragment_edit_profile"
+        tools:layout="@layout/fragment_edit_profile" />
+    <fragment
+        android:id="@+id/designWallContainerFragment"
+        android:name="com.pfortbe22bgrupo2.architectapp.fragments.DesignWallContainerFragment"
+        android:label="fragment_design_wall_container"
+        tools:layout="@layout/fragment_design_wall_container" />
+    <activity
+        android:id="@+id/AR_Model"
+        android:name="com.pfortbe22bgrupo2.architectapp.activities.AR_Model"
+        android:label="activity_ar_model"
+        tools:layout="@layout/activity_ar_model" />
+</navigation>

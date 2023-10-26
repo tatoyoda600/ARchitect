@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tab_navegraph"
+    app:startDestination="@id/designWallContainerFragment2">
+
+    <fragment
+        android:id="@+id/savedDesignsFragment2"
+        android:name="com.pfortbe22bgrupo2.architectapp.fragments.SavedDesignsFragment"
+        android:label="fragment_designs_saved"
+        tools:layout="@layout/fragment_designs_saved" />
+    <fragment
+        android:id="@+id/customWallFragment"
+        android:name="com.pfortbe22bgrupo2.architectapp.fragments.CustomWallFragment"
+        android:label="fragment_custom_wall"
+        tools:layout="@layout/fragment_custom_wall" />
+    <fragment
+        android:id="@+id/designWallContainerFragment2"
+        android:name="com.pfortbe22bgrupo2.architectapp.fragments.DesignWallContainerFragment"
+        android:label="fragment_design_wall_container"
+        tools:layout="@layout/fragment_design_wall_container" />
+</navigation>
