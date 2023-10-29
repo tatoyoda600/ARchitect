@@ -29,7 +29,7 @@
             android:name=".activities.CatalogoActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.menu"
+            android:name=".activities.Menu"
             android:exported="false" />
         <activity
             android:name=".activities.MainActivity"

@@ -23,10 +23,8 @@
         android:label="fragment_sing_up"
         tools:layout="@layout/fragment_sign_up" >
         <action
-            android:id="@+id/action_signUpFragment_to_loginFragment"
-            app:destination="@id/loginFragment"
-            app:popUpTo="@id/signUpFragment"
-            app:popUpToInclusive="true" />
+            android:id="@+id/action_signUpFragment_to_catalogoActivity"
+            app:destination="@id/catalogoActivity" />
     </fragment>
     <fragment
         android:id="@+id/loginFragment"

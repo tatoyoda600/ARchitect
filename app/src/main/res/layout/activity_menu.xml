@@ -6,6 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#B6A490"
-    tools:context=".activities.menu">
+    tools:context=".activities.Menu">
 
 </androidx.constraintlayout.widget.ConstraintLayout>

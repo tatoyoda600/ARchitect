@@ -24,66 +24,92 @@
 
             <Button
                 android:id="@+id/living_filter_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="144dp"
+                android:layout_height="62dp"
+                android:textAllCaps="false"
                 android:layout_marginVertical="20dp"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="20dp"
                 android:layout_weight="1"
+                android:textSize="17sp"
                 android:textColor="@color/white"
                 android:backgroundTint="@color/main_green"
+                android:background="@drawable/button_style"
                 android:text="@string/living" />
 
             <Button
                 android:id="@+id/room_filter_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="20dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_weight="1"
-                android:text="@string/main_room" />
-
-            <Button
-                android:id="@+id/kitchen_filter_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="20dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_weight="1"
-                android:text="@string/kitchen" />
-
-            <Button
-                android:id="@+id/bathroom_filter_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="20dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_weight="1"
-                android:text="@string/bathroom" />
-
-            <Button
-                android:id="@+id/diningroom_filter_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="144dp"
+                android:layout_height="62dp"
+                android:textAllCaps="false"
                 android:layout_marginVertical="20dp"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="20dp"
                 android:layout_weight="1"
                 android:textColor="@color/white"
+                android:textSize="17sp"
                 android:backgroundTint="@color/main_green"
-                android:text="@string/dining_room" />
+                android:background="@drawable/button_style"
+                android:text="@string/main_room" />
 
             <Button
-                android:id="@+id/outside_filter_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:id="@+id/kitchen_filter_button"
+                android:layout_width="144dp"
+                android:layout_height="62dp"
+                android:textAllCaps="false"
                 android:layout_marginVertical="20dp"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="20dp"
                 android:layout_weight="1"
+                android:textColor="@color/white"
+                android:textSize="17sp"
+                android:backgroundTint="@color/main_green"
+                android:background="@drawable/button_style"
+                android:text="@string/kitchen" />
+
+            <Button
+                android:id="@+id/bathroom_filter_button"
+                android:layout_width="144dp"
+                android:layout_height="62dp"
+                android:textAllCaps="false"
+                android:layout_marginVertical="20dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                android:textSize="17sp"
+                android:backgroundTint="@color/main_green"
+                android:background="@drawable/button_style"
+                android:text="@string/bathroom" />
+
+            <Button
+                android:id="@+id/diningroom_filter_button"
+                android:layout_width="144dp"
+                android:layout_height="62dp"
+                android:textAllCaps="false"
+                android:layout_marginVertical="20dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                android:textSize="17sp"
+                android:backgroundTint="@color/main_green"
+                android:background="@drawable/button_style"
+                android:text="@string/dining_room" />
+
+            <Button
+                android:id="@+id/outside_filter_button"
+                android:layout_width="144dp"
+                android:layout_height="62dp"
+                android:textAllCaps="false"
+                android:layout_marginVertical="20dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_weight="1"
+                android:textSize="17sp"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/main_green"
+                android:background="@drawable/button_style"
                 android:text="@string/outside" />
         </LinearLayout>
     </HorizontalScrollView>
@@ -94,11 +120,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/products_text"
+        android:textColor="@color/black"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/catalogue_recycler_view"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.05"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/horizontal_scroll_view" />
 
