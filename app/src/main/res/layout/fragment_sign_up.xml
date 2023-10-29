@@ -5,8 +5,16 @@
     android:id="@+id/signUp_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/main_light_brown"
+    android:background="@color/light_grey"
     tools:context=".fragments.SignUpFragment">
+
+    <View
+        android:id="@+id/gradientView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_effects"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp" />
 
 
     <LinearLayout

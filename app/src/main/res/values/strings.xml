@@ -41,4 +41,9 @@
     <string name="products_text">Productos</string>
     <string name="greetings">¡Hola!</string>
     <string name="subtitle_login">Nos alegra que hayas vuelto!</string>
+    <string name="phone_number">Teléfono</string>
+    <string name="direction">Dirección</string>
+    <string name="change_password"><u>Cambiar mi contraseña</u></string>
+    <string name="edit_profile">Editar perfil</string>
+    <string name="profile_pic_description">Profile picture</string>
 </resources>
