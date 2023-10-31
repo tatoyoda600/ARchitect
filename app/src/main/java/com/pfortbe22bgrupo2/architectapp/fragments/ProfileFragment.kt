@@ -44,7 +44,12 @@ class ProfileFragment: Fragment() {
         super.onStart()
         initToolbar()
         updateProfile()
-
+        binding.editProfileButton.setOnClickListener {
+            navToEditProfile()
+        }
+        binding.changePasswordTextView.setOnClickListener{
+            //navToChangePassword()
+        }
     }
 
     private fun updateProfile() {
@@ -55,8 +60,14 @@ class ProfileFragment: Fragment() {
                 .addOnSuccessListener { document ->
                     if (document != null) {
                         val userName = document.data?.get("userName") as? String
-                        binding.profileUserTextView.text = userName
+                        binding.profileUserNameTextView.text = userName
                         binding.profileEmailTextView.text = currentUser.email
+                        binding.profilePhoneNumberTextView.text = "11111111"
+                        binding.profileDirectionTextView.text = "calle 123"
+                        binding.profileUserPicImageView.setImageResource(R.drawable.profile_pic)
+                        //binding.profileDirectionTextView.text = currentUser.direction
+                        //binding.profilePhoneNumberTextView.text = currentUser.phoneNumber
+                        //binding.profileUserPicImageView.setImageResource(currentUser.profilePic)
                         Log.d(TAG, "DocumentSnapshot data: ${document.data}")
                     } else {
                         Log.d(TAG, "No such document")

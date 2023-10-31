@@ -5,22 +5,54 @@
     android:id="@+id/home_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/main_background"
     tools:context=".fragments.HomeFragment">
 
-    <TextView
-        android:id="@+id/home_textView"
+
+    <View
+        android:id="@+id/gradient_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/home_fragment"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_effects"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp" />
+
+    <TextView
+        android:id="@+id/main_title_id"
+        android:layout_width="284dp"
+        android:layout_height="76dp"
+        android:layout_marginTop="80dp"
+        android:gravity="center"
+        android:text="@string/app_name"
+        android:textColor="@color/main_green"
+        android:textSize="48sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:textAlignment="center"
-        android:textSize="30dp"
-        android:textStyle="bold"/>
+        tools:context=".activities.MainActivity"/>
+
+    <TextView
+        android:id="@+id/main_subtitle_text_id"
+        android:layout_width="284dp"
+        android:layout_height="76dp"
+        android:layout_marginBottom="328dp"
+        android:gravity="center"
+        android:text="@string/app_subtitle"
+        android:textColor="@color/main_green"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_title_id"
+        app:layout_constraintVertical_bias="0.229" />
+
 
     <LinearLayout
-        android:id="@+id/linearLayout"
+        android:id="@+id/buttons_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -29,18 +61,26 @@
         app:layout_constraintStart_toStartOf="parent">
 
       <Button
-            android:id="@+id/first_signUp_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/sign_up" />
+            android:id="@+id/first_sign_up_button"
+          style="@style/commonButtonStyle"
+          android:layout_marginStart="44dp"
+          android:layout_marginBottom="50dp"
+          android:background="@drawable/thumb"
+          android:text="@string/sign_up"
+          android:textColor="@color/main_light_brown"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintStart_toStartOf="parent" />
 
         <Button
-            android:id="@+id/first_login_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/login" />
+            android:id="@+id/first_log_in_button"
+            style="@style/commonButtonStyle"
+            android:layout_marginEnd="44dp"
+            android:layout_marginBottom="50dp"
+            android:background="@drawable/track"
+            android:text="@string/log_in"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"  />
 
 
 

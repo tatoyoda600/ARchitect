@@ -102,7 +102,7 @@ class SignUpFragment: Fragment() {
     }
 
     private fun goToLoginFragment() {
-        val action = SignUpFragmentDirections.actionSignUpFragmentToLoginFragment()
+        val action = SignUpFragmentDirections.actionSignUpFragmentToCatalogoActivity()
         findNavController().navigate(action)
     }
 

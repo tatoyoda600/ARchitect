@@ -14,7 +14,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/custon_wall_iten_textView"
+            android:id="@+id/custom_wall_item_text_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:textAlignment="center" />

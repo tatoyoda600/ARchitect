@@ -35,7 +35,7 @@ class HomeFragment: Fragment() {
 
             findNavController().navigate(action)
         }
-        binding.firstLoginButton.setOnClickListener() {
+        binding.firstLogInButton.setOnClickListener() {
             val action = HomeFragmentDirections.actionHomeFragmentToLoginFragment()
             findNavController().navigate(action)
         }

@@ -1,8 +1,9 @@
 package com.pfortbe22bgrupo2.architectapp.activities
 //https://github.com/SceneView/sceneview-android/blob/main/samples/ar-model-viewer/src/main/java/io/github/sceneview/sample/armodelviewer/MainActivity.kt
-
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.databinding.ActivityArtrackingTestBinding
 import com.pfortbe22bgrupo2.architectapp.utilities.ARTracking
 
@@ -22,4 +23,5 @@ class ARTrackingTest: AppCompatActivity() {
             arTracking::onConfirmedPoint
         )
     }
+
 }

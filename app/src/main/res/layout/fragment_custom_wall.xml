@@ -8,7 +8,7 @@
     tools:context=".fragments.CustomWallFragment">
 
     <TextView
-        android:id="@+id/custom_wall_textView"
+        android:id="@+id/custom_wall_text_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/custom_wall"
@@ -24,6 +24,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/custom_wall_textView" />
+        app:layout_constraintTop_toBottomOf="@+id/custom_wall_text_view" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

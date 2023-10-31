@@ -23,10 +23,8 @@
         android:label="fragment_sing_up"
         tools:layout="@layout/fragment_sign_up" >
         <action
-            android:id="@+id/action_signUpFragment_to_loginFragment"
-            app:destination="@id/loginFragment"
-            app:popUpTo="@id/signUpFragment"
-            app:popUpToInclusive="true" />
+            android:id="@+id/action_signUpFragment_to_catalogoActivity"
+            app:destination="@id/catalogoActivity" />
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
@@ -43,9 +41,9 @@
     </fragment>
     <activity
         android:id="@+id/catalogoActivity"
-        android:name="com.pfortbe22bgrupo2.architectapp.activities.CatalogoActivity"
+        android:name="com.pfortbe22bgrupo2.architectapp.activities.CatalogueActivity"
         android:label="activity_catalogo"
-        tools:layout="@layout/activity_catalogo" />
+        tools:layout="@layout/activity_catalogue" />
     <fragment
         android:id="@+id/forgotPasswordFragment"
         android:name="com.pfortbe22bgrupo2.architectapp.fragments.ForgotPasswordFragment"

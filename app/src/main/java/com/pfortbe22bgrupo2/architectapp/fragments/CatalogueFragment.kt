@@ -1,5 +1,6 @@
 package com.pfortbe22bgrupo2.architectapp.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.pfortbe22bgrupo2.architectapp.activities.CatalogoActivity
+import com.pfortbe22bgrupo2.architectapp.activities.CatalogueActivity
 import com.pfortbe22bgrupo2.architectapp.adapters.FurnitureAdapter
 import com.pfortbe22bgrupo2.architectapp.data.FurnitureList
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentCatalogueBinding
@@ -18,7 +19,6 @@ import com.pfortbe22bgrupo2.architectapp.viewModels.CatalogueViewModel
 
 
 class CatalogueFragment: Fragment(), ShowDetailsFurniture {
-
     companion object {
         fun newInstance() = CatalogueFragment()
     }
@@ -29,12 +29,14 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
     private lateinit var furnitureAdapter: FurnitureAdapter
     private var furnitures: FurnitureList = FurnitureList()
     private lateinit var linearLayoutManager: LinearLayoutManager
+    private lateinit var context: Context
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentCatalogueBinding.inflate(inflater, container,false)
+        context = requireContext()
         initFilter()
         return binding.root
     }
@@ -76,30 +78,10 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
         binding.catalogueRecyclerView.setHasFixedSize(true)
         linearLayoutManager = LinearLayoutManager(context)
         binding.catalogueRecyclerView.layoutManager = linearLayoutManager
-        furnitureAdapter = FurnitureAdapter(furnitures.furnitures, this)
+        furnitureAdapter = FurnitureAdapter(context, furnitures.furnitures, this)
         binding.catalogueRecyclerView.adapter = furnitureAdapter
     }
 
-/*    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.toolbar_search_menu, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }*/
-
-/*    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.menu_option_filter1 -> {
-                filterDataByCategory("living")
-                startFiltering()
-                true
-            }
-            R.id.menu_option_filter2 -> {
-                filterDataByCategory("habitacion")
-                startFiltering()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }*/
 
     private fun filterDataByCategory(category:String) {
         val filteredList = furnitures.furnitures.filter{ item -> item.category.lowercase() == category.lowercase() }
@@ -118,10 +100,10 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
     }
 
     private fun startFiltering() {
-        (activity as? CatalogoActivity)?.setToolbarFiltering(true)
+        (activity as? CatalogueActivity)?.setToolbarFiltering(true)
     }
 
     private fun finishFiltering() {
-        (activity as? CatalogoActivity)?.setToolbarFiltering(false)
+        (activity as? CatalogueActivity)?.setToolbarFiltering(false)
     }
 }
