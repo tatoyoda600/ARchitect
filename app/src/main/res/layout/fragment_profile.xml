@@ -33,7 +33,7 @@
        </androidx.appcompat.widget.Toolbar>
 
     <LinearLayout
-        android:id="@+id/linearLayout2"
+        android:id="@+id/layout_container"
         android:layout_width="274dp"
         android:layout_height="544dp"
         android:gravity="top"
@@ -47,7 +47,7 @@
 
 
         <ImageView
-            android:id="@+id/profile_user_pic_imageView"
+            android:id="@+id/profile_user_pic_image_view"
             android:layout_width="146dp"
             android:layout_height="138dp"
             android:layout_gravity="center"
@@ -56,7 +56,7 @@
             android:contentDescription="@string/profile_pic_description"/>
 
         <TextView
-            android:id="@+id/profile_user_name_textView"
+            android:id="@+id/profile_user_name_text_view"
             android:layout_width="269dp"
             android:layout_height="50dp"
             android:layout_gravity="center"
@@ -70,7 +70,7 @@
             android:textSize="15sp" />
 
         <TextView
-            android:id="@+id/profile_email_textView"
+            android:id="@+id/profile_email_text_view"
             android:layout_width="269dp"
             android:layout_height="50dp"
             android:layout_gravity="center"
@@ -84,7 +84,7 @@
             android:textSize="15sp" />
 
         <TextView
-            android:id="@+id/profile_phone_number_textView"
+            android:id="@+id/profile_phone_number_text_view"
             android:layout_width="269dp"
             android:layout_height="50dp"
             android:layout_gravity="center"
@@ -98,7 +98,7 @@
             android:textSize="15sp" />
 
         <TextView
-            android:id="@+id/profile_direction_textView"
+            android:id="@+id/profile_direction_text_view"
             android:layout_width="269dp"
             android:layout_height="50dp"
             android:layout_gravity="center"
@@ -125,7 +125,7 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/change_password_textView"
+            android:id="@+id/change_password_text_view"
             android:layout_width="105dp"
             android:layout_height="38dp"
             android:layout_gravity="center"
@@ -136,7 +136,6 @@
             android:textColor="@color/main_green"
             android:textSize="15sp"
             android:textStyle="bold"/>
-
 
     </LinearLayout>
 

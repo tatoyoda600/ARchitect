@@ -1,5 +1,6 @@
 package com.pfortbe22bgrupo2.architectapp.fragments
 
+import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -7,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentDetailsBinding
 import com.pfortbe22bgrupo2.architectapp.viewModels.DetailsViewModel
 
@@ -20,10 +22,13 @@ class DetailsFragment: Fragment() {
 
     private lateinit var binding: FragmentDetailsBinding
 
+    private lateinit var context : Context
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        context = requireContext()
         binding = FragmentDetailsBinding.inflate(inflater, container,false)
         return binding.root
     }
@@ -31,10 +36,12 @@ class DetailsFragment: Fragment() {
     override fun onStart() {
         super.onStart()
         val furniture = DetailsFragmentArgs.fromBundle(requireArguments()).furnitureElement
-        val nombre = binding.detailTextView
+        val nombre = binding.detailNameTextView
+        val descripcion = binding.detailDescriptionTextView
+        val image = binding.itemDetailImageViewId
         nombre.text = furniture.nombre
-
-
+        descripcion.text = furniture.description
+        Glide.with(context).load(furniture.urlImage).into(binding.itemDetailImageViewId)
         binding.detailsArButton.setOnClickListener() {
             val action = DetailsFragmentDirections.actionDetailsFragmentToARTrackingTest()
             findNavController().navigate(action)

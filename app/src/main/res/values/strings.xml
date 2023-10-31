@@ -46,4 +46,7 @@
     <string name="change_password"><u>Cambiar mi contraseña</u></string>
     <string name="edit_profile">Editar perfil</string>
     <string name="profile_pic_description">Profile picture</string>
+    <string name="description">Descripción</string>
+    <string name="redirect">Redirección</string>
+    <string name="ar">AR</string>
 </resources>

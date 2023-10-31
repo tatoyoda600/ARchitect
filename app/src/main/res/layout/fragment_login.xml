@@ -9,7 +9,7 @@
     tools:context=".fragments.LoginFragment">
 
     <View
-        android:id="@+id/gradientView"
+        android:id="@+id/gradient_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/bg_effects"
@@ -17,7 +17,7 @@
         tools:layout_editor_absoluteY="0dp" />
 
     <LinearLayout
-        android:id="@+id/login_linearLayout"
+        android:id="@+id/login_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
@@ -62,7 +62,7 @@
             android:layout_weight="1">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/loging_email_editText"
+                android:id="@+id/loging_email_edit_text"
                 style="@style/InputContainer"
                 android:layout_width="269dp"
                 android:layout_height="50dp"
@@ -76,7 +76,7 @@
 
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/login_password_textInputLayout"
+            android:id="@+id/login_password_text_input_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -85,7 +85,7 @@
             app:endIconMode="password_toggle">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/login_password_editText"
+                android:id="@+id/login_password_edit_text"
                 android:maxLines="1"
                 android:hint="@string/password"
                 style="@style/InputContainer"
@@ -98,7 +98,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
-            android:id="@+id/forgot_password_textView"
+            android:id="@+id/forgot_password_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"

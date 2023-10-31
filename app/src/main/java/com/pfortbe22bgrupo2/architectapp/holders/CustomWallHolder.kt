@@ -12,7 +12,7 @@ class CustomWallHolder(binding: CustomWallItemBinding): RecyclerView.ViewHolder(
     }
 
     fun setDescription(description: String){
-        binding.custonWallItenTextView.text = description
+        binding.customWallItemTextView.text = description
     }
 
     fun getCardLayout(): CardView {

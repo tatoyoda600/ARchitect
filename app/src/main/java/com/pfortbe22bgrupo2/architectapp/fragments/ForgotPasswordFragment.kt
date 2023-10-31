@@ -37,12 +37,12 @@ class ForgotPasswordFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        binding.changePasswordButton.setOnClickListener {
-            val verificationEmail = binding.forgotPasswordEmailEditText.text
+        binding.sendEmailResetPasswordButton.setOnClickListener {
+            val verificationEmail = binding.resetPasswordEmailEditText.text
             if (!verificationEmail.isNullOrEmpty()){
                 sendChangePasswordEmail()
             } else{
-                binding.forgotPasswordEmailEditText.error = "Campo Obligatorio"
+                binding.resetPasswordEmailEditText.error = "Campo Obligatorio"
             }
         }
     }
@@ -52,7 +52,7 @@ class ForgotPasswordFragment : Fragment() {
     }
 
     private fun sendChangePasswordEmail() {
-        val emailAddress = binding.forgotPasswordEmailEditText.text.toString()
+        val emailAddress = binding.resetPasswordEmailEditText.text.toString()
         auth.sendPasswordResetEmail(emailAddress)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {

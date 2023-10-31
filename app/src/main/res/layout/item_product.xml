@@ -11,14 +11,14 @@
     app:cardElevation="8dp">
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/itemCardViewId"
+        android:id="@+id/item_product_card_view_id"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
         app:cardCornerRadius="26dp">
 
         <ImageView
-            android:id="@+id/itemImageViewId"
+            android:id="@+id/item_product_image_view_id"
             android:layout_width="392dp"
             android:layout_height="158dp"
             android:scaleType="centerInside" />

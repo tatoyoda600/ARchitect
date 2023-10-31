@@ -30,7 +30,7 @@ class MainActivity: AppCompatActivity() {
     private fun checkForCurrentUser() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
-            val intent = Intent(this, CatalogoActivity::class.java)
+            val intent = Intent(this, CatalogueActivity::class.java)
             startActivity(intent)
         }
 

@@ -41,9 +41,9 @@
     </fragment>
     <activity
         android:id="@+id/catalogoActivity"
-        android:name="com.pfortbe22bgrupo2.architectapp.activities.CatalogoActivity"
+        android:name="com.pfortbe22bgrupo2.architectapp.activities.CatalogueActivity"
         android:label="activity_catalogo"
-        tools:layout="@layout/activity_catalogo" />
+        tools:layout="@layout/activity_catalogue" />
     <fragment
         android:id="@+id/forgotPasswordFragment"
         android:name="com.pfortbe22bgrupo2.architectapp.fragments.ForgotPasswordFragment"

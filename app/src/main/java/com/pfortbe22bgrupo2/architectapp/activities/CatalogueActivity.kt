@@ -11,19 +11,20 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.pfortbe22bgrupo2.architectapp.R
-import com.pfortbe22bgrupo2.architectapp.databinding.ActivityCatalogoBinding
+import com.pfortbe22bgrupo2.architectapp.databinding.ActivityCatalogueBinding
 
-class CatalogoActivity: AppCompatActivity() {
+class CatalogueActivity: AppCompatActivity() {
 
     private lateinit var buttonBar: BottomNavigationView
     private lateinit var navController: NavController
-    lateinit var binding: ActivityCatalogoBinding
+    lateinit var binding: ActivityCatalogueBinding
     private var isFiltering: Boolean = false
     private lateinit var auth: FirebaseAuth
+    private lateinit var navHost: NavHostFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityCatalogoBinding.inflate(layoutInflater)
+        binding = ActivityCatalogueBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initBottomNavView()
         onBackPressedDispatcher.addCallback(this, callback)
@@ -31,7 +32,7 @@ class CatalogoActivity: AppCompatActivity() {
     }
 
     private fun initBottomNavView(){
-        val navHost: NavHostFragment = binding.containerViewCatalogue.getFragment() as NavHostFragment
+        navHost = binding.containerViewCatalogue.getFragment() as NavHostFragment
         navController = navHost.navController
         buttonBar = binding.catalogueBottomBar
         NavigationUI.setupWithNavController(buttonBar, navController)
