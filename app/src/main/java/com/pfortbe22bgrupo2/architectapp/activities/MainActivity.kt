@@ -1,20 +1,38 @@
 package com.pfortbe22bgrupo2.architectapp.activities
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 import android.os.Bundle
-import androidx.navigation.findNavController
-import com.pfortbe22bgrupo2.architectapp.R
-import com.pfortbe22bgrupo2.architectapp.databinding.ActivityCatalogoBinding
+import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.pfortbe22bgrupo2.architectapp.databinding.ActivityMainBinding
-import com.pfortbe22bgrupo2.architectapp.fragments.HomeFragmentDirections
 
 class MainActivity: AppCompatActivity() {
 
      private lateinit var binding: ActivityMainBinding
+     private lateinit var auth: FirebaseAuth
+     private lateinit var loginButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        auth = Firebase.auth
+    }
+
+    override fun onStart() {
+        super.onStart()
+        checkForCurrentUser()
+    }
+
+    private fun checkForCurrentUser() {
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            val intent = Intent(this, CatalogueActivity::class.java)
+            startActivity(intent)
+        }
+
     }
 }

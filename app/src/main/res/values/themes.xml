@@ -1,9 +1,27 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.ARchitect" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.ARchitect" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
     <style name="Theme.ARchitect" parent="Base.Theme.ARchitect" />
+
+    <style name="Theme.SceneViewSample" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="colorPrimary">@color/sceneview</item>
+        <item name="colorAccent">@color/sceneview</item>
+        <item name="colorPrimaryDark">@android:color/transparent</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="Theme.SceneViewSample.Toolbar" parent="ThemeOverlay.MaterialComponents.ActionBar">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="logo">@drawable/logo</item>
+    </style>
 </resources>

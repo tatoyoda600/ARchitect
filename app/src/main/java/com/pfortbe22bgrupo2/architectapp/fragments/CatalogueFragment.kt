@@ -1,32 +1,24 @@
 package com.pfortbe22bgrupo2.architectapp.fragments
 
-import androidx.lifecycle.ViewModelProvider
+import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.core.widget.addTextChangedListener
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.pfortbe22bgrupo2.architectapp.R
-import com.pfortbe22bgrupo2.architectapp.activities.CatalogoActivity
+import com.pfortbe22bgrupo2.architectapp.activities.CatalogueActivity
 import com.pfortbe22bgrupo2.architectapp.adapters.FurnitureAdapter
 import com.pfortbe22bgrupo2.architectapp.data.FurnitureList
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentCatalogueBinding
-import com.pfortbe22bgrupo2.architectapp.entities.Furniture
 import com.pfortbe22bgrupo2.architectapp.listeners.ShowDetailsFurniture
+import com.pfortbe22bgrupo2.architectapp.models.Furniture
 import com.pfortbe22bgrupo2.architectapp.viewModels.CatalogueViewModel
 
 
 class CatalogueFragment: Fragment(), ShowDetailsFurniture {
-
     companion object {
         fun newInstance() = CatalogueFragment()
     }
@@ -43,61 +35,51 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentCatalogueBinding.inflate(inflater, container,false)
+        initFilter()
         return binding.root
-    }
-
-    private fun initToolbar(){
-        val toolbar: Toolbar = binding.catalogoSearchToolbar
-        (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
-        setHasOptionsMenu(true)
-        (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
     }
 
     override fun onStart() {
         super.onStart()
-        initToolbar()
-        initSearchToolbar()
         initRecyclerView()
         finishFiltering()
     }
 
-    private fun initSearchToolbar(){
-        binding.searchEditTextToolbar.addTextChangedListener { furnitureFilter ->
+    private fun initFilter(){
+        binding.livingFilterButton.setOnClickListener{
+            filterDataByCategory("living")
             startFiltering()
-            val furnitureFiltered = furnitures.furnitures.filter {
-                    furniture -> furniture.nombre.lowercase().contains(furnitureFilter.toString().lowercase())
-            }
-            furnitureAdapter.updatesFurnitures(furnitureFiltered)
+        }
+        binding.roomFilterButton.setOnClickListener {
+            filterDataByCategory("habitacion")
+            startFiltering()
+        }
+        binding.kitchenFilterButton.setOnClickListener {
+            filterDataByCategory("cocina")
+            startFiltering()
+        }
+        binding.bathroomFilterButton.setOnClickListener {
+            filterDataByCategory("baño")
+            startFiltering()
+        }
+        binding.diningroomFilterButton.setOnClickListener {
+            filterDataByCategory("comedor")
+            startFiltering()
+        }
+        binding.outsideFilterButton.setOnClickListener {
+            filterDataByCategory("exterior")
+            startFiltering()
         }
     }
+
     private fun initRecyclerView(){
         binding.catalogueRecyclerView.setHasFixedSize(true)
+        furnitureAdapter = FurnitureAdapter(context, furnitures.furnitures, this)
         linearLayoutManager = LinearLayoutManager(context)
         binding.catalogueRecyclerView.layoutManager = linearLayoutManager
-        furnitureAdapter = FurnitureAdapter(furnitures.furnitures, this)
         binding.catalogueRecyclerView.adapter = furnitureAdapter
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.toolbar_search_menu, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.menu_option_filter1 -> {
-                filterDataByCategory("living")
-                startFiltering()
-                true
-            }
-            R.id.menu_option_filter2 -> {
-                filterDataByCategory("habitacion")
-                startFiltering()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
 
     private fun filterDataByCategory(category:String) {
         val filteredList = furnitures.furnitures.filter{ item -> item.category.lowercase() == category.lowercase() }
@@ -116,10 +98,10 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
     }
 
     private fun startFiltering() {
-        (activity as? CatalogoActivity)?.setToolbarFiltering(true)
+        (activity as? CatalogueActivity)?.setToolbarFiltering(true)
     }
 
-    fun finishFiltering() {
-        (activity as? CatalogoActivity)?.setToolbarFiltering(false)
+    private fun finishFiltering() {
+        (activity as? CatalogueActivity)?.setToolbarFiltering(false)
     }
 }
