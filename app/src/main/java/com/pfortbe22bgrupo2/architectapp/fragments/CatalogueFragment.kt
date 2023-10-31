@@ -29,14 +29,12 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
     private lateinit var furnitureAdapter: FurnitureAdapter
     private var furnitures: FurnitureList = FurnitureList()
     private lateinit var linearLayoutManager: LinearLayoutManager
-    private lateinit var context: Context
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentCatalogueBinding.inflate(inflater, container,false)
-        context = requireContext()
         initFilter()
         return binding.root
     }
@@ -76,9 +74,9 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
 
     private fun initRecyclerView(){
         binding.catalogueRecyclerView.setHasFixedSize(true)
+        furnitureAdapter = FurnitureAdapter(context, furnitures.furnitures, this)
         linearLayoutManager = LinearLayoutManager(context)
         binding.catalogueRecyclerView.layoutManager = linearLayoutManager
-        furnitureAdapter = FurnitureAdapter(context, furnitures.furnitures, this)
         binding.catalogueRecyclerView.adapter = furnitureAdapter
     }
 
