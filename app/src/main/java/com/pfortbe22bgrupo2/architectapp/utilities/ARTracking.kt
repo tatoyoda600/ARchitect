@@ -1,6 +1,7 @@
 package com.pfortbe22bgrupo2.architectapp.utilities
 
 import android.util.Log
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.ar.core.Config
 import com.google.ar.core.PointCloud
 import dev.romainguy.kotlin.math.Float3
@@ -62,6 +63,7 @@ class Floor(
 class ARTracking {
     private val renderer: Render3D
     private val sceneView: ArSceneView
+    private val progressBar: CircularProgressIndicator
 
     private val ChecksPerSecond: Int
     private var lastFrame: ArFrame? = null
@@ -81,10 +83,11 @@ class ARTracking {
     // Points that get neighbors added afterwards are not added
     private val confirmedPoints = mutableListOf<ModelPoint>()
 
-    constructor(checksPerSecond: Int, sceneView: ArSceneView) {
+    constructor(checksPerSecond: Int, sceneView: ArSceneView, progressBar: CircularProgressIndicator) {
         ChecksPerSecond = Math.min(checksPerSecond, MAX_CHECKS_PER_SECOND)
         this.sceneView = sceneView
-        renderer = Render3D(sceneView)
+        this.progressBar = progressBar
+        renderer = Render3D(sceneView, progressBar)
     }
 
     fun setup(

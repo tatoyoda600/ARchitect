@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("androidx.navigation.safeargs.kotlin")
+    /*id("com.android.application")*/
     id("com.google.gms.google-services")
 }
 
@@ -94,4 +95,7 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation ("com.firebaseui:firebase-ui-firestore:8.0.2")
     implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-storage-ktx")
+
 }
