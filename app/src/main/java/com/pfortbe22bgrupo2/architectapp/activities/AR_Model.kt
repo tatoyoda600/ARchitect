@@ -55,9 +55,13 @@ class AR_Model : AppCompatActivity(R.layout.activity_ar_model), Render3D {
 
         val storage = FirebaseStorage.getInstance()
 
-        val futureModels = storage.reference.child("/models").listAll()
+        //Variable para elegir por categoría
+        val category = "sofas"
 
-        name = "chair.glb"
+        val futureModels = storage.reference.child("/models/${category}").listAll()
+
+        //Variable para elegir el modelo a mostrar
+        name = "IKEA-Arild_2_Seat_Sofa-3D.glb"
 
         futureModels.addOnSuccessListener {
 
