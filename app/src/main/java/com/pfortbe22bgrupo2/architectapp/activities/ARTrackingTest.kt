@@ -3,6 +3,7 @@ package com.pfortbe22bgrupo2.architectapp.activities
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.databinding.ActivityArtrackingTestBinding
 import com.pfortbe22bgrupo2.architectapp.utilities.ARTracking
@@ -16,6 +17,7 @@ class ARTrackingTest: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityArtrackingTestBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.progressIndicator.isVisible = false
 
         arTracking = ARTracking(5, binding.sceneView, binding.progressIndicator)
         arTracking.setup(

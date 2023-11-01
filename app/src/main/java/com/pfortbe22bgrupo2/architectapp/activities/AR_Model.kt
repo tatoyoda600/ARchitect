@@ -2,6 +2,7 @@ package com.pfortbe22bgrupo2.architectapp.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Button
 import androidx.core.view.isGone
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.progressindicator.CircularProgressIndicator
@@ -23,7 +24,8 @@ class AR_Model : AppCompatActivity(R.layout.activity_ar_model) {
     private lateinit var binding: ActivityArModelBinding
     private lateinit var sceneView: ArSceneView
     private lateinit var progressBar: CircularProgressIndicator
-    private lateinit var placeButton: ExtendedFloatingActionButton
+    //private lateinit var placeButton: ExtendedFloatingActionButton
+    private lateinit var placeButton: Button
     private lateinit var render3D: Render3D
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +34,7 @@ class AR_Model : AppCompatActivity(R.layout.activity_ar_model) {
         setContentView(binding.root)
 
         sceneView = binding.arSceneView
+        //placeButton = binding.extendedFloatingActionButton
         placeButton = binding.extendedFloatingActionButton
         progressBar = binding.loadingView
         render3D = Render3D(sceneView, progressBar)

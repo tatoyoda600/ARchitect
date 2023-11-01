@@ -6,7 +6,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:title="Perfil"
-        android:color="@color/white"
         android:icon="@drawable/profile_icon"
         />
     <item
@@ -14,7 +13,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:title="AR"
-        android:color="@color/white"
         android:icon="@drawable/ar_icon"
         />
 
