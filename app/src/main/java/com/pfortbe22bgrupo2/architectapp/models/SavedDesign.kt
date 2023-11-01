@@ -10,6 +10,7 @@ class SavedDesign(description: String?): Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString()
     )
+    constructor() : this("")
 
     init {
         this.description = description!!

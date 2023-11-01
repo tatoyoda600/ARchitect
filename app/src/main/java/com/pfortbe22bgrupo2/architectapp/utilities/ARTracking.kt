@@ -1,6 +1,7 @@
 package com.pfortbe22bgrupo2.architectapp.utilities
 
 import android.util.Log
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.ar.core.Config
 import com.pfortbe22bgrupo2.architectapp.types.Int3
 import com.pfortbe22bgrupo2.architectapp.types.ModelPoint
@@ -22,6 +23,7 @@ internal const val DICT_COORD_UNZOOM = 1.0f / DICT_COORD_ZOOM.toFloat() // Rever
 abstract class ARTracking {
     internal val renderer: Render3D
     private val sceneView: ArSceneView
+    private val progressBar: CircularProgressIndicator
 
     private val checksPerSecond: Int // How many frames will be analyzed every second
     internal var lastFrame: ArFrame? = null // The previous AR frame, to prevent reanalyzing frames
@@ -37,10 +39,11 @@ abstract class ARTracking {
 
     internal var callMainFunction: (() -> Unit)? = null // Function to run on the main thread (For when a coroutine needs to do something on the main thread)
 
-    constructor(checksPerSecond: Int, sceneView: ArSceneView) {
+    constructor(checksPerSecond: Int, sceneView: ArSceneView, progressBar: CircularProgressIndicator) {
         this.checksPerSecond = Math.min(checksPerSecond, MAX_CHECKS_PER_SECOND)
         this.sceneView = sceneView
-        renderer = Render3D(sceneView)
+        this.progressBar = progressBar
+        renderer = Render3D(sceneView, progressBar)
     }
 
     /** Takes care of setting up the AR scene. */

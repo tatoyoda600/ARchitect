@@ -4,6 +4,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.pfortbe22bgrupo2.architectapp.databinding.FurnitureItemBinding
 
 class FurnitureHolder(binding: FurnitureItemBinding): RecyclerView.ViewHolder(binding.root) {
@@ -17,6 +18,11 @@ class FurnitureHolder(binding: FurnitureItemBinding): RecyclerView.ViewHolder(bi
 
     fun setName(nombre:String) {
         binding.furnitureNameTextView.text = nombre
+    }
+
+    fun setImageUrl(imageUrl : Int, context: View) {
+       // binding.itemImageViewId.setImageResource(imageUrl)
+        Glide.with(context).load(imageUrl).into(binding.itemImageViewId)
     }
 
     fun getCardLayout(): CardView {
