@@ -99,4 +99,5 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-storage-ktx")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")
 }

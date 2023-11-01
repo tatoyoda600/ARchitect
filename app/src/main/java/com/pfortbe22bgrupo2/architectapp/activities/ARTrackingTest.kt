@@ -6,12 +6,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.databinding.ActivityArtrackingTestBinding
-import com.pfortbe22bgrupo2.architectapp.utilities.ARTracking
+import com.pfortbe22bgrupo2.architectapp.utilities.DefaultARTracking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 
 class ARTrackingTest: AppCompatActivity() {
-
+    val scope = CoroutineScope(Job() + Dispatchers.Main)
     lateinit var binding: ActivityArtrackingTestBinding
-    lateinit var arTracking: ARTracking
+    lateinit var arTracking: DefaultARTracking
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,11 +22,17 @@ class ARTrackingTest: AppCompatActivity() {
         setContentView(binding.root)
         binding.progressIndicator.isVisible = false
 
-        arTracking = ARTracking(5, binding.sceneView, binding.progressIndicator)
-        arTracking.setup(
-            arTracking::pointScanning,
-            arTracking::onConfirmedPoint
-        )
+        arTracking = DefaultARTracking(5, binding.sceneView, binding.progressIndicator, fun(){
+            binding.confirmBtn.isEnabled = true
+        })
+
+        binding.rescanBtn.setOnClickListener {
+            arTracking.reset()
+        }
+
+        binding.confirmBtn.setOnClickListener {
+            arTracking.confirm()
+        }
     }
 
 }
