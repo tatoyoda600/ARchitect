@@ -1,6 +1,7 @@
 package com.pfortbe22bgrupo2.architectapp.utilities
 
 import android.util.Log
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.ar.core.PointCloud
 import com.pfortbe22bgrupo2.architectapp.types.Floor
 import com.pfortbe22bgrupo2.architectapp.types.Int3
@@ -69,7 +70,7 @@ class DefaultARTracking : ARTracking {
     private var coloredFloor: Map<Int, Map<Int, Floor.CellState>>? = null // A grid representing the current colored floor area
 
     /** Sets up the AR state. */
-    constructor(checksPerSecond: Int, sceneView: ArSceneView, onFloorDetectedFunction: () -> Unit = fun(){}) : super(checksPerSecond, sceneView) {
+    constructor(checksPerSecond: Int, sceneView: ArSceneView, progressBar: CircularProgressIndicator, onFloorDetectedFunction: () -> Unit = fun(){}) : super(checksPerSecond, sceneView, progressBar) {
         setup(
             this@DefaultARTracking::pointScanning,
             this@DefaultARTracking::onConfirmedPoint
