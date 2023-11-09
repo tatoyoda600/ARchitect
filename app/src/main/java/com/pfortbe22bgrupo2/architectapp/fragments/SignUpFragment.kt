@@ -7,6 +7,7 @@ import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -96,7 +97,14 @@ class SignUpFragment: Fragment() {
                     addUserToFirestore(email, userName, userUid)
                     goToLoginFragment()
                 } else {
-                    Log.w(ContentValues.TAG, "createUserWithEmail:failure", task.exception)
+                    Log.e(ContentValues.TAG, "createUserWithEmail:failure", task.exception)
+                    val message = "El correo electrónico ingresado ya está en uso por otro usuario"
+                    val builder = AlertDialog.Builder(requireContext())
+                    builder.setMessage(message)
+                        .setTitle("Error de registro")
+                        .setPositiveButton("OK", null)
+                    val dialog = builder.create()
+                    dialog.show()
                 }
             }
     }

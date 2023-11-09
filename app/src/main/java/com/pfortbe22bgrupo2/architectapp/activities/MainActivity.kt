@@ -33,6 +33,5 @@ class MainActivity: AppCompatActivity() {
             val intent = Intent(this, CatalogueActivity::class.java)
             startActivity(intent)
         }
-
     }
 }

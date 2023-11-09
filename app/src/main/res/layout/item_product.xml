@@ -2,28 +2,20 @@
 
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/cardItem"
+    android:id="@+id/item_product_card_view_id"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    android:backgroundTintMode="add"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="8dp">
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/item_product_card_view_id"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        app:cardCornerRadius="26dp">
+    android:layout_height="190dp"
+    app:cardElevation="4dp"
+    app:cardCornerRadius="26dp"
+    android:translationZ="20dp"
+    app:cardUseCompatPadding="true"
+    android:layout_weight="1">
 
         <ImageView
             android:id="@+id/item_product_image_view_id"
-            android:layout_width="392dp"
-            android:layout_height="158dp"
-            android:scaleType="centerInside" />
-
-    </androidx.cardview.widget.CardView>
-
-
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:scaleType="centerInside"
+            />
 </androidx.cardview.widget.CardView>
