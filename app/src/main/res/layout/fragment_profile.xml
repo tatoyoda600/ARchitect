@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/frameLayout"
+    android:id="@+id/drawer_profile_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/light_grey"
@@ -12,103 +12,109 @@
         android:id="@+id/profile_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/black"
+        android:background="@color/main_light_brown"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
+        app:layout_constraintBottom_toTopOf="@+id/layout_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:menu="@menu/profile_toolbar">
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/profile_fragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="@string/profile_fragment"
+            android:textColor="@color/black"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/profile_toolbar"
-            android:textColor="@color/white" />
-       </androidx.appcompat.widget.Toolbar>
+            android:textStyle="bold"/>
+    </androidx.appcompat.widget.Toolbar>
 
     <LinearLayout
         android:id="@+id/layout_container"
-        android:layout_width="274dp"
-        android:layout_height="544dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:gravity="top"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.492"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/rigth_guideline"
+        app:layout_constraintStart_toStartOf="@+id/left_guideline"
         app:layout_constraintTop_toBottomOf="@+id/profile_toolbar"
         app:layout_constraintVertical_bias="0.133">
 
 
         <ImageView
             android:id="@+id/profile_user_pic_image_view"
-            android:layout_width="146dp"
-            android:layout_height="138dp"
+            android:layout_width="180dp"
+            android:layout_height="160dp"
             android:layout_gravity="center"
             android:layout_marginBottom="20dp"
             android:background="@drawable/profile_image_style"
-            android:contentDescription="@string/profile_pic_description"/>
+            android:src="@drawable/profile_pic"
+            android:contentDescription="@string/profile_pic_description"
+/>
 
         <TextView
             android:id="@+id/profile_user_name_text_view"
-            android:layout_width="269dp"
-            android:layout_height="50dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginBottom="20dp"
-            android:layout_weight="1"
             android:background="@drawable/input_text"
             android:enabled="false"
             android:gravity="center|start"
             android:hint="@string/user_name"
             android:padding="10dp"
-            android:textSize="15sp" />
+            android:textSize="15sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"/>
 
         <TextView
             android:id="@+id/profile_email_text_view"
-            android:layout_width="269dp"
-            android:layout_height="50dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginBottom="20dp"
-            android:layout_weight="1"
             android:background="@drawable/input_text"
             android:enabled="false"
             android:gravity="center|start"
             android:hint="@string/email"
             android:padding="10dp"
-            android:textSize="15sp" />
+            android:textSize="15sp"
+            android:textColor="@color/black"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/profile_phone_number_text_view"
-            android:layout_width="269dp"
-            android:layout_height="50dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginBottom="20dp"
-            android:layout_weight="1"
             android:background="@drawable/input_text"
             android:enabled="false"
             android:gravity="center|start"
             android:hint="@string/phone_number"
             android:padding="10dp"
-            android:textSize="15sp" />
+            android:textSize="15sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"/>
 
         <TextView
             android:id="@+id/profile_direction_text_view"
-            android:layout_width="269dp"
-            android:layout_height="50dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_weight="1"
             android:background="@drawable/input_text"
             android:enabled="false"
             android:gravity="center|start"
             android:hint="@string/direction"
             android:padding="10dp"
-            android:textSize="15sp" />
+            android:textSize="15sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"/>
 
         <Button
             android:id="@+id/edit_profile_button"
@@ -116,7 +122,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="25dp"
-            android:layout_weight="1"
             android:background="@drawable/button_common_style"
             android:text="@string/edit_profile"
             android:textAllCaps="false"
@@ -130,14 +135,27 @@
             android:layout_height="38dp"
             android:layout_gravity="center"
             android:layout_marginTop="10dp"
-            android:layout_weight="1"
             android:text="@string/change_password"
             android:textAlignment="center"
             android:textColor="@color/main_green"
             android:textSize="15sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
     </LinearLayout>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/left_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.1" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/rigth_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.9" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

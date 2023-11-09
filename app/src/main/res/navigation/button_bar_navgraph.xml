@@ -16,6 +16,9 @@
         <action
             android:id="@+id/action_profileFragment_to_designWallContainerFragment"
             app:destination="@id/designWallContainerFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_changePasswordFragment"
+            app:destination="@id/changePasswordFragment" />
     </fragment>
     <activity
         android:id="@+id/ARTrackingTest"
@@ -58,4 +61,18 @@
         android:name="com.pfortbe22bgrupo2.architectapp.activities.AR_Model"
         android:label="activity_ar_model"
         tools:layout="@layout/activity_ar_model" />
+    <fragment
+        android:id="@+id/changePasswordFragment"
+        android:name="com.pfortbe22bgrupo2.architectapp.fragments.ChangePasswordFragment"
+        android:label="fragment_change_password"
+        tools:layout="@layout/fragment_change_password" >
+        <action
+            android:id="@+id/action_changePasswordFragment_to_forgotPasswordFragment2"
+            app:destination="@id/forgotPasswordFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/forgotPasswordFragment2"
+        android:name="com.pfortbe22bgrupo2.architectapp.fragments.ForgotPasswordFragment"
+        android:label="fragment_forgot_password"
+        tools:layout="@layout/fragment_forgot_password" />
 </navigation>
