@@ -2,11 +2,4 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="main_light_brown">#B6A490</color>
-    <color name="light_grey">#D4CABE</color>
-    <color name="main_green">#264536</color>
-    <color name="sceneview">#FF6639A6</color>
-    <color name="purple">#8B00D6</color>
-    <color name="black_purple">#22003A</color>
-    <color name="second_light_grey">#F3EFEA</color>
 </resources>
