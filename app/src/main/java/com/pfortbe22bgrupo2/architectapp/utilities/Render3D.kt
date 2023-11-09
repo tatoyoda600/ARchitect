@@ -46,6 +46,16 @@ class Render3D(
         return sceneView.addChild(modelNode)
     }
 
+    fun createEmptyNode(position: Position, rotation: Rotation): Node {
+        val modelNode: ModelNode = ModelNode(sceneView.engine).apply {
+            this.position = position
+            this.rotation = rotation
+            this.scale = Scale(1f)
+        }
+
+        return sceneView.addChild(modelNode)
+    }
+
     fun arRender(
         modelPath: String
     ): ArModelNode {

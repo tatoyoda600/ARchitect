@@ -9,6 +9,8 @@ class Floor(
 ) {
     constructor(): this(mutableMapOf(), Int.MAX_VALUE)
 
+    constructor(grid: MutableMap<Int, MutableMap<Int, CellState>>): this(grid, Int.MAX_VALUE)
+
     enum class CellState {
         UNKNOWN,
         EMIT_EDGE,

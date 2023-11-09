@@ -1,5 +1,6 @@
 package com.pfortbe22bgrupo2.architectapp.utilities
 
+import android.content.Context
 import android.util.Log
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.ar.core.PointCloud
@@ -11,6 +12,8 @@ import com.pfortbe22bgrupo2.architectapp.types.Point
 import com.pfortbe22bgrupo2.architectapp.types.PosDir
 import io.github.sceneview.ar.ArSceneView
 import io.github.sceneview.ar.arcore.ArFrame
+import io.github.sceneview.ar.arcore.position
+import io.github.sceneview.ar.arcore.rotation
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.Rotation
 import io.github.sceneview.math.toVector3
@@ -69,6 +72,8 @@ class DefaultARTracking : ARTracking {
     private var detectedFloor: Floor = Floor() // A grid representing the current confirmed floor area
     private var coloredFloor: Map<Int, Map<Int, Floor.CellState>>? = null // A grid representing the current colored floor area
 
+    private var loadFloorNode: Node? = null // An empty node with an entire floor as children, which will be destroyed when the user decides to lock the floor in place
+
     /** Sets up the AR state. */
     constructor(checksPerSecond: Int, sceneView: ArSceneView, progressBar: CircularProgressIndicator, onFloorDetectedFunction: () -> Unit = fun(){}) : super(checksPerSecond, sceneView, progressBar) {
         setup(
@@ -88,10 +93,23 @@ class DefaultARTracking : ARTracking {
         super.reset()
     }
 
-    /** Confirm the current scan and start the conversion to a Floor, or update a previous Floor with the scan. */
+    /** Confirm the current scan and start the conversion to a Floor, or update a previous Floor with the scan.
+     *
+     * If a floor is being loading in, it'll first use its points to create a Floor, or add to the previous Floor */
     fun confirm() {
         CoroutineScope(Dispatchers.IO).launch {
-            paused = true
+            setPaused(true)
+
+            loadFloorNode?.let {
+                for (child in loadFloorNode!!.children) {
+                    colorPoint(child.worldPosition, Floor.CellState.FILLED)
+                }
+                loadFloorNode!!.destroy()
+
+                loadFloorNode = null
+            }
+
+
             val outlineAsync = async{ getFloorOutline() }
             val outlines: Outline = outlineAsync.await()
             delay(10 * DELAY_MULTIPLIER)
@@ -115,9 +133,9 @@ class DefaultARTracking : ARTracking {
 
             delay(10 * DELAY_MULTIPLIER)
             detectedFloor = floor
-            callMainFunction = {
+            CoroutineScope(Dispatchers.Main).launch {
                 paintFloor()
-                paused = false
+                setPaused(false)
             }
         }
     }
@@ -128,6 +146,13 @@ class DefaultARTracking : ARTracking {
      *
      * If a floor height has been found, use it to further filter the points that were detected. */
     fun pointScanning(arFrame: ArFrame) {
+        // If a floor is currently trying to be loaded, update the position of the floor-loading node along with the camera
+        loadFloorNode?.let {
+            it.position = Position(arFrame.camera.pose.position.x, floorHeight * DICT_COORD_UNZOOM, arFrame.camera.pose.position.z)
+            // The camera's -X rotation is its yaw rotation, unlike nodes which use their Y rotation for yaw
+            it.rotation = Rotation(0f, -arFrame.camera.pose.rotation.x, 0f)
+        }
+
         val pointCloud: PointCloud = arFrame.frame.acquirePointCloud()
         if (pointCloud.ids != null && pointCloud.timestamp != lastFrame?.frame?.timestamp) {
             lastFrame = arFrame
@@ -220,8 +245,7 @@ class DefaultARTracking : ARTracking {
                 useFloorHeight = true
                 clearNonFloorPoints()
                 onFloorDetectedFunction()
-                paused = false
-                Log.w("ARTracking", "Floor Height: ${floorHeight}")
+                setPaused(false)
             }
         }
     }
@@ -361,7 +385,7 @@ class DefaultARTracking : ARTracking {
     /** Clear all points not at floor height. */
     fun clearNonFloorPoints(): Int {
         if (!paused) {
-            paused = true
+            setPaused(true)
             runBlocking {
                 delay(10 * DELAY_MULTIPLIER)
             }
@@ -681,5 +705,70 @@ class DefaultARTracking : ARTracking {
             }
         }
         coloredFloor = detectedFloor.getGridCopy()
+    }
+
+    /** Saves the confirmed floor in the database. */
+    fun saveFloor(context: Context) {
+        setPaused(true)
+        CoroutineScope(Dispatchers.IO).launch {
+            val database = DatabaseHandler(context)
+            // The camera's -X rotation is its yaw rotation
+            database.insertFloor(detectedFloor, DICT_COORD_UNZOOM, lastFrame!!.camera.pose.position, -lastFrame!!.camera.pose.rotation.x)
+
+            setPaused(false)
+        }
+    }
+
+    /** Retrieves a floor from the database, for placing. */
+    fun loadFloor(context: Context, id: Int) {
+        if (useFloorHeight) {
+            setPaused(true)
+
+            if (loadFloorNode != null) {
+                loadFloorNode!!.destroy()
+                loadFloorNode = null
+            }
+
+            CoroutineScope(Dispatchers.IO).launch {
+                val database = DatabaseHandler(context)
+                val floorData = database.getFloorByID(id, DICT_COORD_ZOOM)
+                if (floorData != null) {
+                    val floor = floorData.first
+                    val cameraPosition = convertPosToIndexes(lastFrame!!.camera.pose.position)
+                    val floorPosition = Int3(cameraPosition.x, floorHeight, cameraPosition.z)
+
+                    val parentNode = renderer.createEmptyNode(
+                        floorPosition.toFloat3() * DICT_COORD_UNZOOM,
+                        // Nodes use their Y rotation for yaw
+                        Rotation(0f, floorData.second, 0f)
+                    )
+
+                    for (x in floor.grid) {
+                        for (z in x.value) {
+                            val pointPos = Int3(x.key, 0, z.key)
+
+                            // Changing the parent of a node doesn't change its local position, rotation, or scale, so the loaded position can just be used directly
+                            val node: Node = renderer.render(
+                                modelPath = OUTLINE_POINT_MODEL,
+                                position = pointPos.toFloat3() * DICT_COORD_UNZOOM,
+                                rotation = Rotation()
+                            )
+                            node.parent = parentNode
+                        }
+                    }
+
+                    loadFloorNode = parentNode
+                }
+                else {
+                    Log.e("ARTracking", "Failed to Find Floor")
+                    val ids = database.getFloorIDs()
+                    for (i in ids) {
+                        Log.d("DefaultARTracking", "Floor ID: ${i}")
+                    }
+                }
+
+                setPaused(false)
+            }
+        }
     }
 }

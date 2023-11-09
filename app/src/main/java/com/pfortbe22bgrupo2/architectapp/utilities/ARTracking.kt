@@ -1,6 +1,7 @@
 package com.pfortbe22bgrupo2.architectapp.utilities
 
 import android.util.Log
+import androidx.core.view.isVisible
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.ar.core.Config
 import com.pfortbe22bgrupo2.architectapp.types.Int3
@@ -9,6 +10,14 @@ import com.pfortbe22bgrupo2.architectapp.types.Point
 import dev.romainguy.kotlin.math.Float3
 import io.github.sceneview.ar.ArSceneView
 import io.github.sceneview.ar.arcore.ArFrame
+import io.github.sceneview.math.Position
+import io.github.sceneview.math.Rotation
+import io.github.sceneview.math.Scale
+import io.github.sceneview.node.ModelNode
+import io.github.sceneview.node.Node
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 internal const val MAX_CHECKS_PER_SECOND = 5 // Limit how often frames are checked
 internal const val DICT_COORD_ZOOM = 10 // Multiplies points before truncation to increase accuracy (1u ~= 1m, so 10x zoom makes each cell equivalent to ~10cm³; 100x ~= 1cm³/cell)
@@ -36,8 +45,6 @@ abstract class ARTracking {
     internal val pointIds = mutableListOf<Int>(Int.MIN_VALUE) // List of detected point IDs, in order to avoid repeated points
     internal val points = mutableMapOf<Int,MutableMap<Int,MutableMap<Int,MutableList<Point>>>>() // 3D grid of world cells, containing the detected points located in each cell (Empty cells should not be registered)
     internal val confirmedPoints = mutableListOf<ModelPoint>() // List of confirmed points
-
-    internal var callMainFunction: (() -> Unit)? = null // Function to run on the main thread (For when a coroutine needs to do something on the main thread)
 
     constructor(checksPerSecond: Int, sceneView: ArSceneView, progressBar: CircularProgressIndicator) {
         this.checksPerSecond = Math.min(checksPerSecond, MAX_CHECKS_PER_SECOND)
@@ -124,11 +131,8 @@ abstract class ARTracking {
             return
         }
 
-        callMainFunction?.let {
-            it()
-            callMainFunction = null
-        }
-
+        // 'Frame.fps(Frame)' gets the time in seconds between the 2 frames, then divides 1 by that, giving you the current fps, if using consecutive frames
+        // Here frames are discarded, without saving them, until one gives an fps under the desired amount, effectively limiting the fps
         if (arFrame.fps(lastFrame) < checksPerSecond && !paused) {
             frameUpdateFunction(arFrame)
         }
@@ -177,6 +181,19 @@ abstract class ARTracking {
         deleteEmptyCells()
 
         return cleanUpCount
+    }
+
+    /** Pauses / Unpauses the AR. */
+    fun setPaused(value: Boolean) {
+        paused = value
+        setLoading(value)
+    }
+
+    /** Shows / Hides a spinning circle for when something is loading. */
+    fun setLoading(value: Boolean) {
+        CoroutineScope(Dispatchers.Main).launch {
+            progressBar.isVisible = value
+        }
     }
 
     /*

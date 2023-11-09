@@ -47,7 +47,15 @@
         android:orientation="vertical"
         app:layout_constraintGuide_end="20dp" />
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="20dp" />
+
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -77,6 +85,43 @@
             android:layout_height="wrap_content"
             android:enabled="false"
             android:text="@string/confirm_floor" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toStartOf="@+id/guideline3"
+        app:layout_constraintStart_toStartOf="@+id/guideline2"
+        app:layout_constraintTop_toTopOf="@+id/guideline4">
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/save_btn"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:text="@string/save_floor" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/load_btn"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:text="@string/load_floor" />
 
         <Space
             android:layout_width="wrap_content"
