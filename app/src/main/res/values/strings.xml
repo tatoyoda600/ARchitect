@@ -51,4 +51,12 @@
     <string name="description">Descripción</string>
     <string name="redirect">Redirección</string>
     <string name="ar">AR</string>
+    <string name="profile">Perfil</string>
+    <string name="catalogue">Catalogo</string>
+    <string name="delete_acount">Eliminar Cuenta</string>
+    <string name="address">Direccion</string>
+    <string name="old_password">Contraseña Actual</string>
+    <string name="new_password">Contraseña Nueva</string>
+    <string name="confirm_change_password">Cambiar Contraseña</string>
+    <string name="edit_change_password">Cambiar mi Contraseña</string>
 </resources>
