@@ -5,32 +5,41 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.CatalogueActivity"
-    android:background="@color/main_light_brown">
-
+    android:background="@color/light_grey">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/container_view_catalogue"
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
         app:defaultNavHost="true"
-        app:layout_constraintBottom_toTopOf="@+id/catalogue_bottom_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:navGraph="@navigation/button_bar_navgraph"/>
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/catalogue_bottom_bar"
-        android:layout_width="match_parent"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/catalogue_bottom_bar_container"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        app:cardCornerRadius="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/button_bar_menu"
-        app:itemTextColor="@color/bottom_menu_colors"
-        app:itemIconTint="@color/bottom_menu_colors"
-        />
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/catalogue_bottom_bar"
+            android:layout_width="290dp"
+            android:layout_height="65dp"
+            android:background="@color/main_light_brown"
+            app:itemIconTint="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:menu="@menu/button_bar_menu" />
+
+    </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>
