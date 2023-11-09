@@ -3,6 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -23,23 +29,34 @@
         android:theme="@style/Theme.ARchitect"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
-            android:exported="false" />
-
-        <meta-data
-            tools:replace="android:value"
-            android:name="com.google.ar.core"
-            android:value="required" />
-
+            android:name=".activities.AR_Model"
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity
-            android:name=".ARTrackingTest"
-            android:exported="true">
+            android:name=".activities.CatalogueActivity"
+            android:exported="true" />
+        <activity
+            android:name=".activities.Menu"
+            android:exported="false" />
+        <activity
+            android:name=".activities.ARTrackingTest"
+            android:exported="true"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.MainActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="true"
+            android:screenOrientation="locked">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <meta-data
+            android:name="com.google.ar.core"
+            android:value="required"
+            tools:replace="android:value" />
     </application>
 
 </manifest>

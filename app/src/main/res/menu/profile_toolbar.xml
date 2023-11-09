@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+        android:id="@+id/menu_item_edit_profile"
+        android:title="@string/edit_profile_fragment" />
+
+    <item
+        android:id="@+id/menu_item_designs"
+        android:title="@string/saved_design" />
+
+    <item
+        android:id="@+id/logout_item"
+        android:title="@string/logout" />
+
+    <item
+        android:id="@+id/delete_user_item"
+        android:title="@string/delete_acount" />
+</menu>
