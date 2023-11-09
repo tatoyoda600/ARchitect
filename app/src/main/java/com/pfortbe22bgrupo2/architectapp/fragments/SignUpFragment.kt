@@ -111,7 +111,9 @@ class SignUpFragment: Fragment() {
             "email" to email,
             "userName" to userName,
             "id" to userUid,
-            "isAdmin" to false
+            "isAdmin" to false,
+            "address" to null,
+            "phoneNumber" to null
         )
         db.collection("users").document(userUid).set(user)
     }
