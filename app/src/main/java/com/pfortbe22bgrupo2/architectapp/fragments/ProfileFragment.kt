@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -97,7 +98,9 @@ class ProfileFragment: Fragment() {
                         val uri = document.data?.get("profileImageUrl")
                         Glide.with(requireContext())
                             .load(uri)
-                            .apply(RequestOptions().placeholder(R.drawable.profile_pic))
+                            .apply(RequestOptions().placeholder(R.drawable.profile_pic).transform(
+                                CircleCrop()
+                            ))
                             .into(binding.profileUserPicImageView)
                         Log.d(TAG, "DocumentSnapshot data: ${document.data}")
                     } else {

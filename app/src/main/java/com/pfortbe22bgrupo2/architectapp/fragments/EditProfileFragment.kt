@@ -185,7 +185,10 @@ class EditProfileFragment: Fragment() {
                     binding.addressEditEditText.text = Editable.Factory.getInstance().newEditable(address)
                     Log.d(ContentValues.TAG, "DocumentSnapshot data: ${document.data}")
                     val uri = document.data?.get("profileImageUrl")
-                    Glide.with(requireContext()).load(uri).into(binding.editUserPicImageView)
+                    Glide.with(requireContext())
+                        .load(uri)
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(binding.editUserPicImageView)
                 } else {
                     Log.d(ContentValues.TAG, "No such document")
                 }
