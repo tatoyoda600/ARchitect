@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
 
     <item
@@ -17,4 +18,23 @@
     <item
         android:id="@+id/delete_user_item"
         android:title="@string/delete_acount" />
+
+    <item
+        android:id="@+id/item_admin_options"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="Opciones para Admins" >
+        <menu
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <item
+                android:id="@+id/menu_item_delete_user_by_admin"
+                android:title="Eliminar Usuario Todos" />
+
+            <item
+                android:id="@+id/menu_item_delete_products_by_admin"
+                android:title="Eliminar Productos" />
+        </menu>
+    </item>
+
 </menu>

@@ -35,11 +35,6 @@ class ProfileFragment: Fragment() {
     private lateinit var auth: FirebaseAuth
     private val db = Firebase.firestore
     private lateinit var currentUser: FirebaseUser
-/*    //drawer
-    private lateinit var drawerLayout: DrawerLayout
-    private lateinit var navigationView: NavigationView
-
-    private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle*/
     private lateinit var toolbar: Toolbar
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,19 +45,6 @@ class ProfileFragment: Fragment() {
         currentUser = auth.currentUser!!
         toolbar = binding.profileToolbar
         toolbar.overflowIcon = ContextCompat.getDrawable(requireContext(), R.drawable.menu_icon)
-
-        //drawer
-/*
-        drawerLayout = binding.drawerProfileLayout
-        navigationView = binding.profileNavView
-        toolbar = binding.profileToolbar
-        actionBarDrawerToggle = ActionBarDrawerToggle(requireActivity(),drawerLayout,toolbar,0,0)
-        drawerLayout.addDrawerListener(actionBarDrawerToggle)
-        actionBarDrawerToggle.syncState()
-        navigationView.setNavigationItemSelectedListener(this)*/
-
-
-
 
         return binding.root
     }
@@ -86,6 +68,7 @@ class ProfileFragment: Fragment() {
             docRef.get()
                 .addOnSuccessListener { document ->
                     if (document != null) {
+                        //isAdmin = document.data?.get("isAdmin") as? Boolean == true
                         val userName = document.data?.get("userName") as? String
                         binding.profileUserNameTextView.text = "Usuario: ${userName}"
                         binding.profileEmailTextView.text = "E-mail: ${currentUser.email}"
@@ -122,9 +105,17 @@ class ProfileFragment: Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.profile_toolbar, menu)
+        val docRef = db.collection("users").document(currentUser.uid)
+        var isAdmin = false
+        docRef.get().addOnCompleteListener {
+            if (it.isSuccessful){
+                isAdmin = it.result.data?.get("isAdmin") as Boolean
+            }
+            val deleteUserByAdminMenu = menu.findItem(R.id.item_admin_options)
+            deleteUserByAdminMenu.isVisible = isAdmin
+        }
         super.onCreateOptionsMenu(menu, inflater)
     }
-
 
    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
@@ -142,7 +133,6 @@ class ProfileFragment: Fragment() {
                 true
             }
             R.id.delete_user_item -> {
-                //Verificar datos de cuenta??
                 showConfirmationDialog()
                 true
             }
@@ -177,7 +167,6 @@ class ProfileFragment: Fragment() {
     }
 
     private fun deleteUserFromFirestore() {
-        //val currentUser = auth.currentUser!!
         db.collection("users").document(currentUser.uid)
             .delete()
             .addOnSuccessListener { Log.d(TAG, "DocumentSnapshot successfully deleted!") }
