@@ -41,34 +41,32 @@ class ChangePasswordFragment : Fragment() {
         return binding.root
     }
 
+/*    if (reauthTask.isSuccessful) {
+        // Reautenticación exitosa, ahora actualiza la contraseña
+        currentUser.updatePassword(newPassword)
+            .addOnCompleteListener { updatePasswordTask ->
+                if (updatePasswordTask.isSuccessful) {
+                    // Contraseña actualizada exitosamente
+                    Log.d(TAG, "User password updated.")
+                    auth.signOut()
+                    navToMainActivity()
+                } else {
+                    // Error al actualizar la contraseña
+                    Log.d(TAG, "Failed to update user password. ${updatePasswordTask.exception}")
+                    // Manejar el error o proporcionar retroalimentación al usuario
+                }
+            }
+    } else {
+        // Error en la reautenticación
+        Log.d(TAG, "Failed to reauthenticate user. ${reauthTask.exception}")
+        Toast.makeText(requireContext(), "Contraseña Incorrecta", Toast.LENGTH_SHORT).show()
+    }
+}*/
+
     override fun onStart() {
         super.onStart()
         binding.editPasswordButton.setOnClickListener(){
-            var email = currentUser.email
-            if (email == null) email = ""
-            val oldPassword = binding.editOldPasswordEditText.text.toString()
-            val newPassword = binding.editPasswordEditText.text.toString()
-            val repeatNewPassword = binding.editRepeatPasswordEditText.text.toString()
-            val isValidate: Boolean = validateFields(oldPassword,newPassword, repeatNewPassword)
-            if (isValidate){
-                val credential = EmailAuthProvider.getCredential(email, oldPassword)
-                currentUser.reauthenticate(credential)
-                    .addOnCompleteListener {
-                        currentUser.updatePassword(newPassword).addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    Log.d(TAG, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                                    Log.d(TAG, "User password updated.")
-                                    auth.signOut()
-                                    navToMainActivity()
-                                }
-                            }
-                    }
-                    .addOnFailureListener {
-                        Log.d(TAG, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                        Toast.makeText(requireContext(), "Contraseña Incorrecta", Toast.LENGTH_SHORT).show()
-                        Log.d(TAG, "User password failed updated. ${it.message}")
-                    }
-            }
+            changePassword()
         }
 
         binding.editForgotPasswordTextView.setOnClickListener(){
@@ -76,6 +74,31 @@ class ChangePasswordFragment : Fragment() {
         }
     }
 
+    private fun changePassword() {
+        var email = currentUser.email
+        if (email == null) email = ""
+        val oldPassword = binding.editOldPasswordEditText.text.toString()
+        val newPassword = binding.editPasswordEditText.text.toString()
+        val repeatNewPassword = binding.editRepeatPasswordEditText.text.toString()
+        val isValidate: Boolean = validateFields(oldPassword,newPassword, repeatNewPassword)
+        if (isValidate){
+            val credential = EmailAuthProvider.getCredential(email, oldPassword)
+            currentUser.reauthenticate(credential)
+                .addOnCompleteListener {
+                    if (it.isSuccessful){
+                        currentUser.updatePassword(newPassword).addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                Log.d(TAG, "User password updated.")
+                                auth.signOut()
+                                navToMainActivity()
+                            }
+                        }
+                    }else{
+                        Toast.makeText(requireContext(), "Contraseña Actual Incorrecta", Toast.LENGTH_LONG).show()
+                    }
+                }
+        }
+    }
 
 
     private fun validateFields(oldPassword:String, newPassword: String, repeatNewPassword: String): Boolean {
@@ -108,6 +131,7 @@ class ChangePasswordFragment : Fragment() {
     private fun navToMainActivity() {
         val intent = Intent(requireActivity(), MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        intent.putExtra("fragmentToLoad", "LoginFragment")
         startActivity(intent)
     }
 

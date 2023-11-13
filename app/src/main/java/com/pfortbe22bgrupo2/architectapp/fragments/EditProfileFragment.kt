@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
 import android.util.Log
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -52,8 +53,7 @@ class EditProfileFragment: Fragment() {
         super.onStart()
         updateProfile()
         binding.editButton.setOnClickListener() {
-            updateUser()
-            findNavController().navigateUp()
+            if (updateUser()) findNavController().navigateUp()
         }
         binding.floatingActionButton.setOnClickListener(){
             showImagePickerDialog(requireContext())
@@ -99,14 +99,13 @@ class EditProfileFragment: Fragment() {
 
     private fun uploadToFirebaseGallery(imageUri: Uri?) {
         if (imageUri != null) {
-            // Genera un nombre de archivo único para la imagen (por ejemplo, usando el ID del usuario)
+            // Genera un nombre de archivo unico para la imagen
             val imageFileName = "${currentUser.uid}.jpg"
             val storageReference = FirebaseStorage.getInstance().reference.child("images/$imageFileName")
             // Sube la imagen a Firebase Storage
             storageReference.putFile(imageUri)
                 .addOnSuccessListener { taskSnapshot ->
-                    // La imagen se subió exitosamente
-                    // Ahora obtén la URL de la imagen
+                    // Ahora tengo la URL de la imagen
                     storageReference.downloadUrl.addOnSuccessListener { uri ->
                         val imageUrl = uri.toString()
                         Glide.with(requireContext()).load(imageUrl).into(binding.editUserPicImageView)
@@ -130,15 +129,14 @@ class EditProfileFragment: Fragment() {
     private fun uploadToFirebaseCamara(imageBitmap: Bitmap) {
         val imageFileName = "${currentUser.uid}.jpg"
         val storageReference = FirebaseStorage.getInstance().reference.child("images/$imageFileName.jpg")
-        // Comprime la imagen y conviértela en un arreglo de bytes
+        // Comprime la imagen y convierte en un arreglo de bytes
         val byteArrayOutputStream = ByteArrayOutputStream()
         imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
         val data = byteArrayOutputStream.toByteArray()
         // Sube la imagen a Firebase Storage
         storageReference.putBytes(data)
             .addOnSuccessListener { taskSnapshot ->
-                // La imagen se subió exitosamente
-                // Ahora obtén la URL de la imagen
+                // Ahora tengo la URL de la imagen
                 storageReference.downloadUrl.addOnSuccessListener { uri ->
                     val imageUrl = uri.toString()
                     Glide.with(requireContext()).load(imageUrl).apply(RequestOptions().placeholder(R.drawable.profile_pic)).into(binding.editUserPicImageView)
@@ -158,15 +156,43 @@ class EditProfileFragment: Fragment() {
             }
     }
 
-    private fun updateUser() {
-        val docRef = db.collection("users").document(currentUser.uid)
-        val updates = hashMapOf<String, Any>(
-            "email" to binding.emailEditEditText.text.toString(),
-            "userName" to binding.nameEditEditText.text.toString(),
-            "address" to binding.addressEditEditText.text.toString(),
-            "phoneNumber" to binding.phoneEditEditText.text.toString()
-        )
-        docRef.update(updates)
+    private fun updateUser(): Boolean {
+        val isValid = validateFields()
+        if (isValid){
+            val docRef = db.collection("users").document(currentUser.uid)
+            val updates = hashMapOf<String, Any>(
+                "email" to binding.emailEditEditText.text.toString(),
+                "userName" to binding.nameEditEditText.text.toString(),
+                "address" to binding.addressEditEditText.text.toString(),
+                "phoneNumber" to binding.phoneEditEditText.text.toString()
+            )
+            docRef.update(updates)
+        }
+        return isValid
+    }
+
+    private fun validateFields(): Boolean {
+        var isValid = true
+        val name: Int = 6
+        val phone: Int = 10
+        val address: Int = 8
+        if (binding.nameEditEditText.text.toString().length < name){
+            binding.nameEditEditText.error = "Nombre de usuario muy corto"
+            isValid = false
+        }
+        if (!Patterns.EMAIL_ADDRESS.matcher(binding.emailEditEditText.text.toString()).matches()){
+            binding.emailEditEditText.error = "Correo electrónico inválido"
+            isValid = false
+        }
+        if (binding.phoneEditEditText.text.toString().length != phone) {
+            binding.phoneEditEditText.error = "Telefono invalido"
+            isValid = false
+        }
+        if (binding.addressEditEditText.text.toString().length < address) {
+            binding.addressEditEditText.error = "La direccion debe contener 8 caracteres minimo"
+            isValid = false
+        }
+        return isValid
     }
 
     private fun updateProfile() {
