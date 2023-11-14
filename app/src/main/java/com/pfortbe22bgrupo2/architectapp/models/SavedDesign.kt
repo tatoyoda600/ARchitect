@@ -7,6 +7,7 @@ class SavedDesign(description: String?): Parcelable {
     var id: String = ""
     var description: String = ""
     var image: String = ""
+    var userId: String = ""
 
 
     constructor(parcel: Parcel) : this(

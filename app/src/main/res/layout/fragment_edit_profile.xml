@@ -47,6 +47,13 @@
             android:src="@drawable/baseline_add_photo_alternate_24"
             app:layout_anchor="@id/edit_user_pic_image_view" />
 
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+
         <ImageView
             android:id="@+id/edit_user_pic_image_view"
             android:layout_width="146dp"

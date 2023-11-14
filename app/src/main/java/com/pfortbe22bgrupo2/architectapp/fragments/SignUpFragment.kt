@@ -1,8 +1,6 @@
 package com.pfortbe22bgrupo2.architectapp.fragments
 
-import android.content.ContentValues
 import android.os.Bundle
-import android.util.Log
 import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
@@ -11,11 +9,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentSignUpBinding
+import com.pfortbe22bgrupo2.architectapp.listeners.AuthResultListener
 import com.pfortbe22bgrupo2.architectapp.viewModels.SignUpViewModel
 
 class SignUpFragment: Fragment() {
@@ -24,18 +19,15 @@ class SignUpFragment: Fragment() {
         fun newInstance() = SignUpFragment()
     }
 
-    private lateinit var viewModel: SignUpViewModel
+    private lateinit var signUpViewModel: SignUpViewModel
     private lateinit var binding: FragmentSignUpBinding
-
-    private lateinit var auth: FirebaseAuth
-    val db = Firebase.firestore
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentSignUpBinding.inflate(inflater,container,false)
-        auth = Firebase.auth
+        signUpViewModel = ViewModelProvider(this).get(SignUpViewModel::class.java)
         return binding.root
     }
 
@@ -88,25 +80,20 @@ class SignUpFragment: Fragment() {
         val email = binding.registerEmailEditText.text.toString()
         val password = binding.resgisterPasswordEditText.text.toString()
         val userName = binding.registerUserNameEditText.text.toString()
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener(requireActivity()) { task ->
-                if (task.isSuccessful) {
-                    Log.d(ContentValues.TAG, "createUserWithEmail:success")
-                    val user = auth.currentUser
-                    val userUid: String = user?.uid ?: ""
-                    addUserToFirestore(email, userName, userUid)
-                    goToLoginFragment()
-                } else {
-                    Log.e(ContentValues.TAG, "createUserWithEmail:failure", task.exception)
-                    val message = "El correo electrónico ingresado ya está en uso por otro usuario"
-                    val builder = AlertDialog.Builder(requireContext())
-                    builder.setMessage(message)
-                        .setTitle("Error de registro")
-                        .setPositiveButton("OK", null)
-                    val dialog = builder.create()
-                    dialog.show()
-                }
+        signUpViewModel.registerUser(email,password,userName,object : AuthResultListener{
+            override fun onAuthSuccess() {
+                goToLoginFragment()
             }
+            override fun onAuthFailure(errorMessage: String) {
+                val builder = AlertDialog.Builder(requireContext())
+                builder.setMessage(errorMessage)
+                    .setTitle("Error de registro")
+                    .setPositiveButton("OK", null)
+                val dialog = builder.create()
+                dialog.show()
+            }
+
+        })
     }
 
     private fun goToLoginFragment() {
@@ -114,22 +101,5 @@ class SignUpFragment: Fragment() {
         findNavController().navigate(action)
     }
 
-    private fun addUserToFirestore(email: String, userName: String, userUid: String) {
-        val user = hashMapOf(
-            "email" to email,
-            "userName" to userName,
-            "id" to userUid,
-            "isAdmin" to false,
-            "address" to null,
-            "phoneNumber" to null
-        )
-        db.collection("users").document(userUid).set(user)
-    }
 
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(SignUpViewModel::class.java)
-        // TODO: Use the ViewModel
-    }
 }

@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentHomeBinding
-import com.pfortbe22bgrupo2.architectapp.viewModels.HomeViewModel
 
 class HomeFragment: Fragment() {
 
@@ -15,7 +14,7 @@ class HomeFragment: Fragment() {
         fun newInstance() = HomeFragment()
     }
 
-    private lateinit var viewModel: HomeViewModel
+    //private lateinit var homeViewModel: HomeViewModel
     private lateinit var binding: FragmentHomeBinding
 
     override fun onCreateView(
