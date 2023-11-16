@@ -55,7 +55,11 @@
         android:id="@+id/designWallContainerFragment"
         android:name="com.pfortbe22bgrupo2.architectapp.fragments.DesignWallContainerFragment"
         android:label="fragment_design_wall_container"
-        tools:layout="@layout/fragment_design_wall_container" />
+        tools:layout="@layout/fragment_design_wall_container" >
+        <action
+            android:id="@+id/action_designWallContainerFragment_to_savedDesignDetailsFragment"
+            app:destination="@id/savedDesignDetailsFragment" />
+    </fragment>
     <activity
         android:id="@+id/AR_Model"
         android:name="com.pfortbe22bgrupo2.architectapp.activities.AR_Model"
@@ -75,4 +79,13 @@
         android:name="com.pfortbe22bgrupo2.architectapp.fragments.ForgotPasswordFragment"
         android:label="fragment_forgot_password"
         tools:layout="@layout/fragment_forgot_password" />
+    <fragment
+        android:id="@+id/savedDesignDetailsFragment"
+        android:name="com.pfortbe22bgrupo2.architectapp.fragments.SavedDesignDetailsFragment"
+        android:label="fragment_saved_design_details"
+        tools:layout="@layout/fragment_saved_design_details" >
+        <argument
+            android:name="saved_design_selected"
+            app:argType="com.pfortbe22bgrupo2.architectapp.models.SavedDesign" />
+    </fragment>
 </navigation>
