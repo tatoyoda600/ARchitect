@@ -5,10 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentHomeBinding
-import com.pfortbe22bgrupo2.architectapp.viewModels.HomeViewModel
 
 class HomeFragment: Fragment() {
 
@@ -16,7 +14,7 @@ class HomeFragment: Fragment() {
         fun newInstance() = HomeFragment()
     }
 
-    private lateinit var viewModel: HomeViewModel
+    //private lateinit var homeViewModel: HomeViewModel
     private lateinit var binding: FragmentHomeBinding
 
     override fun onCreateView(
@@ -30,22 +28,29 @@ class HomeFragment: Fragment() {
     override fun onStart() {
         super.onStart()
 
-      binding.firstSignUpButton.setOnClickListener() {
-            val action = HomeFragmentDirections.actionHomeFragmentToSignUpFragment()
+        checkForLoadFragment()
 
-            findNavController().navigate(action)
+        binding.firstSignUpButton.setOnClickListener() {
+          val action = HomeFragmentDirections.actionHomeFragmentToSignUpFragment()
+          findNavController().navigate(action)
         }
         binding.firstLogInButton.setOnClickListener() {
-            val action = HomeFragmentDirections.actionHomeFragmentToLoginFragment()
-            findNavController().navigate(action)
+            navToLoginFragment()
         }
 
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
-        // TODO: Use the ViewModel
+    private fun checkForLoadFragment() {
+        val fragmentToLoad = activity?.intent?.getStringExtra("fragmentToLoad")
+        if (fragmentToLoad != null){
+            navToLoginFragment()
+        }
     }
+
+    private fun navToLoginFragment() {
+        val action = HomeFragmentDirections.actionHomeFragmentToLoginFragment()
+        findNavController().navigate(action)
+    }
+
 
 }

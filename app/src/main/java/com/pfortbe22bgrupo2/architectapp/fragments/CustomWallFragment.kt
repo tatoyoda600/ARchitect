@@ -4,38 +4,37 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.firebase.ui.firestore.FirestoreRecyclerOptions
-import com.google.firebase.firestore.FirebaseFirestore
 import com.pfortbe22bgrupo2.architectapp.adapters.CustomWallFirestoreAdapter
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentCustomWallBinding
-import com.pfortbe22bgrupo2.architectapp.models.CustomWall
+import com.pfortbe22bgrupo2.architectapp.listeners.DeleteUserSavedDesign
 import com.pfortbe22bgrupo2.architectapp.viewModels.CustomWallViewModel
 
-class CustomWallFragment : Fragment() {
+class CustomWallFragment : Fragment(), DeleteUserSavedDesign {
 
     companion object {
         fun newInstance() = CustomWallFragment()
     }
 
-    private lateinit var viewModel: CustomWallViewModel
+    private lateinit var customWallViewModel: CustomWallViewModel
     private lateinit var binding: FragmentCustomWallBinding
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentCustomWallBinding.inflate(inflater,container,false)
-        initRecyclerView()
+        customWallViewModel = ViewModelProvider(this).get(CustomWallViewModel::class.java)
         return binding.root
     }
 
     override fun onStart() {
         super.onStart()
-        getFirebaseList()
+        getCustomWallList()
     }
 
     private fun initRecyclerView(){
@@ -43,23 +42,31 @@ class CustomWallFragment : Fragment() {
         binding.customWallRecyclerView.layoutManager = LinearLayoutManager(context)
     }
 
-    fun  getFirebaseList() {
-        val rootRef = FirebaseFirestore.getInstance()
-        val query = rootRef.collection("custom_walls").orderBy("description")
-        val options = FirestoreRecyclerOptions.Builder<CustomWall>()
-            .setQuery(query, CustomWall::class.java)
-            .build()
-        val adapter = CustomWallFirestoreAdapter(options)
-        adapter.startListening()
-        binding.customWallRecyclerView.adapter = adapter
+    private fun  getCustomWallList() {
+        initRecyclerView()
+        customWallViewModel.getCustomWallList()
+        customWallViewModel.customWallOptions.observe(viewLifecycleOwner, Observer { customWallsList ->
+            if (customWallsList == null) {
+                binding.customWallRecyclerView.visibility = View.GONE
+                binding.emptyCustomWallsTextView.visibility = View.VISIBLE
+            } else {
+                val adapter = CustomWallFirestoreAdapter(customWallsList, this)
+                binding.customWallRecyclerView.adapter = adapter
+                adapter.startListening()
+            }
+        })
+    }
+
+    override fun deleteSavedDesign(savedDesignId: String) {
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Confirmación")
+        builder.setMessage("¿Estás seguro de que deseas eliminar este diseño guardado?")
+        builder.setPositiveButton("Si"){dialog,which ->
+            customWallViewModel.deleteSavedDesign(savedDesignId)
+        }
+        builder.create().show()
     }
 
 
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(CustomWallViewModel::class.java)
-        // TODO: Use the ViewModel
-    }
 
 }

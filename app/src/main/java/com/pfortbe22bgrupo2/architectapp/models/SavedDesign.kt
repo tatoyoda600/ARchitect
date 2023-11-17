@@ -4,13 +4,16 @@ import android.os.Parcel
 import android.os.Parcelable
 
 class SavedDesign(description: String?): Parcelable {
+    var id: String = ""
     var description: String = ""
+    var image: String = ""
+    var userId: String = ""
 
 
     constructor(parcel: Parcel) : this(
         parcel.readString()
     )
-    constructor() : this("")
+    constructor() : this("",)
 
     init {
         this.description = description!!
