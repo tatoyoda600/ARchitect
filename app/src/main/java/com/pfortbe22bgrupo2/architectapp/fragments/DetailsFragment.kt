@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.pfortbe22bgrupo2.architectapp.data.HotBarSingleton
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentDetailsBinding
 import com.pfortbe22bgrupo2.architectapp.viewModels.DetailsViewModel
 
@@ -43,12 +44,18 @@ class DetailsFragment: Fragment() {
         descripcion.text = furniture.description
         Glide.with(context).load(furniture.urlImage).into(binding.itemDetailImageViewId)
         binding.detailsArButton.setOnClickListener() {
-            val action = DetailsFragmentDirections.actionDetailsFragmentToARTrackingTest()
-            findNavController().navigate(action)
+            saveIntoHotBar(furniture.nombre, furniture.category)
+            HotBarSingleton.hotBarItems.forEach {
+                println("HotBar: ${it.first} - ${it.second}")
+            }
+            /*val action = DetailsFragmentDirections.actionDetailsFragmentToARTrackingTest()
+            findNavController().navigate(action)*/
         }
     }
 
-
+    private fun saveIntoHotBar(name: String, category: String){
+        HotBarSingleton.hotBarItems.add(Pair(category, name))
+    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
