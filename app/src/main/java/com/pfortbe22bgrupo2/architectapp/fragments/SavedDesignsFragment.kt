@@ -4,41 +4,37 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.firebase.ui.firestore.FirestoreRecyclerOptions
-import com.google.firebase.firestore.FirebaseFirestore
 import com.pfortbe22bgrupo2.architectapp.adapters.SavedDesignFiresstoreAdapter
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentDesignsSavedBinding
-import com.pfortbe22bgrupo2.architectapp.models.SavedDesign
+import com.pfortbe22bgrupo2.architectapp.listeners.DeleteUserSavedDesign
 import com.pfortbe22bgrupo2.architectapp.viewModels.SavedDesignsViewModel
 
-class SavedDesignsFragment : Fragment() {
+class SavedDesignsFragment : Fragment(), DeleteUserSavedDesign {
 
     companion object {
         fun newInstance() = SavedDesignsFragment()
     }
 
-    private lateinit var viewModel: SavedDesignsViewModel
+    private lateinit var savedDesignViewModel: SavedDesignsViewModel
     private lateinit var binding: FragmentDesignsSavedBinding
-
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentDesignsSavedBinding.inflate(inflater,container,false)
-        initRecyclerView()
+        savedDesignViewModel = ViewModelProvider(this).get(SavedDesignsViewModel::class.java)
         return binding.root
     }
 
-
-
     override fun onStart() {
         super.onStart()
-        getFirebaseList()
+        getSavedDesignList()
     }
 
     private fun initRecyclerView(){
@@ -46,22 +42,29 @@ class SavedDesignsFragment : Fragment() {
         binding.savedDesignRecyclerView.layoutManager = LinearLayoutManager(context)
     }
 
-    fun  getFirebaseList() {
-        val rootRef = FirebaseFirestore.getInstance()
-        val query = rootRef.collection("saved_designs").orderBy("description")
-        val options = FirestoreRecyclerOptions.Builder<SavedDesign>()
-            .setQuery(query,SavedDesign::class.java)
-            .build()
-        val adapter = SavedDesignFiresstoreAdapter(options)
-        adapter.startListening()
-        binding.savedDesignRecyclerView.adapter = adapter
+    private fun  getSavedDesignList() {
+        initRecyclerView()
+        savedDesignViewModel.getSavedDesignList()
+        savedDesignViewModel.savedDesignOptions.observe(viewLifecycleOwner, Observer { designsList ->
+            if (designsList == null) {
+                binding.savedDesignRecyclerView.visibility = View.GONE
+                binding.emptySavedDesignTextView.visibility = View.VISIBLE
+            } else {
+                val adapter = SavedDesignFiresstoreAdapter(designsList, this)
+                binding.savedDesignRecyclerView.adapter = adapter
+                adapter.startListening()
+            }
+        })
     }
 
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(SavedDesignsViewModel::class.java)
-        // TODO: Use the ViewModel
+    override fun deleteSavedDesign(savedDesignId: String) {
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Confirmación")
+        builder.setMessage("¿Estás seguro de que deseas eliminar este diseño guardado?")
+        builder.setPositiveButton("Si"){dialog,which ->
+            savedDesignViewModel.deleteSavedDesign(savedDesignId)
+        }
+        builder.create().show()
     }
 
 }

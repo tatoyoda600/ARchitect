@@ -18,8 +18,7 @@ import com.pfortbe22bgrupo2.architectapp.models.Furniture
 import com.pfortbe22bgrupo2.architectapp.viewModels.CatalogueDetailsViewModel
 
 
-
-class CatalogueFragment(): Fragment(), ShowDetailsFurniture {
+class CatalogueFragment: Fragment(), ShowDetailsFurniture {
     companion object {
         fun newInstance() = CatalogueFragment()
     }

@@ -18,7 +18,7 @@
     <string name="login">Iniciar Sesión</string>
     <string name="login_fragment">Log In</string>
     <string name="saved_design">Diseños Guardados</string>
-    <string name="custom_wall">Paredes Custom Guardados</string>
+    <string name="custom_wall">Paredes Custom Guardadas</string>
     <string name="email">Email</string>
     <string name="user_name">Nombre de Usuario</string>
     <string name="password">Contraseña</string>
@@ -59,6 +59,8 @@
     <string name="new_password">Contraseña Nueva</string>
     <string name="confirm_change_password">Cambiar Contraseña</string>
     <string name="edit_change_password">Cambiar mi Contraseña</string>
+    <string name="no_saved_design_yet">No tiene diseños guardados aun</string>
+    <string name="no_custom_walls_yet">No tiene paredes guardadas aun</string>
     <string name="remove_from_db_prod_title">Eliminar de BD</string>
     <string name="remove_from_db_prod_text">¿Estás seguro de que deseas eliminar este producto de la BD?</string>
 </resources>

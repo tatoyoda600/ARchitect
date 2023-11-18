@@ -7,55 +7,61 @@
     android:layout_height="match_parent"
     tools:context=".fragments.EditProfileFragment">
 
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/edit_profile"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:textAlignment="center"
-        android:textSize="25dp"
-        android:textStyle="bold"
-        android:layout_marginTop="40dp"/>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
         android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/edit_button"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
+
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="40dp"
+            android:text="@string/edit_profile"
+            android:textAlignment="center"
+            android:textSize="25dp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/floatingActionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="60dp"
             android:backgroundTint="@color/light_grey"
             android:clickable="true"
             android:src="@drawable/baseline_add_photo_alternate_24"
-            android:layout_gravity="end"
-            android:layout_marginTop="60dp"
-            android:layout_marginEnd="60dp"
-            app:layout_anchor="@id/edit_user_pic_image_view"
-            />
+            app:layout_anchor="@id/edit_user_pic_image_view" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
 
         <ImageView
             android:id="@+id/edit_user_pic_image_view"
             android:layout_width="146dp"
             android:layout_height="138dp"
             android:layout_gravity="center"
-            android:layout_marginBottom="20dp"
             android:background="@drawable/profile_image_style"
             android:contentDescription="@string/profile_pic_description"
-            android:src="@drawable/profile_pic"
-            />
-
+            android:src="@drawable/profile_pic" />
 
 
         <com.google.android.material.textfield.TextInputLayout
@@ -122,14 +128,13 @@
             android:id="@+id/edit_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:layout_marginStart="32dp"
+            android:layout_marginTop="20dp"
             android:layout_marginEnd="32dp"
-            android:layout_marginBottom="32dp"
             android:background="@drawable/button_common_style"
             android:text="@string/edit_profile_button"
-            android:textColor="@color/white"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"/>
+            android:textColor="@color/white" />
 
 
     </LinearLayout>

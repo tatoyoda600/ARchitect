@@ -37,7 +37,7 @@
             app:popUpToInclusive="false" />
         <action
             android:id="@+id/action_loginFragment_to_forgotPasswordFragment"
-            app:destination="@id/forgotPasswordFragment" />
+            app:destination="@id/forgot_password_fragment" />
     </fragment>
     <activity
         android:id="@+id/catalogoActivity"
@@ -45,7 +45,7 @@
         android:label="activity_catalogo"
         tools:layout="@layout/activity_catalogue" />
     <fragment
-        android:id="@+id/forgotPasswordFragment"
+        android:id="@+id/forgot_password_fragment"
         android:name="com.pfortbe22bgrupo2.architectapp.fragments.ForgotPasswordFragment"
         android:label="fragment_forgot_password"
         tools:layout="@layout/fragment_forgot_password" />

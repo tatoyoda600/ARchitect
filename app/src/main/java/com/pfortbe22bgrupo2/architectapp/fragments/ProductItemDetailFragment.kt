@@ -1,12 +1,12 @@
 package com.pfortbe22bgrupo2.architectapp.fragments
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.pfortbe22bgrupo2.architectapp.R
+import com.pfortbe22bgrupo2.architectapp.viewModels.ProductItemDetailViewModel
 
 class ProductItemDetailFragment : Fragment() {
 

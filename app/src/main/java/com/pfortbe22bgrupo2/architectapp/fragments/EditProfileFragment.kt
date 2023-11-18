@@ -2,7 +2,6 @@ package com.pfortbe22bgrupo2.architectapp.fragments
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -10,31 +9,26 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
-import android.util.Log
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
 import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentEditProfileBinding
-import java.io.ByteArrayOutputStream
+import com.pfortbe22bgrupo2.architectapp.viewModels.EditProfileViewModel
 
 
 class EditProfileFragment: Fragment() {
 
     private lateinit var binding: FragmentEditProfileBinding
-    private lateinit var auth: FirebaseAuth
-    private val db = Firebase.firestore
-    private lateinit var currentUser: FirebaseUser
+    private lateinit var editProfileViewModel: EditProfileViewModel
     private val GALLERY_REQUEST_CODE = 1
     private val CAMERA_REQUEST_CODE = 2
 
@@ -43,8 +37,7 @@ class EditProfileFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentEditProfileBinding.inflate(inflater, container,false)
-        auth = Firebase.auth
-        currentUser = auth.currentUser!!
+        editProfileViewModel = ViewModelProvider(this).get(EditProfileViewModel::class.java)
         return binding.root
     }
 
@@ -52,8 +45,7 @@ class EditProfileFragment: Fragment() {
         super.onStart()
         updateProfile()
         binding.editButton.setOnClickListener() {
-            updateUser()
-            findNavController().navigateUp()
+            if (updateUser()) findNavController().navigateUp()
         }
         binding.floatingActionButton.setOnClickListener(){
             showImagePickerDialog(requireContext())
@@ -99,100 +91,78 @@ class EditProfileFragment: Fragment() {
 
     private fun uploadToFirebaseGallery(imageUri: Uri?) {
         if (imageUri != null) {
-            // Genera un nombre de archivo único para la imagen (por ejemplo, usando el ID del usuario)
-            val imageFileName = "${currentUser.uid}.jpg"
-            val storageReference = FirebaseStorage.getInstance().reference.child("images/$imageFileName")
-            // Sube la imagen a Firebase Storage
-            storageReference.putFile(imageUri)
-                .addOnSuccessListener { taskSnapshot ->
-                    // La imagen se subió exitosamente
-                    // Ahora obtén la URL de la imagen
-                    storageReference.downloadUrl.addOnSuccessListener { uri ->
-                        val imageUrl = uri.toString()
-                        Glide.with(requireContext()).load(imageUrl).into(binding.editUserPicImageView)
-                        // Guarda la URL de la imagen en Firebase Firestore
-                        val docRef = db.collection("users").document(currentUser.uid)
-                        docRef.update("profileImageUrl", imageUrl)
-                            .addOnSuccessListener {
-                                // La URL de la imagen se ha guardado en Firestore
-                            }
-                            .addOnFailureListener { e ->
-                                // Error al guardar la URL en Firestore
-                            }
-                    }
-                }
-                .addOnFailureListener { e ->
-                    // Error al subir la imagen a Storage
-                }
+            editProfileViewModel.uploadImageFromGallery(imageUri)
+            editProfileViewModel.currentUserData.observe(this, Observer {
+                //VER QUE SE CARGUE MAS RAPIDO O EL PROGRES BAR
+                binding.progressBar.visibility = View.VISIBLE
+                Glide.with(requireContext()).load(it?.profileImageUrl).into(binding.editUserPicImageView)
+                binding.progressBar.visibility = View.GONE
+            })
+
         }
     }
 
     private fun uploadToFirebaseCamara(imageBitmap: Bitmap) {
-        val imageFileName = "${currentUser.uid}.jpg"
-        val storageReference = FirebaseStorage.getInstance().reference.child("images/$imageFileName.jpg")
-        // Comprime la imagen y conviértela en un arreglo de bytes
-        val byteArrayOutputStream = ByteArrayOutputStream()
-        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
-        val data = byteArrayOutputStream.toByteArray()
-        // Sube la imagen a Firebase Storage
-        storageReference.putBytes(data)
-            .addOnSuccessListener { taskSnapshot ->
-                // La imagen se subió exitosamente
-                // Ahora obtén la URL de la imagen
-                storageReference.downloadUrl.addOnSuccessListener { uri ->
-                    val imageUrl = uri.toString()
-                    Glide.with(requireContext()).load(imageUrl).apply(RequestOptions().placeholder(R.drawable.profile_pic)).into(binding.editUserPicImageView)
-                    // Guarda la URL de la imagen en Firebase Firestore
-                    val docRef = db.collection("users").document(currentUser.uid)
-                    docRef.update("profileImageUrl", imageUrl)
-                        .addOnSuccessListener {
-                            // La URL de la imagen se ha guardado en Firestore
-                        }
-                        .addOnFailureListener { e ->
-                            // Error al guardar la URL en Firestore
-                        }
-                }
-            }
-            .addOnFailureListener { e ->
-                // Error al subir la imagen a Storage
-            }
+
+        editProfileViewModel.uploadImageFromCamara(imageBitmap)
+        editProfileViewModel.currentUserData.observe(this, Observer {
+            Glide.with(requireContext()).load(it?.profileImageUrl).apply(RequestOptions().placeholder(R.drawable.profile_pic)).into(binding.editUserPicImageView)
+        })
+
     }
 
-    private fun updateUser() {
-        val docRef = db.collection("users").document(currentUser.uid)
-        val updates = hashMapOf<String, Any>(
-            "email" to binding.emailEditEditText.text.toString(),
-            "userName" to binding.nameEditEditText.text.toString(),
-            "address" to binding.addressEditEditText.text.toString(),
-            "phoneNumber" to binding.phoneEditEditText.text.toString()
-        )
-        docRef.update(updates)
+    private fun updateUser(): Boolean {
+        val isValid = validateFields()
+        if (isValid){
+            val email = binding.emailEditEditText.text.toString()
+            val userName = binding.nameEditEditText.text.toString()
+            val address = binding.addressEditEditText.text.toString()
+            val phone = binding.phoneEditEditText.text.toString()
+            editProfileViewModel.updateUserData(email, userName, address, phone)
+        }
+        return isValid
+    }
+
+    private fun validateFields(): Boolean {
+        var isValid = true
+        val name: Int = 6
+        val phone: Int = 10
+        val address: Int = 8
+        if (binding.nameEditEditText.text.toString().length < name){
+            binding.nameEditEditText.error = "Nombre de usuario muy corto"
+            isValid = false
+        }
+        if (!Patterns.EMAIL_ADDRESS.matcher(binding.emailEditEditText.text.toString()).matches()){
+            binding.emailEditEditText.error = "Correo electrónico inválido"
+            isValid = false
+        }
+        if (binding.phoneEditEditText.text.toString().length != phone) {
+            binding.phoneEditEditText.error = "Telefono invalido"
+            isValid = false
+        }
+        if (binding.addressEditEditText.text.toString().length < address) {
+            binding.addressEditEditText.error = "La direccion debe contener 8 caracteres minimo"
+            isValid = false
+        }
+        return isValid
     }
 
     private fun updateProfile() {
-        val docRef = db.collection("users").document(currentUser.uid)
-        docRef.get()
-            .addOnSuccessListener { document ->
-                if (document != null) {
-                    val userName = document.data?.get("userName") as? String
-                    binding.nameEditEditText.text = Editable.Factory.getInstance().newEditable(userName)
-                    binding.emailEditEditText.text = Editable.Factory.getInstance().newEditable(currentUser.email)
-                    var phoneNumber = document.data?.get("phoneNumber") as? String
-                    if (phoneNumber.isNullOrEmpty()) phoneNumber = ""
-                    binding.phoneEditEditText.text = Editable.Factory.getInstance().newEditable(phoneNumber)
-                    var address = document.data?.get("address") as? String
-                    if (address.isNullOrEmpty()) address = ""
-                    binding.addressEditEditText.text = Editable.Factory.getInstance().newEditable(address)
-                    Log.d(ContentValues.TAG, "DocumentSnapshot data: ${document.data}")
-                    val uri = document.data?.get("profileImageUrl")
-                    Glide.with(requireContext()).load(uri).into(binding.editUserPicImageView)
-                } else {
-                    Log.d(ContentValues.TAG, "No such document")
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.d(ContentValues.TAG, "get failed with ", exception)
-            }
+        editProfileViewModel.fetchUserData()
+        editProfileViewModel.currentUserData.observe(this, Observer {
+            binding.nameEditEditText.text = Editable.Factory.getInstance().newEditable(it?.userName)
+            binding.emailEditEditText.text = Editable.Factory.getInstance().newEditable(it?.email)
+            var phone = it?.phone
+            if (phone.isNullOrEmpty()) phone = ""
+            binding.phoneEditEditText.text = Editable.Factory.getInstance().newEditable(phone)
+            var address = it?.address
+            if (address.isNullOrEmpty()) address = ""
+            binding.addressEditEditText.text = Editable.Factory.getInstance().newEditable(address)
+            Glide.with(requireContext())
+                .load(it?.profileImageUrl)
+                .apply(RequestOptions().placeholder(R.drawable.profile_pic).transform(CircleCrop()))
+                .into(binding.editUserPicImageView)
+        })
     }
 }
 

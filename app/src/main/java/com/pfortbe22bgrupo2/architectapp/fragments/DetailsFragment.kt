@@ -16,6 +16,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.pfortbe22bgrupo2.architectapp.data.HotBarSingleton
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentDetailsBinding
 import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.activities.CatalogueActivity
@@ -74,15 +75,18 @@ class DetailsFragment: Fragment() {
 
         val deleteProdByAdminBottom = binding.deleteArButton
         val furniture = DetailsFragmentArgs.fromBundle(requireArguments()).furnitureElement
-        val nombre = binding.detailNameTextView
-        val descripcion = binding.detailDescriptionTextView
-        val image = binding.itemDetailImageViewId
-        nombre.text = furniture.nombre
-        descripcion.text = furniture.description
-        Glide.with(context).load(furniture.urlImage).into(binding.itemDetailImageViewId)
+        val name = binding.detailNameTextView
+        val description = binding.detailDescriptionTextView
+        name.text = furniture.nombre
+        description.text = furniture.description
+        Glide.with(requireContext()).load(furniture.urlImage).into(binding.itemDetailImageViewId)
         binding.detailsArButton.setOnClickListener() {
-            val action = DetailsFragmentDirections.actionDetailsFragmentToARTrackingTest()
-            findNavController().navigate(action)
+            saveIntoHotBar(furniture.nombre, furniture.category)
+            HotBarSingleton.hotBarItems.forEach {
+                println("HotBar: ${it.first} - ${it.second}")
+            }
+            /*val action = DetailsFragmentDirections.actionDetailsFragmentToARTrackingTest()
+            findNavController().navigate(action)*/
         }
         deleteProdByAdminBottom.setOnClickListener {
             setOnRemoveProdAction(furniture)
@@ -90,11 +94,8 @@ class DetailsFragment: Fragment() {
     }
 
 
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-//        viewModel = ViewModelProvider(this).get(CatalogueDetailsViewModel::class.java)
-        // TODO: Use the ViewModel
+    private fun saveIntoHotBar(name: String, category: String){
+        HotBarSingleton.hotBarItems.add(Pair(category, name))
     }
 
     fun setOnRemoveProdAction(furniture: Furniture){
