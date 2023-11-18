@@ -1,12 +1,10 @@
 package com.pfortbe22bgrupo2.architectapp.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.pfortbe22bgrupo2.architectapp.activities.CatalogueActivity
@@ -15,7 +13,6 @@ import com.pfortbe22bgrupo2.architectapp.data.FurnitureList
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentCatalogueBinding
 import com.pfortbe22bgrupo2.architectapp.listeners.ShowDetailsFurniture
 import com.pfortbe22bgrupo2.architectapp.models.Furniture
-import com.pfortbe22bgrupo2.architectapp.viewModels.CatalogueViewModel
 
 
 class CatalogueFragment: Fragment(), ShowDetailsFurniture {
@@ -23,8 +20,7 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
         fun newInstance() = CatalogueFragment()
     }
 
-    private lateinit var viewModel: CatalogueViewModel
-
+    //private lateinit var catalogueViewModel: CatalogueViewModel
     private lateinit var binding: FragmentCatalogueBinding
     private lateinit var furnitureAdapter: FurnitureAdapter
     private var furnitures: FurnitureList = FurnitureList()
@@ -36,6 +32,7 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
     ): View? {
         binding = FragmentCatalogueBinding.inflate(inflater, container,false)
         initFilter()
+        //catalogueViewModel = ViewModelProvider(this).get(CatalogueViewModel::class.java)
         return binding.root
     }
 
@@ -89,12 +86,6 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
     override fun showDetails(furniture: Furniture) {
         val action = CatalogueFragmentDirections.actionCatalogueFragmentToDetailsFragment(furniture)
         this.findNavController().navigate(action)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(CatalogueViewModel::class.java)
-        // TODO: Use the ViewModel
     }
 
     private fun startFiltering() {

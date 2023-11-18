@@ -48,14 +48,13 @@
 
         <ImageView
             android:id="@+id/profile_user_pic_image_view"
-            android:layout_width="180dp"
+            android:layout_width="160dp"
             android:layout_height="160dp"
             android:layout_gravity="center"
             android:layout_marginBottom="20dp"
             android:background="@drawable/profile_image_style"
-            android:src="@drawable/profile_pic"
             android:contentDescription="@string/profile_pic_description"
-/>
+            android:src="@drawable/profile_pic" />
 
         <TextView
             android:id="@+id/profile_user_name_text_view"
