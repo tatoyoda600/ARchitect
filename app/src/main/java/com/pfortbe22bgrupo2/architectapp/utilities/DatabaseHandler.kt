@@ -1,6 +1,7 @@
 package com.pfortbe22bgrupo2.architectapp.utilities
 
 import android.content.Context
+import android.util.Log
 import com.pfortbe22bgrupo2.architectapp.database.AppDatabase
 import com.pfortbe22bgrupo2.architectapp.database.FloorDao
 import com.pfortbe22bgrupo2.architectapp.database.FloorPointsDao
@@ -15,16 +16,19 @@ class DatabaseHandler(context: Context) {
     val floorPointsDao: FloorPointsDao
 
     init {
+        // Log.d("FunctionNames", "init")
         database = AppDatabase.getAppDatabase(context)!!
         floorDao = database.floorDao()
         floorPointsDao = database.floorPointsDao()
     }
 
     fun getFloorIDs(): List<Int> {
+        // Log.d("FunctionNames", "getFloorIDs")
         return floorDao.getFloorIDs()
     }
 
     fun getFloorByID(id: Int, coordZoom: Int): Pair<Floor, Float>? {
+        // Log.d("FunctionNames", "getFloorByID")
         val floor = floorDao.getFloorByID(id)
         if (floor != null) {
             val grid = getFloorPointsByID(id, coordZoom)
@@ -34,6 +38,7 @@ class DatabaseHandler(context: Context) {
     }
 
     fun insertFloor(floor: Floor, coordUnzoom: Float, cameraPosition: Position, rotation: Float): Boolean {
+        // Log.d("FunctionNames", "insertFloor")
         try {
             // The camera's -X rotation is its yaw rotation
             val id = floorDao.insertFloor(FloorEntity(0, rotation))
@@ -46,6 +51,7 @@ class DatabaseHandler(context: Context) {
     }
 
     private fun getFloorPointsByID(id: Int, coordZoom: Int): MutableMap<Int, MutableMap<Int, Floor.CellState>> {
+        // Log.d("FunctionNames", "getFloorPointsByID")
         val output: MutableMap<Int, MutableMap<Int, Floor.CellState>> = mutableMapOf()
         val entities = floorPointsDao.getFloorPointsByID(id)
 
@@ -58,6 +64,7 @@ class DatabaseHandler(context: Context) {
     }
 
     private fun getFloorPointCountByID(id: Int): Int {
+        // Log.d("FunctionNames", "getFloorPointCountByID")
         return floorPointsDao.getFloorPointCountByID(id)?: 0
     }
 
@@ -67,6 +74,7 @@ class DatabaseHandler(context: Context) {
         coordUnzoom: Float,
         cameraPosition: Position
     ) {
+        // Log.d("FunctionNames", "insertFloorPoints")
         var count = getFloorPointCountByID(floorId)
         for (xKey in grid.keys) {
             for (zKey in grid.get(xKey)?.keys?: mutableSetOf()) {
