@@ -2,6 +2,7 @@ package com.pfortbe22bgrupo2.architectapp.activities
 
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -12,6 +13,9 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.databinding.ActivityCatalogueBinding
+import com.pfortbe22bgrupo2.architectapp.fragments.CatalogueFragment
+import com.pfortbe22bgrupo2.architectapp.fragments.DetailsFragment
+import com.pfortbe22bgrupo2.architectapp.viewModels.CatalogueDetailsViewModel
 
 class CatalogueActivity: AppCompatActivity() {
 
@@ -21,6 +25,7 @@ class CatalogueActivity: AppCompatActivity() {
     private var isFiltering: Boolean = false
     private lateinit var auth: FirebaseAuth
     private lateinit var navHost: NavHostFragment
+    val tuViewModel by viewModels<CatalogueDetailsViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +34,14 @@ class CatalogueActivity: AppCompatActivity() {
         initBottomNavView()
         onBackPressedDispatcher.addCallback(this, callback)
         auth = Firebase.auth
+
+        // Aquí puedes agregar o reemplazar fragmentos según sea necesario
+        val fragmentA = CatalogueFragment()
+        val fragmentB = DetailsFragment()
+
+        // Pasar la instancia del ViewModel a ambos fragmentos
+        fragmentA.viewModel = tuViewModel
+        fragmentB.viewModel = tuViewModel
     }
 
     private fun initBottomNavView(){

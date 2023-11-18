@@ -59,4 +59,6 @@
     <string name="new_password">Contraseña Nueva</string>
     <string name="confirm_change_password">Cambiar Contraseña</string>
     <string name="edit_change_password">Cambiar mi Contraseña</string>
+    <string name="remove_from_db_prod_title">Eliminar de BD</string>
+    <string name="remove_from_db_prod_text">¿Estás seguro de que deseas eliminar este producto de la BD?</string>
 </resources>

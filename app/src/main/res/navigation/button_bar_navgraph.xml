@@ -36,6 +36,10 @@
         <argument
             android:name="furniture_element"
             app:argType="com.pfortbe22bgrupo2.architectapp.models.Furniture" />
+        <action
+            android:id="@+id/action_detailsFragment_to_catalogueFragment"
+            app:destination="@id/catalogueFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"/>
     </fragment>
     <fragment
         android:id="@+id/catalogueFragment"
