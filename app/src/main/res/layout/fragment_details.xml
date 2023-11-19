@@ -58,22 +58,22 @@
     <TextView
         android:id="@+id/detail_description_text_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
+        android:layout_height="0dp"
+        android:paddingBottom="10dp"
+        android:paddingHorizontal="10dp"
         android:textColor="@color/black"
         android:textSize="15sp"
         app:layout_constraintBottom_toTopOf="@+id/details_ar_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/detail_description_title_text_view"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/detail_description_title_text_view" />
 
     <Button
         android:id="@+id/details_ar_button"
         android:layout_width="155dp"
         android:layout_height="49dp"
-        android:layout_marginBottom="150dp"
+        android:layout_marginBottom="185dp"
         android:background="@drawable/brown_button_common_style"
         android:text="@string/ar"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -85,7 +85,7 @@
         android:id="@+id/redirect_button"
         android:layout_width="155dp"
         android:layout_height="49dp"
-        android:layout_marginBottom="150dp"
+        android:layout_marginBottom="185dp"
         android:background="@drawable/button_common_style"
         android:text="@string/redirect"
         android:textAllCaps="false"
@@ -96,5 +96,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.603"
         app:layout_constraintStart_toEndOf="@+id/details_ar_button" />
+
+    <Button
+        android:id="@+id/delete_ar_button"
+        android:layout_width="155dp"
+        android:layout_height="49dp"
+        android:visibility="gone"
+        android:layout_marginBottom="120dp"
+        android:background="@drawable/button_delete_common_style"
+        android:text="Delete"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.500"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

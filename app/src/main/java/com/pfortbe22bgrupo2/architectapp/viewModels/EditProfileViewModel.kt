@@ -11,6 +11,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.pfortbe22bgrupo2.architectapp.entities.UserProfileData
+import com.pfortbe22bgrupo2.architectapp.listeners.AuthResultListener
 import java.io.ByteArrayOutputStream
 
 class EditProfileViewModel: ViewModel() {
@@ -57,7 +58,7 @@ class EditProfileViewModel: ViewModel() {
             }
     }
 
-    fun uploadImageFromGallery(imageUri: Uri) {
+    fun uploadImageFromGallery(imageUri: Uri, authResultListener: AuthResultListener) {
         val imageFileName = "${currentUser.uid}.jpg"
         val storageReference = FirebaseStorage.getInstance().reference.child("images/$imageFileName")
         storageReference.putFile(imageUri)
@@ -67,6 +68,7 @@ class EditProfileViewModel: ViewModel() {
                     val docRef = db.collection("users").document(currentUser.uid)
                     docRef.update("profileImageUrl", imageUrl)
                     fetchUserData()
+                    authResultListener.onAuthSuccess()
                 }
             }
             .addOnFailureListener { e ->
@@ -75,7 +77,7 @@ class EditProfileViewModel: ViewModel() {
 
     }
 
-    fun uploadImageFromCamara(imageBitmap: Bitmap) {
+    fun uploadImageFromCamara(imageBitmap: Bitmap, authResultListener: AuthResultListener) {
         val imageFileName = "${currentUser.uid}.jpg"
         val storageReference = FirebaseStorage.getInstance().reference.child("images/$imageFileName.jpg")
         // Comprime la imagen y convierte en un arreglo de bytes
@@ -89,6 +91,7 @@ class EditProfileViewModel: ViewModel() {
                     val docRef = db.collection("users").document(currentUser.uid)
                     docRef.update("profileImageUrl", imageUrl)
                     fetchUserData()
+                    authResultListener.onAuthSuccess()
                 }
             }
             .addOnFailureListener { e ->
