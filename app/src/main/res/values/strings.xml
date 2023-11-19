@@ -40,6 +40,8 @@
     <string name="put">Colocar</string>
     <string name="rescan_floor">Rescan</string>
     <string name="confirm_floor">Confirm</string>
+    <string name="save_floor">Save</string>
+    <string name="load_floor">Load</string>
     <string name="products_text">Productos</string>
     <string name="greetings">¡Hola!</string>
     <string name="subtitle_login">Nos alegra que hayas vuelto!</string>
