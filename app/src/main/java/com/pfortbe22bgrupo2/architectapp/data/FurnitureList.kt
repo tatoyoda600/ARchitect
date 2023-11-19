@@ -8,6 +8,8 @@ class FurnitureList {
     var furnitures: MutableList<Furniture> = mutableListOf()
 
     init {
+        furnitures.add(Furniture("HENRIKSDAL_Chair","chairs", R.drawable.silla_moderna, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque nec orci ante. Proin sed nulla a neque varius vulputate. Sed pharetra fringilla eros ut egestas. Nullam pulvinar orci quis velit efficitur vestibulum. Ut eu laoreet mauris. Ut auctor tortor eget quam condimentum suscipit."))
+
         furnitures.add(Furniture("Silla","living", R.drawable.silla_moderna, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque nec orci ante. Proin sed nulla a neque varius vulputate. Sed pharetra fringilla eros ut egestas. Nullam pulvinar orci quis velit efficitur vestibulum. Ut eu laoreet mauris. Ut auctor tortor eget quam condimentum suscipit."))
         furnitures.add(Furniture("Sillon 3 piezas","living", R.drawable.sillon, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque nec orci ante. Proin sed nulla a neque varius vulputate. Sed pharetra fringilla eros ut egestas. Nullam pulvinar orci quis velit efficitur vestibulum. Ut eu laoreet mauris. Ut auctor tortor eget quam condimentum suscipit."))
         furnitures.add(Furniture("Silla de escritorio","habitacion", R.drawable.silla_ppal, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque nec orci ante. Proin sed nulla a neque varius vulputate. Sed pharetra fringilla eros ut egestas. Nullam pulvinar orci quis velit efficitur vestibulum. Ut eu laoreet mauris. Ut auctor tortor eget quam condimentum suscipit."))

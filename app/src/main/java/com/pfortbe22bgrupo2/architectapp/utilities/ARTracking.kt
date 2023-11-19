@@ -248,10 +248,11 @@ abstract class ARTracking(
         }
     }
 
-    internal fun renderFirebaseModel(modelPath: String, scale: Float, position: Position) {
-        // Log.d("FunctionNames", "renderFirebaseModel")
+    internal fun renderFirebaseModel(modelCategory: String, modelName: String, scale: Float, position: Position) {
+        Log.d("FunctionNames", "renderFirebaseModel")
         renderer.renderFromFirebase(
-            modelPath,
+            modelCategory,
+            modelName,
             position,
             Rotation(),
             Scale(scale),

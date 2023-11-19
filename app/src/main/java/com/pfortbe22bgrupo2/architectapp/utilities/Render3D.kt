@@ -68,14 +68,15 @@ class Render3D(
     }
 
     fun renderFromFirebase(
-        modelPath: String,
+        modelCategory: String,
+        modelName: String,
         position: Position,
         rotation: Rotation,
         scale: Scale,
         onSuccess: (Node) -> Unit,
         onFailure: () -> Unit
     ) {
-        storage.reference.child("/models/${modelPath}").downloadUrl
+        storage.reference.child("/models/${modelCategory}/models/${modelName}.glb").downloadUrl
             .addOnSuccessListener {
                 val modelNode = render(it.toString(), position, rotation, scale)
                 onSuccess(modelNode)

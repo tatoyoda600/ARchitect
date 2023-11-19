@@ -2,9 +2,15 @@ package com.pfortbe22bgrupo2.architectapp.activities
 //https://github.com/SceneView/sceneview-android/blob/main/samples/ar-model-viewer/src/main/java/io/github/sceneview/sample/armodelviewer/MainActivity.kt
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.pfortbe22bgrupo2.architectapp.adapters.ProductHotbarAdapter
+import com.pfortbe22bgrupo2.architectapp.data.HotBarSingleton
 import com.pfortbe22bgrupo2.architectapp.databinding.ActivityArtrackingTestBinding
+import com.pfortbe22bgrupo2.architectapp.entities.Product
 import com.pfortbe22bgrupo2.architectapp.utilities.DefaultARTracking
 import com.pfortbe22bgrupo2.architectapp.utilities.DatabaseHandler
 import kotlinx.coroutines.CoroutineScope
@@ -14,6 +20,7 @@ import kotlinx.coroutines.launch
 class ARTrackingTest: AppCompatActivity() {
     lateinit var binding: ActivityArtrackingTestBinding
     lateinit var arTracking: DefaultARTracking
+    lateinit var database: DatabaseHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Log.d("FunctionNames", "onCreate")
@@ -30,6 +37,10 @@ class ARTrackingTest: AppCompatActivity() {
                 //TODO("Start downloading the models maybe?")
             }
         }
+
+        val recycler = binding.productHotbar
+        recycler.setHasFixedSize(true)
+        recycler.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
 
         arTracking = DefaultARTracking(5, binding.sceneView, binding.progressIndicator,
             onFloorDetectedFunction = fun(){
@@ -58,7 +69,6 @@ class ARTrackingTest: AppCompatActivity() {
         binding.loadBtn.setOnClickListener {
             // Log.d("FunctionNames", "loadBtn")
             CoroutineScope(Dispatchers.IO).launch {
-                val database = DatabaseHandler(binding.root.context)
                 val ids = database.getFloorIDs()
                 if (ids.size > 0) {
                     arTracking.loadFloor(binding.root.context, ids.first())
@@ -68,7 +78,53 @@ class ARTrackingTest: AppCompatActivity() {
 
         binding.sofaBtn.setOnClickListener {
             // Log.d("FunctionNames", "sofaBtn")
-            arTracking.renderModel("chairs", "ADDE_Chair.glb", 1f)
+            val modelCategory: String = "chairs"
+            val modelName: String = "ADDE_Chair"
+
+            database.getProductData(
+                modelCategory,
+                modelName,
+                { product: Product ->
+                    arTracking.renderModel(modelCategory, modelName, product.scale, product.allowWalls)
+                },
+                {
+                    Log.e("ARTrackingTest", "Failed to get product data (${modelCategory} > ${modelName})")
+                }
+            )
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            database = DatabaseHandler(binding.root.context)
+
+            if (HotBarSingleton.hotBarItems.size > 0) {
+                var productCount = 0
+                val productList: MutableList<Product> = mutableListOf()
+
+                val productProcessing = { p: Product? ->
+                    p?.let { productList.add(it) }
+                    productCount++
+
+                    if (productCount == HotBarSingleton.hotBarItems.size) {
+                        recycler.adapter = ProductHotbarAdapter(productList) { product ->
+                            arTracking.renderModel(product.category, product.name, product.scale, product.allowWalls)
+                        }
+                        recycler.hasPendingAdapterUpdates()
+                    }
+                }
+
+                for (product in HotBarSingleton.hotBarItems) {
+                    database.getProductData(
+                        product.first,
+                        product.second,
+                        productProcessing,
+                        { productProcessing(null) }
+                    )
+                }
+
+            }
+            else {
+                binding.productHotbar.isVisible = false
+            }
         }
     }
 }
