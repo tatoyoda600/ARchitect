@@ -40,8 +40,8 @@ class CatalogueActivity: AppCompatActivity() {
         val fragmentB = DetailsFragment()
 
         // Pasar la instancia del ViewModel a ambos fragmentos
-        fragmentA.viewModel = tuViewModel
-        fragmentB.viewModel = tuViewModel
+        //fragmentA.viewModel = tuViewModel
+        //fragmentB.viewModel = tuViewModel
     }
 
     private fun initBottomNavView(){

@@ -1,6 +1,13 @@
 package com.pfortbe22bgrupo2.architectapp.fragments
 
+import com.pfortbe22bgrupo2.architectapp.entities.FurnitureModelData
+
+
 import android.content.Context
+
+import android.content.Intent
+import android.net.Uri
+
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -23,6 +30,7 @@ import com.pfortbe22bgrupo2.architectapp.activities.CatalogueActivity
 import com.pfortbe22bgrupo2.architectapp.models.Furniture
 import com.pfortbe22bgrupo2.architectapp.viewModels.CatalogueDetailsViewModel
 
+
 class DetailsFragment: Fragment() {
 
     companion object {
@@ -38,7 +46,7 @@ class DetailsFragment: Fragment() {
     private lateinit var currentUser: FirebaseUser
 
     // Variable para almacenar el ViewModel compartido
-    lateinit var viewModel: CatalogueDetailsViewModel
+    //lateinit var viewModel: CatalogueDetailsViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,7 +54,7 @@ class DetailsFragment: Fragment() {
     ): View? {
         context = requireContext()
         binding = FragmentDetailsBinding.inflate(inflater, container,false)
-        viewModel = (activity as CatalogueActivity).tuViewModel
+        //viewModel = (activity as CatalogueActivity).tuViewModel
         auth = Firebase.auth
         currentUser = auth.currentUser!!
 
@@ -77,11 +85,11 @@ class DetailsFragment: Fragment() {
         val furniture = DetailsFragmentArgs.fromBundle(requireArguments()).furnitureElement
         val name = binding.detailNameTextView
         val description = binding.detailDescriptionTextView
-        name.text = furniture.nombre
+        name.text = furniture.name
         description.text = furniture.description
-        Glide.with(requireContext()).load(furniture.urlImage).into(binding.itemDetailImageViewId)
+        Glide.with(requireContext()).load(furniture.imageUrl).into(binding.itemDetailImageViewId)
         binding.detailsArButton.setOnClickListener() {
-            saveIntoHotBar(furniture.nombre, furniture.category)
+            saveIntoHotBar(furniture.name!!, furniture.category!!)
             HotBarSingleton.hotBarItems.forEach {
                 println("HotBar: ${it.first} - ${it.second}")
             }
@@ -91,6 +99,10 @@ class DetailsFragment: Fragment() {
         deleteProdByAdminBottom.setOnClickListener {
             setOnRemoveProdAction(furniture)
         }
+        binding.redirectButton.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(furniture.link))
+            startActivity(intent)
+        }
     }
 
 
@@ -98,7 +110,7 @@ class DetailsFragment: Fragment() {
         HotBarSingleton.hotBarItems.add(Pair(category, name))
     }
 
-    fun setOnRemoveProdAction(furniture: Furniture){
+    fun setOnRemoveProdAction(furniture: FurnitureModelData){
         val builder = AlertDialog.Builder(context)
         builder.setTitle(context.getString(R.string.remove_from_db_prod_title))
         builder.setMessage(context.getString(R.string.remove_from_db_prod_text))
@@ -118,9 +130,9 @@ class DetailsFragment: Fragment() {
             }
              */
 
-            viewModel.removeElem(furniture.nombre)
+/*            viewModel.removeElem(furniture.nombre)
             val action = DetailsFragmentDirections.actionDetailsFragmentToCatalogueFragment()
-            this.findNavController().navigate(action)
+            this.findNavController().navigate(action)*/
         }
         builder.setNegativeButton("No") { dialog, which ->
             Log.i("DetailsFragment", "No")

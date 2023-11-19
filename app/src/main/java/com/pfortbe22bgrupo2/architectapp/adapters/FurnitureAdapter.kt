@@ -1,18 +1,15 @@
 package com.pfortbe22bgrupo2.architectapp.adapters
 
-import android.content.Context
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-
 import com.pfortbe22bgrupo2.architectapp.databinding.FurnitureItemBinding
-import com.pfortbe22bgrupo2.architectapp.models.Furniture
+import com.pfortbe22bgrupo2.architectapp.entities.FurnitureModelData
 import com.pfortbe22bgrupo2.architectapp.holders.FurnitureHolder
 import com.pfortbe22bgrupo2.architectapp.listeners.ShowDetailsFurniture
 
-class FurnitureAdapter(private var context : Context?,
-                       private var furnitureList: MutableList<Furniture>,
+class FurnitureAdapter(private var furnitureList: MutableList<FurnitureModelData>,
                        private val showDetailsFurniture: ShowDetailsFurniture
 ): RecyclerView.Adapter<FurnitureHolder>() {
 
@@ -29,16 +26,21 @@ class FurnitureAdapter(private var context : Context?,
 
     override fun onBindViewHolder(holder: FurnitureHolder, position: Int) {
         //holder.setName(furnitureList[position].nombre)
-        //Glide.with(context!!).load(furnitureList[position].urlImage).into(binding.itemImageViewId)
-        holder.setImageUrl(furnitureList[position].urlImage, binding.root)
+        var image = furnitureList[position].imageUrl
+        if(image == null) image = ""
+        holder.setImage(image,binding.root)
         holder.getCardLayout().setOnClickListener() {
             showDetailsFurniture.showDetails(furnitureList[position])
         }
     }
 
-    fun updatesFurnitures(furnitureListNew: MutableList<Furniture>) {
+
+/*    fun updatesFurnitures(furnitureListNew: MutableList<Furniture>) {
         this.furnitureList.clear()
-        this.furnitureList.addAll(furnitureListNew)
+        this.furnitureList.addAll(furnitureListNew)*/
+
+    fun updatesFurnitures(furnitureList: List<FurnitureModelData>) {
+        this.furnitureList = furnitureList.toMutableList()
         notifyDataSetChanged()
     }
 
