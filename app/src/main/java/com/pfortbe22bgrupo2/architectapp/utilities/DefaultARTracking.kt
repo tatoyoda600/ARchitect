@@ -152,7 +152,6 @@ class DefaultARTracking(
             }
 
             if (pointIds.size - confirmedPoints.size > lastExcessCleanUpStep + EXCESS_POINTS_CLEAN_UP_STEP) {
-
                 if (!ONE_POINT_PER_CELL) {
                     cleanUpCells(this@DefaultARTracking::cleanUpExcessPoints)
                     if (pointIds.size - confirmedPoints.size > lastExcessCleanUpStep + EXCESS_POINTS_CLEAN_UP_STEP) {
@@ -249,7 +248,7 @@ class DefaultARTracking(
         return neighborCount
     }
 
-    /** Clean up a cell too many points, or clear one with too few. */
+    /** Clean up a cell with too many points, or clear one with too few. */
     private fun cleanUpExcessPoints(xKey: Int, yKey: Int, zKey: Int): Int {
         var cleanUpCount = 0
 

@@ -89,7 +89,7 @@ class DetailsFragment: Fragment() {
         description.text = furniture.description
         Glide.with(requireContext()).load(furniture.imageUrl).into(binding.itemDetailImageViewId)
         binding.detailsArButton.setOnClickListener() {
-            saveIntoHotBar(furniture.name!!, furniture.category!!)
+            saveIntoHotBar(furniture.id, furniture.furnitureType)
             HotBarSingleton.hotBarItems.forEach {
                 println("HotBar: ${it.first} - ${it.second}")
             }

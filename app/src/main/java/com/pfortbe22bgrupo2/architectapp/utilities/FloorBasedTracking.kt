@@ -450,11 +450,10 @@ abstract class FloorBasedTracking(
     }
 
     /** Renders a model from Firebase in the direction the device is facing. */
-    internal fun renderModel(modelCategory: String, modelName: String, scale: Float) {
-        val lookPoint = getLookPoint(true,false)
+    internal fun renderModel(modelCategory: String, modelName: String, scale: Float, allowWalls: Boolean) {
+        val lookPoint = getLookPoint(true, allowWalls)
         if (lookPoint != null) {
-            lookPoint.y += 0.1f
-            renderFirebaseModel("${modelCategory}/models/${modelName}", scale, lookPoint)
+            renderFirebaseModel(modelCategory, modelName, scale, lookPoint)
         }
     }
 }

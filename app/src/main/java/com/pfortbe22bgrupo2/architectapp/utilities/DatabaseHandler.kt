@@ -2,24 +2,33 @@ package com.pfortbe22bgrupo2.architectapp.utilities
 
 import android.content.Context
 import android.util.Log
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.pfortbe22bgrupo2.architectapp.database.AppDatabase
 import com.pfortbe22bgrupo2.architectapp.database.FloorDao
 import com.pfortbe22bgrupo2.architectapp.database.FloorPointsDao
 import com.pfortbe22bgrupo2.architectapp.entities.FloorEntity
 import com.pfortbe22bgrupo2.architectapp.entities.FloorPointsEntity
+import com.pfortbe22bgrupo2.architectapp.entities.Product
 import com.pfortbe22bgrupo2.architectapp.types.Floor
 import io.github.sceneview.math.Position
+import io.github.sceneview.node.Node
 
 class DatabaseHandler(context: Context) {
-    val database: AppDatabase
-    val floorDao: FloorDao
-    val floorPointsDao: FloorPointsDao
+    private val database: AppDatabase
+    private val floorDao: FloorDao
+    private val floorPointsDao: FloorPointsDao
+    private val firestore: FirebaseFirestore
 
     init {
         // Log.d("FunctionNames", "init")
         database = AppDatabase.getAppDatabase(context)!!
         floorDao = database.floorDao()
         floorPointsDao = database.floorPointsDao()
+        firestore = Firebase.firestore
     }
 
     fun getFloorIDs(): List<Int> {
@@ -89,5 +98,51 @@ class DatabaseHandler(context: Context) {
                 count++
             }
         }
+    }
+
+    fun getProductData(
+        modelCategory: String,
+       modelName: String,
+       onSuccess: (Product) -> Unit,
+       onFailure: () -> Unit
+    ) {
+        firestore.collection("models")
+            .document(modelCategory)
+            .collection("datos")
+            .document(modelName)
+            .get()
+            .addOnSuccessListener { document: DocumentSnapshot ->
+                Log.e("FIRESTORE", "SUCCESS")
+                val data = document.data
+                if (data != null) {
+                    Log.e("FIRESTORE", "HAS DATA")
+                    val scale = data.get("scale")
+                    val allowWalls = data.get("allow_walls")
+                    val imageURL = data.get("image_url")
+
+                    if (
+                        scale is Number
+                        && allowWalls is Boolean
+                        && imageURL is String
+                    ) {
+                        onSuccess(Product(
+                            modelName,
+                            "",
+                            0.0,
+                            imageURL,
+                            modelCategory,
+                            0,
+                            "",
+                            scale.toFloat(),
+                            allowWalls
+                        ))
+                    }
+                }
+            }
+            .addOnFailureListener {err ->
+                Log.e("FIRESTORE", err.toString())
+                err.message?.let { Log.e("FIRESTORE", it) }
+                onFailure()
+            }
     }
 }
