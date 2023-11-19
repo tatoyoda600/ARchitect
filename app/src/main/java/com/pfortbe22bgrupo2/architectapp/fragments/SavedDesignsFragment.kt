@@ -10,7 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.pfortbe22bgrupo2.architectapp.adapters.SavedDesignFiresstoreAdapter
+import com.pfortbe22bgrupo2.architectapp.adapters.SavedDesignFirestoreAdapter
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentDesignsSavedBinding
 import com.pfortbe22bgrupo2.architectapp.listeners.DeleteUserSavedDesign
 import com.pfortbe22bgrupo2.architectapp.listeners.ShowSavedDesign
@@ -53,7 +53,7 @@ class SavedDesignsFragment : Fragment(), DeleteUserSavedDesign, ShowSavedDesign 
                 binding.savedDesignRecyclerView.visibility = View.GONE
                 binding.emptySavedDesignTextView.visibility = View.VISIBLE
             } else {
-                val adapter = SavedDesignFiresstoreAdapter(designsList, this, this)
+                val adapter = SavedDesignFirestoreAdapter(designsList, this, this)
                 binding.savedDesignRecyclerView.adapter = adapter
                 adapter.startListening()
             }

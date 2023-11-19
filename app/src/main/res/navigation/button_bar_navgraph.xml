@@ -35,7 +35,7 @@
             app:destination="@id/ARTrackingTest" />
         <argument
             android:name="furniture_element"
-            app:argType="com.pfortbe22bgrupo2.architectapp.models.Furniture" />
+            app:argType="com.pfortbe22bgrupo2.architectapp.entities.FurnitureModelData" />
     </fragment>
     <fragment
         android:id="@+id/catalogueFragment"

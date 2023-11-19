@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentDetailsBinding
-import com.pfortbe22bgrupo2.architectapp.viewModels.DetailsViewModel
 
 class DetailsFragment: Fragment() {
 
@@ -33,9 +32,9 @@ class DetailsFragment: Fragment() {
         val furniture = DetailsFragmentArgs.fromBundle(requireArguments()).furnitureElement
         val name = binding.detailNameTextView
         val description = binding.detailDescriptionTextView
-        name.text = furniture.nombre
+        name.text = furniture.name
         description.text = furniture.description
-        Glide.with(requireContext()).load(furniture.urlImage).into(binding.itemDetailImageViewId)
+        Glide.with(requireContext()).load(furniture.imageUrl).into(binding.itemDetailImageViewId)
         binding.detailsArButton.setOnClickListener() {
             val action = DetailsFragmentDirections.actionDetailsFragmentToARTrackingTest()
             findNavController().navigate(action)

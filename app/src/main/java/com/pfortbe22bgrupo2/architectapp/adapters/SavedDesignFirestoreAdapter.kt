@@ -10,7 +10,7 @@ import com.pfortbe22bgrupo2.architectapp.listeners.DeleteUserSavedDesign
 import com.pfortbe22bgrupo2.architectapp.listeners.ShowSavedDesign
 import com.pfortbe22bgrupo2.architectapp.models.SavedDesign
 
-class SavedDesignFiresstoreAdapter(
+class SavedDesignFirestoreAdapter(
     private val options: FirestoreRecyclerOptions<SavedDesign>,
     private val deleteSavedDesign: DeleteUserSavedDesign,
     private val showSavedDesign: ShowSavedDesign
