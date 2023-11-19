@@ -19,19 +19,20 @@ class CatalogueViewModel: ViewModel() {
 
     fun getFurnitureList() {
         furnitureList.clear()
-        getBeds()
-        getChairs()
-        getSofas()
-        getTables()
-
+        getFurnitureOfType("beds")
+        getFurnitureOfType("chairs")
+        getFurnitureOfType("sofas")
+        getFurnitureOfType("tables")
     }
 
-    private fun getTables() {
-        db.collection("models").document("tables").collection("datos")
+    private fun getFurnitureOfType(furnitureType: String) {
+        db.collection("models")
+            .document(furnitureType)
+            .collection("datos")
             .get()
             .addOnSuccessListener { result ->
                 for (document in result) {
-                    val furniture = parseFurniture(document)
+                    val furniture = parseFurniture(document, furnitureType)
                     furnitureList.add(furniture)
                     Log.d(TAG, "${document.id} => ${document.data}")
                 }
@@ -42,68 +43,24 @@ class CatalogueViewModel: ViewModel() {
             }
     }
 
-    private fun getSofas() {
-        db.collection("models").document("sofas").collection("datos")
-            .get()
-            .addOnSuccessListener { result ->
-                for (document in result) {
-                    val furniture = parseFurniture(document)
-                    furnitureList.add(furniture)
-                    Log.d(TAG, "${document.id} => ${document.data}")
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.d(TAG, "Error getting documents: ", exception)
-            }
-    }
-
-    private fun getChairs() {
-        db.collection("models").document("chairs").collection("datos")
-            .get()
-            .addOnSuccessListener { result ->
-                for (document in result) {
-                    val furniture = parseFurniture(document)
-                    furnitureList.add(furniture)
-                    Log.d(TAG, "${document.id} => ${document.data}")
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.d(TAG, "Error getting documents: ", exception)
-            }
-    }
-
-    private fun getBeds() {
-        db.collection("models").document("beds").collection("datos")
-            .get()
-            .addOnSuccessListener { result ->
-                for (document in result) {
-                    val furniture = parseFurniture(document)
-                    furnitureList.add(furniture)
-                    Log.d(TAG, "${document.id} => ${document.data}")
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.d(TAG, "Error getting documents: ", exception)
-            }
-    }
-
-    private fun parseFurniture(document: DocumentSnapshot): FurnitureModelData {
+    private fun parseFurniture(document: DocumentSnapshot, furnitureType: String): FurnitureModelData {
         val imageUrl = document.getString("image_url")?: ""
         val allowWalls = document.getBoolean("allow_walls")?: false
         val dimensionX = document.getLong("dimension_x")?.toInt() ?: 0
         val dimensionY = document.getLong("dimension_y")?.toInt() ?: 0
         val dimensionZ = document.getLong("dimension_z")?.toInt() ?: 0
         val link = document.getString("link")?: ""
-        val scala = document.getLong("scala")?.toInt() ?: 0
+        val scale = document.getDouble("scale")?: 0.0
         val name = document.getString("name")?: ""
         val description = document.getString("description")?: ""
         val category = document.getString("category")?: ""
-        return FurnitureModelData(imageUrl, allowWalls, dimensionX, dimensionY, dimensionZ,link,scala,name,description,category)
+
+        return FurnitureModelData(furnitureType, document.id, imageUrl, allowWalls, dimensionX, dimensionY, dimensionZ, link, scale.toFloat(), name, description, category)
     }
 
     fun filterFurnitureByCategory(category: String) {
         filteredFurnitureList.clear()
-        filteredFurnitureList = furnitureList.filter { item -> item.category?.lowercase() == category.lowercase() } as MutableList<FurnitureModelData>
+        filteredFurnitureList = furnitureList.filter { item -> item.category.lowercase() == category.lowercase() } as MutableList<FurnitureModelData>
         furnitureOptions.value = filteredFurnitureList
     }
 
