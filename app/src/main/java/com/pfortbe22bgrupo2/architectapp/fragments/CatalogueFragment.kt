@@ -32,7 +32,7 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentCatalogueBinding.inflate(inflater, container,false)
-        //initFilter()
+        initFilter()
         catalogueViewModel = ViewModelProvider(this).get(CatalogueViewModel::class.java)
         return binding.root
     }
@@ -40,11 +40,10 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
     override fun onStart() {
         super.onStart()
         initRecyclerView()
-        //getFurnitureList()
         finishFiltering()
     }
 
-/*    private fun initFilter(){
+    private fun initFilter(){
         binding.livingFilterButton.setOnClickListener{
             filterDataByCategory("living")
             startFiltering()
@@ -69,7 +68,7 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
             filterDataByCategory("exterior")
             startFiltering()
         }
-    }*/
+    }
 
 
     private fun initRecyclerView(){
@@ -86,10 +85,14 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
     }
 
 
-/*    private fun filterDataByCategory(category:String) {
-        val filteredList = furnitures.furnitures.filter{ item -> item.category.lowercase() == category.lowercase() }
-        furnitureAdapter.updatesFurnitures(filteredList)
-    }*/
+    private fun filterDataByCategory(category:String) {
+        catalogueViewModel.filterFurnitureByCategory(category)
+        catalogueViewModel.furnitureOptions.observe(viewLifecycleOwner, Observer {
+            furnitureAdapter.updatesFurnitures(it)
+        })
+        //val filteredList = furnitures.furnitures.filter{ item -> item.category.lowercase() == category.lowercase() }
+
+    }
 
     override fun showDetails(furniture: FurnitureModelData) {
         val action = CatalogueFragmentDirections.actionCatalogueFragmentToDetailsFragment(furniture)

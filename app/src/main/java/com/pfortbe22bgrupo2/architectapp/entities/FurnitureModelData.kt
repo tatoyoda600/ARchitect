@@ -12,7 +12,8 @@ class FurnitureModelData(
     val link: String?,
     val scala: Int,
     val name: String?,
-    val description: String?
+    val description: String?,
+    val category: String?
 ): Parcelable {
 
     constructor(parcel: Parcel) : this(
@@ -24,10 +25,11 @@ class FurnitureModelData(
         parcel.readString(),
         parcel.readInt(),
         parcel.readString(),
+        parcel.readString(),
         parcel.readString()
     )
 
-    constructor() : this("",false,0,0,0,"",0,"","")
+    constructor() : this("",false,0,0,0,"",0,"","","")
 
 
     override fun describeContents(): Int {

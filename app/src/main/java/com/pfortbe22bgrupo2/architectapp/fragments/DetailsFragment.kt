@@ -1,5 +1,7 @@
 package com.pfortbe22bgrupo2.architectapp.fragments
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -38,6 +40,10 @@ class DetailsFragment: Fragment() {
         binding.detailsArButton.setOnClickListener() {
             val action = DetailsFragmentDirections.actionDetailsFragmentToARTrackingTest()
             findNavController().navigate(action)
+        }
+        binding.redirectButton.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(furniture.link))
+            startActivity(intent)
         }
     }
 

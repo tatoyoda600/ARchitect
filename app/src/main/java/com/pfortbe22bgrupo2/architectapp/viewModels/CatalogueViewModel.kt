@@ -13,14 +13,17 @@ import com.pfortbe22bgrupo2.architectapp.entities.FurnitureModelData
 class CatalogueViewModel: ViewModel() {
 
     val furnitureOptions = MutableLiveData<MutableList<FurnitureModelData>>()
-    private val furnitureList = mutableListOf<FurnitureModelData>()
+    private var furnitureList = mutableListOf<FurnitureModelData>()
+    private var filteredFurnitureList = mutableListOf<FurnitureModelData>()
     private val db = Firebase.firestore
 
     fun getFurnitureList() {
+        furnitureList.clear()
         getBeds()
         getChairs()
         getSofas()
         getTables()
+
     }
 
     private fun getTables() {
@@ -94,7 +97,15 @@ class CatalogueViewModel: ViewModel() {
         val scala = document.getLong("scala")?.toInt() ?: 0
         val name = document.getString("name")?: ""
         val description = document.getString("description")?: ""
-        return FurnitureModelData(imageUrl, allowWalls, dimensionX, dimensionY, dimensionZ,link,scala,name,description)
+        val category = document.getString("category")?: ""
+        return FurnitureModelData(imageUrl, allowWalls, dimensionX, dimensionY, dimensionZ,link,scala,name,description,category)
     }
+
+    fun filterFurnitureByCategory(category: String) {
+        filteredFurnitureList.clear()
+        filteredFurnitureList = furnitureList.filter { item -> item.category?.lowercase() == category.lowercase() } as MutableList<FurnitureModelData>
+        furnitureOptions.value = filteredFurnitureList
+    }
+
 
 }
