@@ -11,7 +11,7 @@ class CatalogueDetailsViewModel: ViewModel() {
     private val _furnitureList = MutableLiveData<MutableList<Furniture>>()
     val furnitureList: LiveData<MutableList<Furniture>> get() = _furnitureList
 
-    init{
+    fun initList(){
         _furnitureList.value = mutableListOf(
             Furniture("normal-bed","habitacion", R.drawable.normal_bed, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque nec orci ante. Proin sed nulla a neque varius vulputate. Sed pharetra fringilla eros ut egestas. Nullam pulvinar orci quis velit efficitur vestibulum. Ut eu laoreet mauris. Ut auctor tortor eget quam condimentum suscipit."),
             Furniture("normal-grey-bed","habitacion", R.drawable.normal_grey_bed, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque nec orci ante. Proin sed nulla a neque varius vulputate. Sed pharetra fringilla eros ut egestas. Nullam pulvinar orci quis velit efficitur vestibulum. Ut eu laoreet mauris. Ut auctor tortor eget quam condimentum suscipit."),
@@ -26,6 +26,10 @@ class CatalogueDetailsViewModel: ViewModel() {
             Furniture("round-table","living", R.drawable.round_table_2 , "round"),
             Furniture("two-leg-table","comedor", R.drawable.two_leg_table , "")
         )
+    }
+
+    init{
+        initList()
     }
 
     fun removeElem(furnitureName: String){

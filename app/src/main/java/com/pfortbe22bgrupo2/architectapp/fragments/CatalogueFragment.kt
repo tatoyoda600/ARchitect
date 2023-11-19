@@ -50,26 +50,32 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
 
     private fun initFilter(){
         binding.livingFilterButton.setOnClickListener{
+            viewModel.initList()
             filterDataByCategory("living")
             startFiltering()
         }
         binding.roomFilterButton.setOnClickListener {
+            viewModel.initList()
             filterDataByCategory("habitacion")
             startFiltering()
         }
         binding.kitchenFilterButton.setOnClickListener {
+            viewModel.initList()
             filterDataByCategory("cocina")
             startFiltering()
         }
         binding.bathroomFilterButton.setOnClickListener {
+            viewModel.initList()
             filterDataByCategory("baño")
             startFiltering()
         }
         binding.diningroomFilterButton.setOnClickListener {
+            viewModel.initList()
             filterDataByCategory("comedor")
             startFiltering()
         }
         binding.outsideFilterButton.setOnClickListener {
+            viewModel.initList()
             filterDataByCategory("exterior")
             startFiltering()
         }
