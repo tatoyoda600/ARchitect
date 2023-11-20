@@ -5,10 +5,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -32,105 +32,101 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
     }
 
 
-    //private lateinit var furnitures: MutableList<Furniture>
+    private lateinit var furnitures: MutableList<FurnitureModelData>
 
 
-    private lateinit var catalogueViewModel: CatalogueViewModel
+    lateinit var viewModel: CatalogueViewModel
 
     private lateinit var binding: FragmentCatalogueBinding
     private lateinit var furnitureAdapter: FurnitureAdapter
     private lateinit var linearLayoutManager: LinearLayoutManager
-
-    // Variable para almacenar el ViewModel compartido
-    //lateinit var viewModel: CatalogueDetailsViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentCatalogueBinding.inflate(inflater, container,false)
-        //viewModel = (activity as CatalogueActivity).tuViewModel
+        viewModel = (activity as CatalogueActivity).tuViewModel
         initFilter()
-
-        catalogueViewModel = ViewModelProvider(this).get(CatalogueViewModel::class.java)
 
         return binding.root
     }
 
     override fun onStart() {
         super.onStart()
-        //loadData()
-        initRecyclerView()
+        loadData()
         finishFiltering()
     }
 
     private fun initFilter(){
+        binding.homeFilterButton.setOnClickListener{
+            viewModel.loadFurnitureList()
+        }
         binding.livingFilterButton.setOnClickListener{
-            //viewModel.initList()
             filterDataByCategory("living")
             startFiltering()
         }
         binding.roomFilterButton.setOnClickListener {
-            //viewModel.initList()
+
             filterDataByCategory("habitacion")
             startFiltering()
         }
         binding.kitchenFilterButton.setOnClickListener {
-            //viewModel.initList()
+
             filterDataByCategory("cocina")
             startFiltering()
         }
         binding.bathroomFilterButton.setOnClickListener {
-            //viewModel.initList()
             filterDataByCategory("baño")
             startFiltering()
         }
         binding.diningroomFilterButton.setOnClickListener {
-            //viewModel.initList()
             filterDataByCategory("comedor")
             startFiltering()
         }
         binding.outsideFilterButton.setOnClickListener {
-            //viewModel.initList()
+
             filterDataByCategory("exterior")
             startFiltering()
         }
     }
 
 
-/*    private fun loadData() {
-        viewModel.furnitureList.observe(viewLifecycleOwner) { furnitureList ->
-            if(furnitureList.isNotEmpty()) {
-                this.furnitures = furnitureList.toMutableList()
-                initRecyclerView()
-            }
-        }
-    }*/
+   private fun loadData() {
+       val loadingCircle = binding.loadingView
+       viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+           if (!isLoading) {
+               loadingCircle.isVisible = false
+               viewModel.furnitureOptions.observe(viewLifecycleOwner) { furnitureList ->
+                   if (furnitureList.isNotEmpty()) {
+                       this.furnitures = furnitureList.toMutableList()
+                       initRecyclerView()
+                   }
+               }
+           }
+           else{
+               loadingCircle.isVisible = true
+           }
+       }
+    }
 
 
     private fun initRecyclerView(){
         binding.catalogueRecyclerView.setHasFixedSize(true)
         binding.catalogueRecyclerView.layoutManager = LinearLayoutManager(context)
-        catalogueViewModel.getFurnitureList()
-        catalogueViewModel.furnitureOptions.observe(viewLifecycleOwner, Observer {
-            furnitureAdapter = FurnitureAdapter(it, this)
-            linearLayoutManager = LinearLayoutManager(context)
-            binding.catalogueRecyclerView.layoutManager = linearLayoutManager
-            binding.catalogueRecyclerView.adapter = furnitureAdapter
-        })
+        furnitureAdapter = FurnitureAdapter(this.furnitures, this)
+        linearLayoutManager = LinearLayoutManager(context)
+        binding.catalogueRecyclerView.layoutManager = linearLayoutManager
+        binding.catalogueRecyclerView.adapter = furnitureAdapter
     }
 
 
     private fun filterDataByCategory(category:String) {
 
-        //val filteredList = this.furnitures.filter{ item -> item.category.lowercase() == category.lowercase() }
-        //furnitureAdapter.updatesFurnitures(filteredList.toMutableList())
-
-        catalogueViewModel.filterFurnitureByCategory(category)
-        catalogueViewModel.furnitureOptions.observe(viewLifecycleOwner, Observer {
+        viewModel.filterFurnitureByCategory(category)
+        viewModel.furnitureOptions.observe(viewLifecycleOwner, Observer {
             furnitureAdapter.updatesFurnitures(it)
         })
-        //val filteredList = furnitures.furnitures.filter{ item -> item.category.lowercase() == category.lowercase() }
 
 
     }

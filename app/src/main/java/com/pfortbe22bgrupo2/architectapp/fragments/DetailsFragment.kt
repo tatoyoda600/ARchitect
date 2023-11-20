@@ -27,8 +27,7 @@ import com.pfortbe22bgrupo2.architectapp.data.HotBarSingleton
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentDetailsBinding
 import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.activities.CatalogueActivity
-import com.pfortbe22bgrupo2.architectapp.models.Furniture
-import com.pfortbe22bgrupo2.architectapp.viewModels.CatalogueDetailsViewModel
+import com.pfortbe22bgrupo2.architectapp.viewModels.CatalogueViewModel
 
 
 class DetailsFragment: Fragment() {
@@ -46,7 +45,7 @@ class DetailsFragment: Fragment() {
     private lateinit var currentUser: FirebaseUser
 
     // Variable para almacenar el ViewModel compartido
-    //lateinit var viewModel: CatalogueDetailsViewModel
+    lateinit var viewModel: CatalogueViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,7 +53,7 @@ class DetailsFragment: Fragment() {
     ): View? {
         context = requireContext()
         binding = FragmentDetailsBinding.inflate(inflater, container,false)
-        //viewModel = (activity as CatalogueActivity).tuViewModel
+        viewModel = (activity as CatalogueActivity).tuViewModel
         auth = Firebase.auth
         currentUser = auth.currentUser!!
 
@@ -129,10 +128,9 @@ class DetailsFragment: Fragment() {
                 this.findNavController().navigate(action)
             }
              */
-
-/*            viewModel.removeElem(furniture.nombre)
+            viewModel.removeElem(furniture.name)
             val action = DetailsFragmentDirections.actionDetailsFragmentToCatalogueFragment()
-            this.findNavController().navigate(action)*/
+            this.findNavController().navigate(action)
         }
         builder.setNegativeButton("No") { dialog, which ->
             Log.i("DetailsFragment", "No")
