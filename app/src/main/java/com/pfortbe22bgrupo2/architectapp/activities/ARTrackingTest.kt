@@ -2,7 +2,7 @@ package com.pfortbe22bgrupo2.architectapp.activities
 //https://github.com/SceneView/sceneview-android/blob/main/samples/ar-model-viewer/src/main/java/io/github/sceneview/sample/armodelviewer/MainActivity.kt
 
 import android.os.Bundle
-import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -16,6 +16,7 @@ import com.pfortbe22bgrupo2.architectapp.utilities.DefaultARTracking
 import com.pfortbe22bgrupo2.architectapp.utilities.DatabaseHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class ARTrackingTest: AppCompatActivity() {
@@ -131,5 +132,16 @@ class ARTrackingTest: AppCompatActivity() {
             arTracking.placementNode = null
         }
         arTracking.defaultScreenLayout()
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        val output = super.dispatchTouchEvent(ev)
+        CoroutineScope(Dispatchers.IO).launch {
+            delay(100)
+            CoroutineScope(Dispatchers.Main).launch {
+                arTracking.hideActionsPopup()
+            }
+        }
+        return output
     }
 }
