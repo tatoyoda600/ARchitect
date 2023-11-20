@@ -15,7 +15,7 @@ import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.databinding.ActivityCatalogueBinding
 import com.pfortbe22bgrupo2.architectapp.fragments.CatalogueFragment
 import com.pfortbe22bgrupo2.architectapp.fragments.DetailsFragment
-import com.pfortbe22bgrupo2.architectapp.viewModels.CatalogueDetailsViewModel
+import com.pfortbe22bgrupo2.architectapp.viewModels.CatalogueViewModel
 
 class CatalogueActivity: AppCompatActivity() {
 
@@ -25,7 +25,7 @@ class CatalogueActivity: AppCompatActivity() {
     private var isFiltering: Boolean = false
     private lateinit var auth: FirebaseAuth
     private lateinit var navHost: NavHostFragment
-    val tuViewModel by viewModels<CatalogueDetailsViewModel>()
+    val tuViewModel by viewModels<CatalogueViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,8 +40,8 @@ class CatalogueActivity: AppCompatActivity() {
         val fragmentB = DetailsFragment()
 
         // Pasar la instancia del ViewModel a ambos fragmentos
-        //fragmentA.viewModel = tuViewModel
-        //fragmentB.viewModel = tuViewModel
+        fragmentA.viewModel = tuViewModel
+        fragmentB.viewModel = tuViewModel
     }
 
     private fun initBottomNavView(){

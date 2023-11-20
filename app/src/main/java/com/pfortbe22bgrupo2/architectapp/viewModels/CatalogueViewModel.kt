@@ -2,6 +2,7 @@ package com.pfortbe22bgrupo2.architectapp.viewModels
 
 import android.content.ContentValues.TAG
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.DocumentSnapshot
@@ -12,12 +13,24 @@ import com.pfortbe22bgrupo2.architectapp.entities.FurnitureModelData
 
 class CatalogueViewModel: ViewModel() {
 
-    val furnitureOptions = MutableLiveData<MutableList<FurnitureModelData>>()
+    private val _furnitureOptions = MutableLiveData<MutableList<FurnitureModelData>>()
+    val furnitureOptions : LiveData<MutableList<FurnitureModelData>> get() = _furnitureOptions
     private var furnitureList = mutableListOf<FurnitureModelData>()
     private var filteredFurnitureList = mutableListOf<FurnitureModelData>()
     private val db = Firebase.firestore
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> get() = _isLoading
 
-    fun getFurnitureList() {
+    init {
+        loadFurnitureList()
+    }
+
+    fun loadFurnitureList() {
+        _isLoading.value = true
+        getFurnitureList()
+    }
+
+    private fun getFurnitureList() {
         furnitureList.clear()
         getFurnitureOfType("beds")
         getFurnitureOfType("chairs")
@@ -36,10 +49,12 @@ class CatalogueViewModel: ViewModel() {
                     furnitureList.add(furniture)
                     Log.d(TAG, "${document.id} => ${document.data}")
                 }
-                furnitureOptions.value = furnitureList
+                _furnitureOptions.value = furnitureList
+                _isLoading.value = false
             }
             .addOnFailureListener { exception ->
                 Log.d(TAG, "Error getting documents: ", exception)
+                _isLoading.value = false
             }
     }
 
@@ -61,8 +76,13 @@ class CatalogueViewModel: ViewModel() {
     fun filterFurnitureByCategory(category: String) {
         filteredFurnitureList.clear()
         filteredFurnitureList = furnitureList.filter { item -> item.category.lowercase() == category.lowercase() } as MutableList<FurnitureModelData>
-        furnitureOptions.value = filteredFurnitureList
+        _furnitureOptions.value = filteredFurnitureList
     }
 
+    fun removeElem(name: String) {
+        filteredFurnitureList.clear()
+        filteredFurnitureList = furnitureList.filter { item -> item.name.lowercase() != name.lowercase() } as MutableList<FurnitureModelData>
+        _furnitureOptions.value = filteredFurnitureList
+    }
 
 }
