@@ -37,7 +37,9 @@ private const val STARTUP_DELAY = 2f // Amount of seconds to wait before startin
 abstract class ARTracking(
     checksPerSecond: Int,
     internal val sceneView: ArSceneView,
-    private val progressBar: CircularProgressIndicator
+    private val progressBar: CircularProgressIndicator,
+    private val switchToDefaultLayout: () -> Unit,
+    private val switchToPlacementLayout: () -> Unit
 ) {
     internal val renderer: Render3D
 
@@ -46,6 +48,7 @@ abstract class ARTracking(
 
     @Volatile
     private var paused: Boolean = false // Prevents update function from running when set
+    private var defaultLayout: Boolean = true
 
     internal val pointIds = mutableListOf<Int>(Int.MIN_VALUE) // List of detected point IDs, in order to avoid repeated points
     internal val points = mutableMapOf<Int,MutableMap<Int,MutableMap<Int,MutableList<Point>>>>() // 3D grid of world cells, containing the detected points located in each cell (Empty cells should not be registered)
@@ -248,7 +251,28 @@ abstract class ARTracking(
         }
     }
 
-    internal fun renderFirebaseModel(modelCategory: String, modelName: String, scale: Float, position: Position) {
+    internal fun defaultScreenLayout() {
+        if (!defaultLayout) {
+            defaultLayout = true
+            switchToDefaultLayout()
+        }
+    }
+
+    internal fun placementScreenLayout() {
+        if (defaultLayout) {
+            defaultLayout = false
+            switchToPlacementLayout()
+        }
+    }
+
+    internal fun renderFirebaseModel(
+        modelCategory: String,
+        modelName: String,
+        scale: Float,
+        position: Position,
+        onSuccess: (Node) -> Unit,
+        onFailure: () -> Unit
+    ) {
         Log.d("FunctionNames", "renderFirebaseModel")
         renderer.renderFromFirebase(
             modelCategory,
@@ -256,12 +280,8 @@ abstract class ARTracking(
             position,
             Rotation(),
             Scale(scale),
-            onSuccess = { node: Node ->
-                Log.e("AR","Spawned object from Firebase")
-            },
-            onFailure = {
-                Log.e("AR","ERROR: Failed to spawn object from Firebase")
-            }
+            onSuccess,
+            onFailure
         )
     }
 
