@@ -10,6 +10,7 @@ import com.pfortbe22bgrupo2.architectapp.types.Outline
 import com.pfortbe22bgrupo2.architectapp.types.PosDir
 import dev.romainguy.kotlin.math.Float3
 import io.github.sceneview.ar.ArSceneView
+import io.github.sceneview.ar.arcore.ArFrame
 import io.github.sceneview.ar.arcore.position
 import io.github.sceneview.ar.arcore.rotation
 import io.github.sceneview.math.Position
@@ -35,15 +36,18 @@ internal const val DELAY_MULTIPLIER: Long = 10 // Multiplies most async delays
 abstract class FloorBasedTracking(
     checksPerSecond: Int,
     sceneView: ArSceneView,
-    progressBar: CircularProgressIndicator
-) : ARTracking(checksPerSecond, sceneView, progressBar) {
+    progressBar: CircularProgressIndicator,
+    switchToDefaultLayout: () -> Unit,
+    switchToPlacementLayout: () -> Unit
+) : ARTracking(checksPerSecond, sceneView, progressBar, switchToDefaultLayout, switchToPlacementLayout) {
     internal var useFloorHeight = false // Changes point verification after a floor height has been discovered
     internal var floorHeight = Int.MAX_VALUE // The cell height of the floor
 
     internal var detectedFloor: Floor = Floor() // A grid representing the current confirmed floor area
-    internal var loadFloorNode: Node? = null // An empty node with an entire floor as children, which will be destroyed when the user decides to lock the floor in place
-
+    internal var placementNode: Node? = null // An empty node with an entire floor as children, which will be destroyed when the user decides to lock the floor in place
     internal var cellCrosshair: Node? = null
+    internal var onPlacement: ((Node) -> Unit)? = null
+    internal var updatePlacementPos: ((Node) -> Unit)? = null
 
     /** Adds a point from the floor that's being loaded in. */
     internal abstract fun loadFloorPoint(position: Position)
@@ -69,17 +73,6 @@ abstract class FloorBasedTracking(
     fun confirm(onFinish: () -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {
             setPaused(true)
-
-            loadFloorNode?.let {
-                for (child in loadFloorNode!!.children) {
-                    loadFloorPoint(child.worldPosition)
-                }
-                loadFloorNode!!.destroy()
-
-                loadFloorNode = null
-            }
-
-
             val outlineAsync = async{ getFloorOutline() }
             val outlines: Outline = outlineAsync.await()
             delay(10 * DELAY_MULTIPLIER)
@@ -321,9 +314,9 @@ abstract class FloorBasedTracking(
         if (useFloorHeight) {
             setPaused(true)
 
-            if (loadFloorNode != null) {
-                loadFloorNode!!.destroy()
-                loadFloorNode = null
+            placementNode?.let {
+                it.destroy()
+                placementNode = null
             }
 
             CoroutineScope(Dispatchers.IO).launch {
@@ -354,7 +347,22 @@ abstract class FloorBasedTracking(
                         }
                     }
 
-                    loadFloorNode = parentNode
+                    placementNode = parentNode
+                    onPlacement = { node ->
+                        for (child in node.children) {
+                            loadFloorPoint(child.worldPosition)
+                        }
+                        node.destroy()
+                    }
+                    updatePlacementPos = { node ->
+                        val camPose = lastFrame?.camera?.pose
+                        if (camPose != null) {
+                            node.position = Position(camPose.position.x, floorHeight * DICT_COORD_UNZOOM, camPose.position.z)
+                            // The camera's -X rotation is its yaw rotation, unlike nodes which use their Y rotation for yaw
+                            node.rotation = Rotation(0f, -camPose.rotation.x, 0f)
+                        }
+                    }
+                    placementScreenLayout()
                 }
                 else {
                     Log.e("ARTracking", "Failed to Find Floor")
@@ -453,7 +461,38 @@ abstract class FloorBasedTracking(
     internal fun renderModel(modelCategory: String, modelName: String, scale: Float, allowWalls: Boolean) {
         val lookPoint = getLookPoint(true, allowWalls)
         if (lookPoint != null) {
-            renderFirebaseModel(modelCategory, modelName, scale, lookPoint)
+            renderFirebaseModel(modelCategory, modelName, scale, lookPoint,
+                { newNode ->
+                    placementNode = newNode
+                    onPlacement = { node ->
+                        Log.d("ARTracking", "Model was placed")
+                    }
+                    updatePlacementPos = { node ->
+                        val updatedPos = getLookPoint(true, allowWalls)
+                        if (updatedPos != null) {
+                            node.position = updatedPos
+                        }
+                        val camPose = lastFrame?.camera?.pose
+                        if (camPose != null) {
+                            // The camera's -X rotation is its yaw rotation, unlike nodes which use their Y rotation for yaw
+                            node.rotation = Rotation(0f, -camPose.rotation.x, 0f)
+                        }
+                    }
+                    placementScreenLayout()
+                },
+                {
+                    Log.e("Firebase", "Failed to render model from Firebase")
+                })
         }
+    }
+
+    /** Places the object that was being located. */
+    internal fun place() {
+        placementNode?.let {
+            onPlacement?.invoke(it)
+            onPlacement = null
+            placementNode = null
+        }
+        defaultScreenLayout()
     }
 }

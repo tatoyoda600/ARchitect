@@ -35,7 +35,8 @@ class Render3D(
         modelPath: String,
         position: Position,
         rotation: Rotation,
-        scale: Scale = Scale(1f)
+        scale: Scale = Scale(1f),
+        centerOrigin: Position = Position(-0.5f)
     ): Node {
         // Log.d("FunctionNames", "render")
         val modelNode: ModelNode = ModelNode(sceneView.engine).apply {
@@ -49,7 +50,7 @@ class Render3D(
             this.loadModelGlbAsync(
                 glbFileLocation = modelPath,
                 scaleToUnits = null,
-                centerOrigin = Position(-0.5f)
+                centerOrigin = centerOrigin
             ) {}
             // Log.d("FunctionNames", "renderEnd")
         }
@@ -78,7 +79,7 @@ class Render3D(
     ) {
         storage.reference.child("/models/${modelCategory}/models/${modelName}.glb").downloadUrl
             .addOnSuccessListener {
-                val modelNode = render(it.toString(), position, rotation, scale)
+                val modelNode = render(it.toString(), position + Position(0.0f, 0.05f, 0.0f), rotation, scale, Position(0.0f, -1.0f, 0.0f))
                 onSuccess(modelNode)
             }.addOnFailureListener {
                 onFailure()
