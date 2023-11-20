@@ -52,8 +52,10 @@ class DefaultARTracking(
     checksPerSecond: Int,
     sceneView: ArSceneView,
     progressBar: CircularProgressIndicator,
+    switchToDefaultLayout: () -> Unit,
+    switchToPlacementLayout: () -> Unit,
     private var onFloorDetectedFunction: () -> Unit = fun() {} // A function to run when a floor height is discovered
-) : FloorBasedTracking(checksPerSecond, sceneView, progressBar) {
+) : FloorBasedTracking(checksPerSecond, sceneView, progressBar, switchToDefaultLayout, switchToPlacementLayout) {
     private var lastExcessCleanUpStep = 0
     private var lastConfirmedCleanUpStep = 0
     private var lastConfirmedFloorCheckStep = 0
@@ -81,12 +83,8 @@ class DefaultARTracking(
      *
      * If a floor height has been found, use it to further filter the points that were detected. */
     override fun frameUpdate(arFrame: ArFrame) {
-        // If a floor is currently trying to be loaded, update the position of the floor-loading node along with the camera
-        loadFloorNode?.let {
-            it.position = Position(arFrame.camera.pose.position.x, floorHeight * DICT_COORD_UNZOOM, arFrame.camera.pose.position.z)
-            // The camera's -X rotation is its yaw rotation, unlike nodes which use their Y rotation for yaw
-            it.rotation = Rotation(0f, -arFrame.camera.pose.rotation.x, 0f)
-        }
+        // If an object is currently trying to be placed, update the position of the object along with the camera
+        placementNode?.let { updatePlacementPos?.invoke(it) }
 
         if (useFloorHeight) {
             count = (count + 1) % FRAMES_PER_CURSOR_UPDATE

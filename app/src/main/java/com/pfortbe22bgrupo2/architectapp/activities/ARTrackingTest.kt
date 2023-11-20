@@ -3,6 +3,7 @@ package com.pfortbe22bgrupo2.architectapp.activities
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -28,70 +29,34 @@ class ARTrackingTest: AppCompatActivity() {
         binding = ActivityArtrackingTestBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val parameters: Bundle? = intent.extras
-        parameters?.let {
-            val models = it.getStringArray("models")
-            models?.let {
-                //TODO("Get the preview images and load them into a hotbar-type recycler")
-                //TODO("Get the scales of the models (Or the real sizes and turn them into scales)")
-                //TODO("Start downloading the models maybe?")
-            }
-        }
-
         val recycler = binding.productHotbar
         recycler.setHasFixedSize(true)
         recycler.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
 
         arTracking = DefaultARTracking(5, binding.sceneView, binding.progressIndicator,
-            onFloorDetectedFunction = fun(){
+            switchToDefaultLayout = fun() {
+                // Log.d("FunctionNames", "switchToDefaultLayout")
+                binding.defaultLayout.isVisible = true
+                binding.placementLayout.isVisible = false
+            },
+            switchToPlacementLayout = fun() {
+                // Log.d("FunctionNames", "switchToPlacementLayout")
+                binding.defaultLayout.isVisible = false
+                binding.placementLayout.isVisible = true
+            },
+            onFloorDetectedFunction = fun() {
                 // Log.d("FunctionNames", "onFloorDetectedFunction")
                 binding.confirmBtn.isEnabled = true
                 binding.loadBtn.isEnabled = true
             }
         )
 
-        binding.rescanBtn.setOnClickListener {
-            // Log.d("FunctionNames", "rescanBtn")
-            binding.progressIndicator.isVisible = true
-            arTracking.reset()
-        }
-
-        binding.confirmBtn.setOnClickListener {
-            // Log.d("FunctionNames", "confirmBtn")
-            arTracking.confirm { arTracking.paintFloor() }
-        }
-
-        binding.saveBtn.setOnClickListener {
-            // Log.d("FunctionNames", "saveBtn")
-            arTracking.saveFloor(binding.root.context)
-        }
-
-        binding.loadBtn.setOnClickListener {
-            // Log.d("FunctionNames", "loadBtn")
-            CoroutineScope(Dispatchers.IO).launch {
-                val ids = database.getFloorIDs()
-                if (ids.size > 0) {
-                    arTracking.loadFloor(binding.root.context, ids.first())
-                }
-            }
-        }
-
-        binding.sofaBtn.setOnClickListener {
-            // Log.d("FunctionNames", "sofaBtn")
-            val modelCategory: String = "chairs"
-            val modelName: String = "ADDE_Chair"
-
-            database.getProductData(
-                modelCategory,
-                modelName,
-                { product: Product ->
-                    arTracking.renderModel(modelCategory, modelName, product.scale, product.allowWalls)
-                },
-                {
-                    Log.e("ARTrackingTest", "Failed to get product data (${modelCategory} > ${modelName})")
-                }
-            )
-        }
+        binding.rescanBtn.setOnClickListener(rescan)
+        binding.confirmBtn.setOnClickListener(confirm)
+        binding.saveBtn.setOnClickListener(saveFloor)
+        binding.loadBtn.setOnClickListener(loadFloor)
+        binding.cancelBtn.setOnClickListener(cancelPlace)
+        binding.placeBtn.setOnClickListener(place)
 
         CoroutineScope(Dispatchers.IO).launch {
             database = DatabaseHandler(binding.root.context)
@@ -126,5 +91,45 @@ class ARTrackingTest: AppCompatActivity() {
                 binding.productHotbar.isVisible = false
             }
         }
+    }
+
+    private val rescan: (View) -> Unit = {
+        // Log.d("FunctionNames", "rescanBtn")
+        binding.progressIndicator.isVisible = true
+        arTracking.reset()
+    }
+
+    private val confirm: (View) -> Unit = {
+        // Log.d("FunctionNames", "confirmBtn")
+        arTracking.confirm { arTracking.paintFloor() }
+    }
+
+    private val saveFloor: (View) -> Unit = {
+        // Log.d("FunctionNames", "saveBtn")
+        arTracking.saveFloor(binding.root.context)
+    }
+
+    private val loadFloor: (View) -> Unit = {
+        // Log.d("FunctionNames", "loadBtn")
+        CoroutineScope(Dispatchers.IO).launch {
+            val ids = database.getFloorIDs()
+            if (ids.size > 0) {
+                arTracking.loadFloor(binding.root.context, ids.first())
+            }
+        }
+    }
+
+    private val place: (View) -> Unit = {
+        // Log.d("FunctionNames", "placeBtn")
+        arTracking.place()
+    }
+
+    private val cancelPlace: (View) -> Unit = {
+        // Log.d("FunctionNames", "cancelPlaceBtn")
+        arTracking.placementNode?.let {
+            it.destroy()
+            arTracking.placementNode = null
+        }
+        arTracking.defaultScreenLayout()
     }
 }
