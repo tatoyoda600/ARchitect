@@ -79,9 +79,13 @@ class CatalogueViewModel: ViewModel() {
         _furnitureOptions.value = filteredFurnitureList
     }
 
-    fun removeElem(name: String) {
+    fun removeElem(furniture: FurnitureModelData) {
         filteredFurnitureList.clear()
-        filteredFurnitureList = furnitureList.filter { item -> item.name.lowercase() != name.lowercase() } as MutableList<FurnitureModelData>
+        db.collection("models").document(furniture.furnitureType).collection("datos").document(furniture.id)
+            .delete()
+            .addOnSuccessListener { Log.d(TAG, "DocumentSnapshot successfully deleted!") }
+            .addOnFailureListener { e -> Log.w(TAG, "Error deleting document", e) }
+        filteredFurnitureList = furnitureList.filter { item -> item.name.lowercase() != furniture.name.lowercase() } as MutableList<FurnitureModelData>
         _furnitureOptions.value = filteredFurnitureList
     }
 
