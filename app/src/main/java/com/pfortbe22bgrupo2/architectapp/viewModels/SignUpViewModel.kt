@@ -32,7 +32,8 @@ class SignUpViewModel: ViewModel() {
             "id" to userUid,
             "isAdmin" to false,
             "address" to null,
-            "phoneNumber" to null
+            "phoneNumber" to null,
+            "profileImageUrl" to ""
         )
         db.collection("users").document(userUid).set(user)
     }

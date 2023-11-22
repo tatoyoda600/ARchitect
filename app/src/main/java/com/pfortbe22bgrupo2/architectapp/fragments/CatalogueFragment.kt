@@ -1,27 +1,23 @@
 package com.pfortbe22bgrupo2.architectapp.fragments
 
 
+//import com.pfortbe22bgrupo2.architectapp.models.Furniture
+//import com.pfortbe22bgrupo2.architectapp.viewModels.CatalogueDetailsViewModel
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-
 import androidx.lifecycle.Observer
-
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.pfortbe22bgrupo2.architectapp.activities.CatalogueActivity
 import com.pfortbe22bgrupo2.architectapp.adapters.FurnitureAdapter
-
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentCatalogueBinding
 import com.pfortbe22bgrupo2.architectapp.entities.FurnitureModelData
 import com.pfortbe22bgrupo2.architectapp.listeners.ShowDetailsFurniture
-
-//import com.pfortbe22bgrupo2.architectapp.models.Furniture
-//import com.pfortbe22bgrupo2.architectapp.viewModels.CatalogueDetailsViewModel
-
 import com.pfortbe22bgrupo2.architectapp.viewModels.CatalogueViewModel
 
 

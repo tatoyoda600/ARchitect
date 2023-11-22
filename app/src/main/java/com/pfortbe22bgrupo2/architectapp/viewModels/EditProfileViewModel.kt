@@ -60,7 +60,7 @@ class EditProfileViewModel: ViewModel() {
 
     fun uploadImageFromGallery(imageUri: Uri, authResultListener: AuthResultListener) {
         val imageFileName = "${currentUser.uid}.jpg"
-        val storageReference = FirebaseStorage.getInstance().reference.child("images/$imageFileName")
+        val storageReference = FirebaseStorage.getInstance().reference.child("profileImages/$imageFileName")
         storageReference.putFile(imageUri)
             .addOnSuccessListener { taskSnapshot ->
                 storageReference.downloadUrl.addOnSuccessListener { uri ->
@@ -79,7 +79,7 @@ class EditProfileViewModel: ViewModel() {
 
     fun uploadImageFromCamara(imageBitmap: Bitmap, authResultListener: AuthResultListener) {
         val imageFileName = "${currentUser.uid}.jpg"
-        val storageReference = FirebaseStorage.getInstance().reference.child("images/$imageFileName.jpg")
+        val storageReference = FirebaseStorage.getInstance().reference.child("profileImages/$imageFileName.jpg")
         // Comprime la imagen y convierte en un arreglo de bytes
         val byteArrayOutputStream = ByteArrayOutputStream()
         imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
