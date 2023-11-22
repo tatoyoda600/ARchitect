@@ -29,12 +29,15 @@ class CustomWallFragment : Fragment(), DeleteUserSavedDesign {
     ): View? {
         binding = FragmentCustomWallBinding.inflate(inflater,container,false)
         customWallViewModel = ViewModelProvider(this).get(CustomWallViewModel::class.java)
+
         return binding.root
     }
 
     override fun onStart() {
         super.onStart()
+
         getCustomWallList()
+
     }
 
     private fun initRecyclerView(){
@@ -45,12 +48,12 @@ class CustomWallFragment : Fragment(), DeleteUserSavedDesign {
     private fun  getCustomWallList() {
         initRecyclerView()
         customWallViewModel.getCustomWallList()
-        customWallViewModel.customWallOptions.observe(viewLifecycleOwner, Observer { customWallsList ->
-            if (customWallsList == null) {
-                binding.customWallRecyclerView.visibility = View.GONE
+        customWallViewModel.customWallOptions.observe(viewLifecycleOwner, Observer { options ->
+            if (options.owner != null) {
+                // VER......
                 binding.emptyCustomWallsTextView.visibility = View.VISIBLE
             } else {
-                val adapter = CustomWallFirestoreAdapter(customWallsList, this)
+                val adapter = CustomWallFirestoreAdapter(options, this@CustomWallFragment)
                 binding.customWallRecyclerView.adapter = adapter
                 adapter.startListening()
             }

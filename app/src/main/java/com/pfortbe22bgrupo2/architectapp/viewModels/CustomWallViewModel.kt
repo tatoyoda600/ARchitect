@@ -23,13 +23,13 @@ class CustomWallViewModel : ViewModel() {
     }
 
     fun getCustomWallList() {
-        val currentUser = auth.currentUser!!
-        val rootRef = FirebaseFirestore.getInstance()
-        val query = rootRef.collection("custom_walls").whereEqualTo("userId", currentUser.uid)
-        val options = FirestoreRecyclerOptions.Builder<CustomWall>()
-            .setQuery(query, CustomWall::class.java)
-            .build()
-        customWallOptions.value = options
+            val currentUser = auth.currentUser!!
+            val rootRef = FirebaseFirestore.getInstance()
+            val query = rootRef.collection("custom_walls").whereEqualTo("userId", currentUser.uid)
+            val options = FirestoreRecyclerOptions.Builder<CustomWall>()
+                .setQuery(query, CustomWall::class.java)
+                .build()
+            customWallOptions.value = options
     }
 
 }
