@@ -2,7 +2,6 @@ package com.pfortbe22bgrupo2.architectapp.activities
 //https://github.com/SceneView/sceneview-android/blob/main/samples/ar-model-viewer/src/main/java/io/github/sceneview/sample/armodelviewer/MainActivity.kt
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -71,7 +70,7 @@ class ARTrackingTest: AppCompatActivity() {
 
                     if (productCount == HotBarSingleton.hotBarItems.size) {
                         recycler.adapter = ProductHotbarAdapter(productList) { product ->
-                            arTracking.renderModel(product.category, product.name, product.scale, product.allowWalls)
+                            arTracking.renderModel(product.tag, product.name, product.scale, product.allowWalls)
                         }
                         recycler.hasPendingAdapterUpdates()
                     }

@@ -63,30 +63,30 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
             viewModel.loadFurnitureList()
         }
         binding.livingFilterButton.setOnClickListener{
-            filterDataByCategory("living")
+            filterDataByTag("living")
             startFiltering()
         }
         binding.roomFilterButton.setOnClickListener {
 
-            filterDataByCategory("habitacion")
+            filterDataByTag("habitacion")
             startFiltering()
         }
         binding.kitchenFilterButton.setOnClickListener {
 
-            filterDataByCategory("cocina")
+            filterDataByTag("cocina")
             startFiltering()
         }
         binding.bathroomFilterButton.setOnClickListener {
-            filterDataByCategory("baño")
+            filterDataByTag("baño")
             startFiltering()
         }
         binding.diningroomFilterButton.setOnClickListener {
-            filterDataByCategory("comedor")
+            filterDataByTag("comedor")
             startFiltering()
         }
         binding.outsideFilterButton.setOnClickListener {
 
-            filterDataByCategory("exterior")
+            filterDataByTag("exterior")
             startFiltering()
         }
     }
@@ -121,9 +121,9 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
     }
 
 
-    private fun filterDataByCategory(category:String) {
+    private fun filterDataByTag(tag:String) {
 
-        viewModel.filterFurnitureByCategory(category)
+        viewModel.filterFurnitureByTag(tag)
         viewModel.furnitureOptions.observe(viewLifecycleOwner, Observer {
             furnitureAdapter.updatesFurnitures(it)
         })
