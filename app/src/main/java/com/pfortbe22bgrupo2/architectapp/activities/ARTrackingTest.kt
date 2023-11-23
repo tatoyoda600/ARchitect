@@ -2,8 +2,12 @@ package com.pfortbe22bgrupo2.architectapp.activities
 //https://github.com/SceneView/sceneview-android/blob/main/samples/ar-model-viewer/src/main/java/io/github/sceneview/sample/armodelviewer/MainActivity.kt
 
 import android.os.Bundle
+import android.text.InputType
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,12 +16,13 @@ import com.pfortbe22bgrupo2.architectapp.adapters.ProductHotbarAdapter
 import com.pfortbe22bgrupo2.architectapp.data.HotBarSingleton
 import com.pfortbe22bgrupo2.architectapp.databinding.ActivityArtrackingTestBinding
 import com.pfortbe22bgrupo2.architectapp.entities.Product
-import com.pfortbe22bgrupo2.architectapp.utilities.DefaultARTracking
 import com.pfortbe22bgrupo2.architectapp.utilities.DatabaseHandler
+import com.pfortbe22bgrupo2.architectapp.utilities.DefaultARTracking
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
 
 class ARTrackingTest: AppCompatActivity() {
     lateinit var binding: ActivityArtrackingTestBinding
@@ -107,15 +112,37 @@ class ARTrackingTest: AppCompatActivity() {
 
     private val saveFloor: (View) -> Unit = {
         // Log.d("FunctionNames", "saveBtn")
-        arTracking.saveFloor(binding.root.context)
+        val input = EditText(this)
+        input.inputType = InputType.TYPE_CLASS_TEXT
+
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Save Floor")
+            .setView(input)
+            .setPositiveButton("Save", null)
+            .setNegativeButton("Cancel") { dialog, which -> dialog.cancel() }
+            .show()
+
+        dialog.setOnShowListener {
+                val button = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
+                button.setOnClickListener {
+                    val text = input.text.toString()
+                    if (text.isNotBlank()) {
+                        arTracking.saveFloor(binding.root.context, text)
+                        dialog.dismiss()
+                    }
+                }
+            }
     }
 
     private val loadFloor: (View) -> Unit = {
         // Log.d("FunctionNames", "loadBtn")
         CoroutineScope(Dispatchers.IO).launch {
-            val ids = database.getFloorIDs()
+            //val ids = database.getFloorIDs()
+            val ids = database.getDesignIDs()
+            Log.e("Load", "ID Count: ${ids.size}")
             if (ids.size > 0) {
-                arTracking.loadFloor(binding.root.context, ids.first())
+                //arTracking.loadFloor(ids.first())
+                arTracking.loadDesign(ids.first())
             }
         }
     }

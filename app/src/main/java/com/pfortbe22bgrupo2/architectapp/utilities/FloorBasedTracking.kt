@@ -2,13 +2,8 @@ package com.pfortbe22bgrupo2.architectapp.utilities
 
 import android.content.Context
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.ViewGroup
-import android.view.ViewManager
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.ar.sceneform.math.Vector3
-import com.pfortbe22bgrupo2.architectapp.databinding.ModelPopupMenuBinding
 import com.pfortbe22bgrupo2.architectapp.types.Floor
 import com.pfortbe22bgrupo2.architectapp.types.Int3
 import com.pfortbe22bgrupo2.architectapp.types.Outline
@@ -22,7 +17,6 @@ import io.github.sceneview.math.Rotation
 import io.github.sceneview.math.Scale
 import io.github.sceneview.math.toFloat3
 import io.github.sceneview.node.Node
-import io.github.sceneview.renderable.Renderable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -54,9 +48,8 @@ abstract class FloorBasedTracking(
     internal var onPlacement: ((Node) -> Unit)? = null
     internal var updatePlacementPos: ((Node) -> Unit)? = null
 
-    lateinit internal var actionsPopup: ViewGroup
-    private var popupNode: Node? = null
-    private var popupNodeAllowWalls: Boolean = false
+    /** Renders a confirmed point. */
+    internal abstract fun renderConfirmedPoint(position: Position, index: Int)
 
     /** Adds a point from the floor that's being loaded in. */
     internal abstract fun loadFloorPoint(position: Position)
@@ -66,22 +59,6 @@ abstract class FloorBasedTracking(
         super.setup()
         cellCrosshair = renderer.render(CELL_CURSOR_MODEL, Position(), Rotation(), Scale(1f))
         cellCrosshair?.isVisible = false
-        val popupBinding = ModelPopupMenuBinding.inflate(LayoutInflater.from(sceneView.context))
-        actionsPopup = popupBinding.root
-        val root = sceneView.rootView
-        if (root is ViewManager) {
-            val wrapContent = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-            root.addView(actionsPopup, wrapContent)
-            hideActionsPopup()
-            popupBinding.moveProductBtn.setOnClickListener {
-                popupNode?.let {
-                    startPlacement(it, popupNodeAllowWalls)
-                }
-            }
-            popupBinding.saveProductBtn.setOnClickListener {
-                Log.e("POPUP", "SAVE")
-            }
-        }
     }
 
     /** Resets the AR state. */
@@ -157,7 +134,8 @@ abstract class FloorBasedTracking(
                             pointIds.remove(cellPointsId)
                         }
                         points.get(pointIndex.x)?.get(pointIndex.y)?.get(pointIndex.z)?.removeAt(p)
-                        confirmedPoints.get(point).model.destroy()
+                        confirmedPoints.get(point).model?.detachFromScene(sceneView)
+                        confirmedPoints.get(point).model?.parent = null
                         confirmedPoints.removeAt(point)
                         cleanUpCount++
                         break
@@ -166,6 +144,9 @@ abstract class FloorBasedTracking(
                         delay(1)
                     }
                 }
+            }
+            else {
+                renderConfirmedPoint(position, point)
             }
         }
 
@@ -253,9 +234,6 @@ abstract class FloorBasedTracking(
             return Outline(emptyList())
         }
 
-        clearNonFloorPoints()
-        delay(10 * DELAY_MULTIPLIER)
-
         val minX = Int3(
             points.keys.min(),
             floorHeight,
@@ -323,49 +301,49 @@ abstract class FloorBasedTracking(
     }
 
     /** Saves the confirmed floor in the database. */
-    fun saveFloor(context: Context) {
+    fun saveFloor(context: Context, floorName: String) {
         setPaused(true)
         CoroutineScope(Dispatchers.IO).launch {
-            val database = DatabaseHandler(context)
             // The camera's -X rotation is its yaw rotation
-            database.insertFloor(detectedFloor, DICT_COORD_UNZOOM, lastFrame!!.camera.pose.position, -lastFrame!!.camera.pose.rotation.x)
+            database.insertFloor(detectedFloor, lastFrame!!.camera.pose.position, -lastFrame!!.camera.pose.rotation.x, floorName)
 
             setPaused(false)
         }
     }
 
     /** Retrieves a floor from the database, for placing. */
-    fun loadFloor(context: Context, id: Int) {
+    fun loadFloor(id: Int) {
         if (useFloorHeight) {
             setPaused(true)
 
             placementNode?.let {
-                it.destroy()
+                it.detachFromScene(sceneView)
+                it.parent = null
                 placementNode = null
             }
 
             CoroutineScope(Dispatchers.IO).launch {
-                val database = DatabaseHandler(context)
-                val floorData = database.getFloorByID(id, DICT_COORD_ZOOM)
+                val floorData = database.getFloorByID(id)
                 if (floorData != null) {
                     val floor = floorData.first
                     val cameraPosition = convertPosToIndexes(lastFrame!!.camera.pose.position)
                     val floorPosition = Int3(cameraPosition.x, floorHeight, cameraPosition.z)
 
                     val parentNode = renderer.createEmptyNode(
-                        floorPosition.toFloat3() * DICT_COORD_UNZOOM,
+                        convertIndexesToCellCenter(floorPosition),
                         // Nodes use their Y rotation for yaw
                         Rotation(0f, floorData.second, 0f)
                     )
 
                     for (x in floor.grid) {
                         for (z in x.value) {
-                            val pointPos = Int3(x.key, 0, z.key)
+                            val pointPos = convertIndexesToCellCenter(Int3(x.key, 0, z.key))
+                            pointPos.y = 0f
 
                             // Changing the parent of a node doesn't change its local position, rotation, or scale, so the loaded position can just be used directly
                             val node: Node = renderer.render(
                                 modelPath = FLOOR_LOADING_MODEL,
-                                position = pointPos.toFloat3() * DICT_COORD_UNZOOM,
+                                position = pointPos,
                                 rotation = Rotation()
                             )
                             node.parent = parentNode
@@ -377,12 +355,13 @@ abstract class FloorBasedTracking(
                         for (child in node.children) {
                             loadFloorPoint(child.worldPosition)
                         }
-                        node.destroy()
+                        node.detachFromScene(sceneView)
+                        node.parent = null
                     }
                     updatePlacementPos = { node ->
                         val camPose = lastFrame?.camera?.pose
                         if (camPose != null) {
-                            node.position = Position(camPose.position.x, floorHeight * DICT_COORD_UNZOOM, camPose.position.z)
+                            node.position = Position(camPose.position.x, convertIndexToCellCenter(floorHeight), camPose.position.z)
                             // The camera's -X rotation is its yaw rotation, unlike nodes which use their Y rotation for yaw
                             node.rotation = Rotation(0f, -camPose.rotation.x, 0f)
                         }
@@ -412,7 +391,7 @@ abstract class FloorBasedTracking(
             // -Z is forwards
             val lookDir = camPose.rotateVector(Float3(0f, 0f, -1f).toFloatArray()).toFloat3()
 
-            val hitPoint = MathUtils.rayFloorIntersection(cameraPos, lookDir, floorHeight * DICT_COORD_UNZOOM)
+            val hitPoint = MathUtils.rayFloorIntersection(cameraPos, lookDir, convertIndexToCellCenter(floorHeight))
 
             if (hitPoint != null) {
                 var hitCell: Int3 = convertPosToIndexes(hitPoint)
@@ -483,29 +462,29 @@ abstract class FloorBasedTracking(
     }
 
     /** Renders a model from Firebase in the direction the device is facing. */
-    internal fun renderModel(modelCategory: String, modelName: String, scale: Float, allowWalls: Boolean) {
+    internal open fun renderModel(modelCategory: String, modelName: String, scale: Float, allowWalls: Boolean, afterPlacement: (Node) -> Unit) {
         val lookPoint = getLookPoint(true, allowWalls)
         if (lookPoint != null) {
-            renderFirebaseModel(modelCategory, modelName, scale, lookPoint,
+            renderer.renderFromFirebase(
+                modelCategory,
+                modelName,
+                lookPoint,
+                Rotation(),
+                Scale(scale),
                 { node ->
-                    startPlacement(node, allowWalls)
+                    startPlacement(node, allowWalls, afterPlacement)
                 },
                 {
                     Log.e("Firebase", "Failed to render model from Firebase")
-                })
+                }
+            )
         }
     }
 
     /** Sets a node to be moved around with the camera for placing. */
-    private fun startPlacement(nodeToPlace: Node, allowWalls: Boolean) {
+    internal fun startPlacement(nodeToPlace: Node, allowWalls: Boolean, afterPlacement: (Node) -> Unit) {
         placementNode = nodeToPlace
-        onPlacement = { node ->
-            node.onTap = { motionEvent: MotionEvent, renderable: Renderable? ->
-                popupNode = node
-                popupNodeAllowWalls = allowWalls
-                showActionsPopup(motionEvent.x, motionEvent.y)
-            }
-        }
+        onPlacement = afterPlacement
         updatePlacementPos = { node ->
             val updatedPos = getLookPoint(true, allowWalls)
             if (updatedPos != null) {
@@ -528,16 +507,5 @@ abstract class FloorBasedTracking(
             placementNode = null
         }
         defaultScreenLayout()
-    }
-
-    /** Shows the node actions popup. */
-    internal fun showActionsPopup(x: Float, y: Float) {
-        actionsPopup.x = x - actionsPopup.width * 0.5f
-        actionsPopup.y = y - actionsPopup.height * 0.5f
-    }
-
-    /** Hides the node actions popup. */
-    internal fun hideActionsPopup() {
-        showActionsPopup(-1000f, -1000f)
     }
 }
