@@ -1,8 +1,21 @@
 package com.pfortbe22bgrupo2.architectapp.utilities
 
+import android.content.Context
+import android.text.InputType
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.ViewGroup
+import android.view.ViewManager
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.ar.core.PointCloud
+import com.pfortbe22bgrupo2.architectapp.R
+import com.pfortbe22bgrupo2.architectapp.databinding.ModelPopupMenuBinding
+import com.pfortbe22bgrupo2.architectapp.types.DesignSession
+import com.pfortbe22bgrupo2.architectapp.types.DesignSessionProduct
 import com.pfortbe22bgrupo2.architectapp.types.Floor
 import com.pfortbe22bgrupo2.architectapp.types.Int3
 import com.pfortbe22bgrupo2.architectapp.types.ModelPoint
@@ -16,6 +29,10 @@ import io.github.sceneview.math.Rotation
 import io.github.sceneview.math.Scale
 import io.github.sceneview.math.toVector3
 import io.github.sceneview.node.Node
+import io.github.sceneview.renderable.Renderable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 private const val CONFIRMED_POINT_MODEL = "models/square.glb"
@@ -60,15 +77,76 @@ class DefaultARTracking(
     private var lastConfirmedCleanUpStep = 0
     private var lastConfirmedFloorCheckStep = 0
     private var coloredFloor: Map<Int, Map<Int, Floor.CellState>>? = null // A grid representing the current colored floor area
+    private var cursorFrameCount = 0
 
-    private var count = 0
+    private var designSession: DesignSession? = null
+    private var arProducts: MutableMap<Node, DesignSessionProduct> = mutableMapOf()
+
+    lateinit internal var actionsPopup: ViewGroup
+    private var popupNode: Node? = null
+    private var popupNodeAllowWalls: Boolean = false
+
+    /** Takes care of setting up the AR scene. */
+    override fun setup() {
+        super.setup()
+        val popupBinding = ModelPopupMenuBinding.inflate(LayoutInflater.from(sceneView.context))
+        actionsPopup = popupBinding.root
+        val root = sceneView.rootView
+        if (root is ViewManager) {
+            val wrapContent = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            root.addView(actionsPopup, wrapContent)
+            hideActionsPopup()
+            popupBinding.moveProductBtn.setOnClickListener {
+                popupNode?.let {
+                    startPlacement(it, popupNodeAllowWalls) { node ->
+                        val allowWalls = popupNodeAllowWalls
+                        node.onTap = { motionEvent: MotionEvent, renderable: Renderable? ->
+                            popupNode = node
+                            popupNodeAllowWalls = allowWalls
+                            showActionsPopup(motionEvent.x, motionEvent.y)
+                        }
+                    }
+                }
+            }
+            popupBinding.deleteProductBtn.setOnClickListener {
+                popupNode?.let {
+                    val product = arProducts.get(it)
+                    if (product != null) {
+                        designSession?.let {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                database.removeProductFromDesign(product, it)
+                            }
+                        }
+                    }
+
+                    it.detachFromScene(sceneView)
+                    it.parent = null
+                    popupNode = null
+                }
+            }
+            popupBinding.saveProductBtn.setOnClickListener {
+                popupNode?.let {
+                    saveDesign(it)
+                }
+            }
+        }
+    }
 
     /** Resets the AR state. */
     override fun reset() {
         lastExcessCleanUpStep = 0
         lastConfirmedCleanUpStep = 0
         lastConfirmedFloorCheckStep = 0
+
+        //TODO("Clear all models")
+
         super.reset()
+    }
+
+    /** Renders a confirmed point. */
+    override fun renderConfirmedPoint(position: Position, index: Int) {
+        // Log.d("FunctionNames", "renderConfirmedPoint")
+        colorPoint(position, Floor.CellState.UNKNOWN)
     }
 
     /** Adds a point from the floor that's being loaded in. */
@@ -87,8 +165,8 @@ class DefaultARTracking(
         placementNode?.let { updatePlacementPos?.invoke(it) }
 
         if (useFloorHeight) {
-            count = (count + 1) % FRAMES_PER_CURSOR_UPDATE
-            if (count == 0) {
+            cursorFrameCount = (cursorFrameCount + 1) % FRAMES_PER_CURSOR_UPDATE
+            if (cursorFrameCount == 0) {
                 val lookPoint = getLookPoint(showCellCursor = true, useOnWall = true)
             }
         }
@@ -119,7 +197,7 @@ class DefaultARTracking(
                         else {
                             // Within leeway range
                             if (abs(convertAxisToIndex(position.y) - floorHeight).toFloat() < FLOOR_HEIGHT_CELL_LEEWAY) {
-                                position.y = floorHeight * DICT_COORD_UNZOOM
+                                position.y = convertIndexToCellCenter(floorHeight)
                                 val point = Point(pointCloud.ids[i], position)
                                 if (addPoint(point, leeway = true) >= FLOOR_LEEWAY_MIN_NEIGHBORS) {
                                     onConfirmedPoint(point)
@@ -167,14 +245,27 @@ class DefaultARTracking(
     /** When a verified point is found, add it to the confirmed points list and render the cell's tile. */
     override fun onConfirmedPoint(point: Point) {
         confirmedPoints += ModelPoint(
-            renderer.render(
-                modelPath = CONFIRMED_POINT_MODEL,
-                position = convertIndexesToCellCenter(convertPosToIndexes(point.position)),
-                rotation = Rotation()
-            ),
+            if (!useFloorHeight)
+                null
+            else
+                renderer.render(
+                    modelPath = CONFIRMED_POINT_MODEL,
+                    position = convertIndexesToCellCenter(convertPosToIndexes(point.position)),
+                    rotation = Rotation()
+                ),
             point.id,
             point.position
         )
+
+        if (useFloorHeight) {
+        }
+        else {
+            confirmedPoints += ModelPoint(
+                null,
+                point.id,
+                point.position
+            )
+        }
 
         if (!useFloorHeight && confirmedPoints.size > lastConfirmedFloorCheckStep + CONFIRMED_POINTS_FLOOR_CHECK_STEP) {
             lastConfirmedFloorCheckStep += CONFIRMED_POINTS_FLOOR_CHECK_STEP
@@ -289,7 +380,8 @@ class DefaultARTracking(
                         pointIds.remove(cellPointsId)
                     }
                     points.get(pointIndex.x)?.get(pointIndex.y)?.get(pointIndex.z)?.removeAll { it.id == cellPointsId }
-                    confirmedPoints.get(point).model.destroy()
+                    confirmedPoints.get(point).model?.detachFromScene(sceneView)
+                    confirmedPoints.get(point).model?.parent = null
                     confirmedPoints.removeAt(point)
                     cleanUpCount++
                 }
@@ -310,17 +402,20 @@ class DefaultARTracking(
         val confirmedIndex: Int? = findFirstConfirmedPointInCell(pointIndexes)
 
         if (confirmedIndex != null) {
+            val position = confirmedPoints.get(confirmedIndex).model?.position?: convertIndexesToCellCenter(pointIndexes)
+            val rotation = confirmedPoints.get(confirmedIndex).model?.rotation?: Rotation()
+
             val newModel: Node = renderer.render(
-                //modelPath = OUTLINE_POINT_MODEL, // Regular
-                modelPath = if (state === Floor.CellState.FILLED) OUTLINE_POINT_MODEL
-                else (if (state === Floor.CellState.EMIT_EDGE) PINK_POINT_MODEL
-                else ORANGE_POINT_MODEL), // For painting cells according to their floor cell states, for debugging
-                position = confirmedPoints.get(confirmedIndex).model.position,
-                rotation = confirmedPoints.get(confirmedIndex).model.rotation
+                modelPath = if (state === Floor.CellState.UNKNOWN)
+                        CONFIRMED_POINT_MODEL
+                    else
+                        OUTLINE_POINT_MODEL,
+                position = position,
+                rotation = rotation
             )
-            //confirmedPoints.get(confirmedIndex).model.destroy()
-            confirmedPoints.get(confirmedIndex).model.detachFromScene(sceneView)
-            confirmedPoints.get(confirmedIndex).model.parent = null
+
+            confirmedPoints.get(confirmedIndex).model?.detachFromScene(sceneView)
+            confirmedPoints.get(confirmedIndex).model?.parent = null
             confirmedPoints.get(confirmedIndex).model = newModel
         }
         // If there are no confirmed points in the given cell
@@ -331,10 +426,10 @@ class DefaultARTracking(
 
             confirmedPoints += ModelPoint(
                 renderer.render(
-                    //modelPath = OUTLINE_POINT_MODEL, // Regular
-                    modelPath = if (state === Floor.CellState.FILLED) OUTLINE_POINT_MODEL
-                    else (if (state === Floor.CellState.EMIT_EDGE) PINK_POINT_MODEL
-                    else ORANGE_POINT_MODEL), // For painting cells according to their floor cell states, for debugging
+                    modelPath = if (state === Floor.CellState.UNKNOWN)
+                        CONFIRMED_POINT_MODEL
+                    else
+                        OUTLINE_POINT_MODEL,
                     position = convertIndexesToCellCenter(pointIndexes),
                     rotation = Rotation()
                 ),
@@ -357,5 +452,200 @@ class DefaultARTracking(
             }
         }
         coloredFloor = detectedFloor.getGridCopy()
+    }
+
+    fun renderModel(
+        modelCategory: String,
+        modelName: String,
+        scale: Float,
+        allowWalls: Boolean
+    ) {
+        super.renderModel(modelCategory, modelName, scale, allowWalls) { node ->
+            node.onTap = { motionEvent: MotionEvent, renderable: Renderable? ->
+                popupNode = node
+                popupNodeAllowWalls = allowWalls
+                showActionsPopup(motionEvent.x, motionEvent.y)
+            }
+
+            arProducts.put(node, DesignSessionProduct(count=0, modelCategory, modelName, node.position, node.rotation.y, scale, allowWalls))
+        }
+    }
+
+    /** Saves/Updates the current design in the database. */
+    private fun saveDesign(productNode: Node) {
+        val arProduct = arProducts.get(productNode)
+
+        if (arProduct != null) {
+            if (designSession != null) {
+                setPaused(true)
+                CoroutineScope(Dispatchers.IO).launch {
+                    database.updateDesign(arProduct, detectedFloor, designSession!!, {},
+                        {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                Toast.makeText(sceneView.context, "Failed to save", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    )
+
+                    setPaused(false)
+                }
+            }
+            else {
+                val input = EditText(sceneView.context)
+                input.inputType = InputType.TYPE_CLASS_TEXT
+
+                val dialog = AlertDialog.Builder(sceneView.context)
+                    .setTitle(R.string.save_design_popup_title)
+                    .setView(input)
+                    .setPositiveButton(R.string.save_design_popup_yes, null)
+                    .setNegativeButton(R.string.save_design_popup_no) { dialog, which -> dialog.cancel() }
+                    .show()
+
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                    val text = input.text.toString()
+                    if (text.isNotBlank()) {
+                        setPaused(true)
+                        CoroutineScope(Dispatchers.IO).launch {
+                            // The camera's -X rotation is its yaw rotation
+                            database.saveDesign(
+                                text,
+                                arProduct,
+                                detectedFloor,
+                                lastFrame!!.camera.pose.position,
+                                -lastFrame!!.camera.pose.rotation.x,
+                                {
+                                    designSession = it
+                                },
+                                {
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        Toast.makeText(sceneView.context, "Failed to save", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            )
+
+                            setPaused(false)
+                        }
+                        dialog.dismiss()
+                    }
+                }
+            }
+        }
+    }
+
+    fun loadDesign(id: Int) {
+        if (useFloorHeight) {
+            setPaused(true)
+
+            placementNode?.let {
+                it.detachFromScene(sceneView)
+                it.parent = null
+                placementNode = null
+            }
+
+            CoroutineScope(Dispatchers.IO).launch {
+                val designData = database.getDesignByID(id)
+                if (designData != null) {
+                    val cameraPosition = convertPosToIndexes(lastFrame!!.camera.pose.position)
+                    val floorPosition = Int3(cameraPosition.x, floorHeight, cameraPosition.z)
+                    // Nodes use their Y rotation for yaw
+                    val floorRotation = Rotation(0f, designData.originalCameraRotation, 0f)
+
+                    val parentNode = renderer.createEmptyNode(
+                        convertIndexesToCellCenter(floorPosition),
+                        floorRotation
+                    )
+
+                    val productHolderNode = renderer.createEmptyNode(Position(), Rotation())
+                    productHolderNode.parent = parentNode
+
+                    // Place the furniture
+                    for (product in designData.savedProducts) {
+                        renderer.renderFromFirebase(
+                            product.category,
+                            product.name,
+                            product.position,
+                            Rotation(0f, product.rotation, 0f),
+                            Scale(product.scale),
+                            { node ->
+                                //On Success
+                                node.parent = productHolderNode
+                                node.onTap = { motionEvent: MotionEvent, renderable: Renderable? ->
+                                    popupNode = node
+                                    popupNodeAllowWalls = product.allowWalls
+                                    showActionsPopup(motionEvent.x, motionEvent.y)
+                                }
+
+                                arProducts.put(node, DesignSessionProduct(count=0, product.category, product.name, node.position, node.rotation.y, product.scale, product.allowWalls))
+                            },
+                            {
+                                Log.e("Firebase", "Failed to render model from Firebase")
+                            }
+                        )
+                    }
+
+                    // Place the floor
+                    for (x in designData.savedFloorIndexes.keys) {
+                        for (z in designData.savedFloorIndexes.get(x)?: listOf()) {
+                            val pointPos = convertIndexesToCellCenter(Int3(x, 0, z))
+                            pointPos.y = 0f
+
+                            // Changing the parent of a node doesn't change its local position, rotation, or scale, so the loaded position can just be used directly
+                            val node: Node = renderer.render(
+                                modelPath = FLOOR_LOADING_MODEL,
+                                position = pointPos,
+                                rotation = Rotation()
+                            )
+                            node.parent = parentNode
+                        }
+                    }
+
+                    placementNode = parentNode
+                    onPlacement = { node ->
+                        for (product in node.children.get(0).children) {
+                            val worldPos = product.worldPosition
+                            val worldRot = product.worldRotation
+                            product.parent = sceneView
+                            product.position = worldPos
+                            product.rotation = worldRot * -1f // For some reason the rotation gets flipped when set, so you've got to pre-flip it
+                        }
+                        for (child in node.children) {
+                            loadFloorPoint(child.worldPosition)
+                        }
+
+                        node.detachFromScene(sceneView)
+                        node.parent = null
+                    }
+                    updatePlacementPos = { node ->
+                        val camPose = lastFrame?.camera?.pose
+                        if (camPose != null) {
+                            node.position = Position(camPose.position.x, convertIndexToCellCenter(floorHeight), camPose.position.z)
+                            // The camera's -X rotation is its yaw rotation, unlike nodes which use their Y rotation for yaw
+                            node.rotation = Rotation(0f, -camPose.rotation.x, 0f)
+                        }
+                    }
+                    placementScreenLayout()
+                }
+                else {
+                    Log.e("ARTracking", "Failed to Find Design")
+                    val ids = database.getDesignIDs()
+                    for (i in ids) {
+                        Log.d("DefaultARTracking", "Design ID: ${i}")
+                    }
+                }
+
+                setPaused(false)
+            }
+        }
+    }
+
+    /** Shows the node actions popup. */
+    fun showActionsPopup(x: Float, y: Float) {
+        actionsPopup.x = x - actionsPopup.width * 0.5f
+        actionsPopup.y = y - actionsPopup.height * 0.5f
+    }
+
+    /** Hides the node actions popup. */
+    fun hideActionsPopup() {
+        showActionsPopup(-1000f, -1000f)
     }
 }

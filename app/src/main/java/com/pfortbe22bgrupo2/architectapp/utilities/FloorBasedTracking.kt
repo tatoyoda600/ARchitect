@@ -10,7 +10,6 @@ import com.pfortbe22bgrupo2.architectapp.types.Outline
 import com.pfortbe22bgrupo2.architectapp.types.PosDir
 import dev.romainguy.kotlin.math.Float3
 import io.github.sceneview.ar.ArSceneView
-import io.github.sceneview.ar.arcore.ArFrame
 import io.github.sceneview.ar.arcore.position
 import io.github.sceneview.ar.arcore.rotation
 import io.github.sceneview.math.Position
@@ -48,6 +47,9 @@ abstract class FloorBasedTracking(
     internal var cellCrosshair: Node? = null
     internal var onPlacement: ((Node) -> Unit)? = null
     internal var updatePlacementPos: ((Node) -> Unit)? = null
+
+    /** Renders a confirmed point. */
+    internal abstract fun renderConfirmedPoint(position: Position, index: Int)
 
     /** Adds a point from the floor that's being loaded in. */
     internal abstract fun loadFloorPoint(position: Position)
@@ -132,7 +134,8 @@ abstract class FloorBasedTracking(
                             pointIds.remove(cellPointsId)
                         }
                         points.get(pointIndex.x)?.get(pointIndex.y)?.get(pointIndex.z)?.removeAt(p)
-                        confirmedPoints.get(point).model.destroy()
+                        confirmedPoints.get(point).model?.detachFromScene(sceneView)
+                        confirmedPoints.get(point).model?.parent = null
                         confirmedPoints.removeAt(point)
                         cleanUpCount++
                         break
@@ -141,6 +144,9 @@ abstract class FloorBasedTracking(
                         delay(1)
                     }
                 }
+            }
+            else {
+                renderConfirmedPoint(position, point)
             }
         }
 
@@ -228,9 +234,6 @@ abstract class FloorBasedTracking(
             return Outline(emptyList())
         }
 
-        clearNonFloorPoints()
-        delay(10 * DELAY_MULTIPLIER)
-
         val minX = Int3(
             points.keys.min(),
             floorHeight,
@@ -298,49 +301,50 @@ abstract class FloorBasedTracking(
     }
 
     /** Saves the confirmed floor in the database. */
-    fun saveFloor(context: Context) {
+    fun saveFloor(context: Context, floorName: String) {
         setPaused(true)
         CoroutineScope(Dispatchers.IO).launch {
-            val database = DatabaseHandler(context)
             // The camera's -X rotation is its yaw rotation
-            database.insertFloor(detectedFloor, DICT_COORD_UNZOOM, lastFrame!!.camera.pose.position, -lastFrame!!.camera.pose.rotation.x)
+            Log.e("FLOOR", "Try to save floor (${floorName})")
+            database.insertFloor(detectedFloor, lastFrame!!.camera.pose.position, -lastFrame!!.camera.pose.rotation.x, floorName)
 
             setPaused(false)
         }
     }
 
     /** Retrieves a floor from the database, for placing. */
-    fun loadFloor(context: Context, id: Int) {
+    fun loadFloor(id: Int) {
         if (useFloorHeight) {
             setPaused(true)
 
             placementNode?.let {
-                it.destroy()
+                it.detachFromScene(sceneView)
+                it.parent = null
                 placementNode = null
             }
 
             CoroutineScope(Dispatchers.IO).launch {
-                val database = DatabaseHandler(context)
-                val floorData = database.getFloorByID(id, DICT_COORD_ZOOM)
+                val floorData = database.getFloorByID(id)
                 if (floorData != null) {
                     val floor = floorData.first
                     val cameraPosition = convertPosToIndexes(lastFrame!!.camera.pose.position)
                     val floorPosition = Int3(cameraPosition.x, floorHeight, cameraPosition.z)
 
                     val parentNode = renderer.createEmptyNode(
-                        floorPosition.toFloat3() * DICT_COORD_UNZOOM,
+                        convertIndexesToCellCenter(floorPosition),
                         // Nodes use their Y rotation for yaw
                         Rotation(0f, floorData.second, 0f)
                     )
 
                     for (x in floor.grid) {
                         for (z in x.value) {
-                            val pointPos = Int3(x.key, 0, z.key)
+                            val pointPos = convertIndexesToCellCenter(Int3(x.key, 0, z.key))
+                            pointPos.y = 0f
 
                             // Changing the parent of a node doesn't change its local position, rotation, or scale, so the loaded position can just be used directly
                             val node: Node = renderer.render(
                                 modelPath = FLOOR_LOADING_MODEL,
-                                position = pointPos.toFloat3() * DICT_COORD_UNZOOM,
+                                position = pointPos,
                                 rotation = Rotation()
                             )
                             node.parent = parentNode
@@ -352,12 +356,13 @@ abstract class FloorBasedTracking(
                         for (child in node.children) {
                             loadFloorPoint(child.worldPosition)
                         }
-                        node.destroy()
+                        node.detachFromScene(sceneView)
+                        node.parent = null
                     }
                     updatePlacementPos = { node ->
                         val camPose = lastFrame?.camera?.pose
                         if (camPose != null) {
-                            node.position = Position(camPose.position.x, floorHeight * DICT_COORD_UNZOOM, camPose.position.z)
+                            node.position = Position(camPose.position.x, convertIndexToCellCenter(floorHeight), camPose.position.z)
                             // The camera's -X rotation is its yaw rotation, unlike nodes which use their Y rotation for yaw
                             node.rotation = Rotation(0f, -camPose.rotation.x, 0f)
                         }
@@ -387,7 +392,7 @@ abstract class FloorBasedTracking(
             // -Z is forwards
             val lookDir = camPose.rotateVector(Float3(0f, 0f, -1f).toFloatArray()).toFloat3()
 
-            val hitPoint = MathUtils.rayFloorIntersection(cameraPos, lookDir, floorHeight * DICT_COORD_UNZOOM)
+            val hitPoint = MathUtils.rayFloorIntersection(cameraPos, lookDir, convertIndexToCellCenter(floorHeight))
 
             if (hitPoint != null) {
                 var hitCell: Int3 = convertPosToIndexes(hitPoint)
@@ -458,32 +463,41 @@ abstract class FloorBasedTracking(
     }
 
     /** Renders a model from Firebase in the direction the device is facing. */
-    internal fun renderModel(modelCategory: String, modelName: String, scale: Float, allowWalls: Boolean) {
+    internal open fun renderModel(modelCategory: String, modelName: String, scale: Float, allowWalls: Boolean, afterPlacement: (Node) -> Unit) {
         val lookPoint = getLookPoint(true, allowWalls)
         if (lookPoint != null) {
-            renderFirebaseModel(modelCategory, modelName, scale, lookPoint,
-                { newNode ->
-                    placementNode = newNode
-                    onPlacement = { node ->
-                        Log.d("ARTracking", "Model was placed")
-                    }
-                    updatePlacementPos = { node ->
-                        val updatedPos = getLookPoint(true, allowWalls)
-                        if (updatedPos != null) {
-                            node.position = updatedPos
-                        }
-                        val camPose = lastFrame?.camera?.pose
-                        if (camPose != null) {
-                            // The camera's -X rotation is its yaw rotation, unlike nodes which use their Y rotation for yaw
-                            node.rotation = Rotation(0f, -camPose.rotation.x, 0f)
-                        }
-                    }
-                    placementScreenLayout()
+            renderer.renderFromFirebase(
+                modelCategory,
+                modelName,
+                lookPoint,
+                Rotation(),
+                Scale(scale),
+                { node ->
+                    startPlacement(node, allowWalls, afterPlacement)
                 },
                 {
                     Log.e("Firebase", "Failed to render model from Firebase")
-                })
+                }
+            )
         }
+    }
+
+    /** Sets a node to be moved around with the camera for placing. */
+    internal fun startPlacement(nodeToPlace: Node, allowWalls: Boolean, afterPlacement: (Node) -> Unit) {
+        placementNode = nodeToPlace
+        onPlacement = afterPlacement
+        updatePlacementPos = { node ->
+            val updatedPos = getLookPoint(true, allowWalls)
+            if (updatedPos != null) {
+                node.position = updatedPos + Position(0f, 0.05f, 0f)
+            }
+            val camPose = lastFrame?.camera?.pose
+            if (camPose != null) {
+                // The camera's -X rotation is its yaw rotation, unlike nodes which use their Y rotation for yaw
+                node.rotation = Rotation(0f, -camPose.rotation.x, 0f)
+            }
+        }
+        placementScreenLayout()
     }
 
     /** Places the object that was being located. */

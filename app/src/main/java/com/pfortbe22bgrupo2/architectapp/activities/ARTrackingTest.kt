@@ -2,25 +2,40 @@ package com.pfortbe22bgrupo2.architectapp.activities
 //https://github.com/SceneView/sceneview-android/blob/main/samples/ar-model-viewer/src/main/java/io/github/sceneview/sample/armodelviewer/MainActivity.kt
 
 import android.os.Bundle
+import android.text.InputType
+import android.util.Log
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
+import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.pfortbe22bgrupo2.architectapp.R
+import com.pfortbe22bgrupo2.architectapp.adapters.LoadMenuAdapter
 import com.pfortbe22bgrupo2.architectapp.adapters.ProductHotbarAdapter
 import com.pfortbe22bgrupo2.architectapp.data.HotBarSingleton
 import com.pfortbe22bgrupo2.architectapp.databinding.ActivityArtrackingTestBinding
+import com.pfortbe22bgrupo2.architectapp.databinding.LoadMenuBinding
 import com.pfortbe22bgrupo2.architectapp.entities.Product
-import com.pfortbe22bgrupo2.architectapp.utilities.DefaultARTracking
 import com.pfortbe22bgrupo2.architectapp.utilities.DatabaseHandler
+import com.pfortbe22bgrupo2.architectapp.utilities.DefaultARTracking
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
 
 class ARTrackingTest: AppCompatActivity() {
     lateinit var binding: ActivityArtrackingTestBinding
     lateinit var arTracking: DefaultARTracking
     lateinit var database: DatabaseHandler
+    lateinit var loadMenu: ViewGroup
+    lateinit var loadMenuRecycler: RecyclerView
+    val floorList: MutableMap<String, Int> = mutableMapOf()
+    val designList: MutableMap<String, Int> = mutableMapOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Log.d("FunctionNames", "onCreate")
@@ -28,9 +43,7 @@ class ARTrackingTest: AppCompatActivity() {
         binding = ActivityArtrackingTestBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val recycler = binding.productHotbar
-        recycler.setHasFixedSize(true)
-        recycler.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
+        val hotbar = mainScreenSetup()
 
         arTracking = DefaultARTracking(5, binding.sceneView, binding.progressIndicator,
             switchToDefaultLayout = fun() {
@@ -45,18 +58,58 @@ class ARTrackingTest: AppCompatActivity() {
             },
             onFloorDetectedFunction = fun() {
                 // Log.d("FunctionNames", "onFloorDetectedFunction")
+                binding.rescanBtn.isEnabled = true
                 binding.confirmBtn.isEnabled = true
+                binding.saveBtn.isEnabled = true
                 binding.loadBtn.isEnabled = true
             }
         )
 
+        loadMenuSetup()
+
+        recyclerSetup(hotbar)
+    }
+
+    private fun mainScreenSetup(): RecyclerView {
         binding.rescanBtn.setOnClickListener(rescan)
         binding.confirmBtn.setOnClickListener(confirm)
         binding.saveBtn.setOnClickListener(saveFloor)
-        binding.loadBtn.setOnClickListener(loadFloor)
+        binding.loadBtn.setOnClickListener(openLoadMenu)
         binding.cancelBtn.setOnClickListener(cancelPlace)
         binding.placeBtn.setOnClickListener(place)
+        binding.backBtn.setOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
+        val recycler = binding.productHotbar
+        recycler.setHasFixedSize(true)
+        recycler.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
+        return recycler
+    }
+
+    private fun loadMenuSetup() {
+        val loadMenuBinding = LoadMenuBinding.inflate(layoutInflater)
+        val matchParent = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        binding.root.addView(loadMenuBinding.root, matchParent)
+        loadMenu = loadMenuBinding.root
+        loadMenu.isVisible = false
+
+        loadMenuBinding.floorListBtn.setOnClickListener {
+            it.isEnabled = false
+            loadMenuBinding.designListBtn.isEnabled = true
+            loadFloorList()
+        }
+
+        loadMenuBinding.designListBtn.setOnClickListener {
+            it.isEnabled = false
+            loadMenuBinding.floorListBtn.isEnabled = true
+            loadDesignList()
+        }
+
+        loadMenuRecycler = loadMenuBinding.loadList
+        loadMenuRecycler.setHasFixedSize(true)
+        loadMenuRecycler.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+    }
+
+    private fun recyclerSetup(hotbar: RecyclerView) {
         CoroutineScope(Dispatchers.IO).launch {
             database = DatabaseHandler(binding.root.context)
 
@@ -69,10 +122,10 @@ class ARTrackingTest: AppCompatActivity() {
                     productCount++
 
                     if (productCount == HotBarSingleton.hotBarItems.size) {
-                        recycler.adapter = ProductHotbarAdapter(productList) { product ->
-                            arTracking.renderModel(product.tag, product.name, product.scale, product.allowWalls)
+                        hotbar.adapter = ProductHotbarAdapter(productList) { product ->
+                            arTracking.renderModel(product.category, product.name, product.scale, product.allowWalls)
                         }
-                        recycler.hasPendingAdapterUpdates()
+                        hotbar.hasPendingAdapterUpdates()
                     }
                 }
 
@@ -84,10 +137,16 @@ class ARTrackingTest: AppCompatActivity() {
                         { productProcessing(null) }
                     )
                 }
-
             }
             else {
                 binding.productHotbar.isVisible = false
+            }
+
+            floorList.putAll(database.getAllFloors())
+            loadFloorList()
+            designList.putAll(database.getAllDesigns())
+            database.getRemoteDesigns { name, id ->
+                designList.putIfAbsent(name, id)
             }
         }
     }
@@ -105,17 +164,29 @@ class ARTrackingTest: AppCompatActivity() {
 
     private val saveFloor: (View) -> Unit = {
         // Log.d("FunctionNames", "saveBtn")
-        arTracking.saveFloor(binding.root.context)
-    }
+        val input = EditText(this)
+        input.inputType = InputType.TYPE_CLASS_TEXT
 
-    private val loadFloor: (View) -> Unit = {
-        // Log.d("FunctionNames", "loadBtn")
-        CoroutineScope(Dispatchers.IO).launch {
-            val ids = database.getFloorIDs()
-            if (ids.size > 0) {
-                arTracking.loadFloor(binding.root.context, ids.first())
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(R.string.save_floor_popup_title)
+            .setView(input)
+            .setPositiveButton(R.string.save_floor_popup_yes, null)
+            .setNegativeButton(R.string.save_floor_popup_no) { dialog, which -> dialog.cancel() }
+            .show()
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val text = input.text.toString()
+            if (text.isNotBlank()) {
+                arTracking.saveFloor(binding.root.context, text)
+                dialog.dismiss()
             }
         }
+    }
+
+    private val openLoadMenu: (View) -> Unit = {
+        // Log.d("FunctionNames", "loadBtn")
+        loadMenu.isVisible = true
+        arTracking.setPaused(true)
     }
 
     private val place: (View) -> Unit = {
@@ -130,5 +201,32 @@ class ARTrackingTest: AppCompatActivity() {
             arTracking.placementNode = null
         }
         arTracking.defaultScreenLayout()
+    }
+
+    private fun loadFloorList() {
+        loadMenuRecycler.adapter = LoadMenuAdapter(floorList.toList(), LoadMenuAdapter.TabType.FLOORS) { id: Int ->
+            //Load floor
+            arTracking.loadFloor(id)
+            loadMenu.isVisible = false
+        }
+    }
+
+    private fun loadDesignList() {
+        loadMenuRecycler.adapter = LoadMenuAdapter(designList.toList(), LoadMenuAdapter.TabType.DESIGNS) { id: Int ->
+            //Load design
+            arTracking.loadDesign(id)
+            loadMenu.isVisible = false
+        }
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        val output = super.dispatchTouchEvent(ev)
+        CoroutineScope(Dispatchers.IO).launch {
+            delay(100)
+            CoroutineScope(Dispatchers.Main).launch {
+                arTracking.hideActionsPopup()
+            }
+        }
+        return output
     }
 }

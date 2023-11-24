@@ -66,39 +66,32 @@
         <LinearLayout
             android:id="@+id/linearLayout2"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <Button
-                android:id="@+id/save_btn"
-                android:layout_width="120dp"
-                android:layout_height="wrap_content"
-                android:text="@string/save_floor" />
+            <ImageButton
+                android:id="@+id/backBtn"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/back_icon" />
 
             <Space
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
             <Button
                 android:id="@+id/load_btn"
                 android:layout_width="120dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:enabled="false"
                 android:text="@string/load_floor" />
-
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
 
         </LinearLayout>
 
@@ -121,7 +114,7 @@
         <LinearLayout
             android:id="@+id/linearLayout"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -135,8 +128,21 @@
             <Button
                 android:id="@+id/rescan_btn"
                 android:layout_width="120dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:enabled="false"
                 android:text="@string/rescan_floor" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/save_btn"
+                android:layout_width="120dp"
+                android:layout_height="match_parent"
+                android:enabled="false"
+                android:text="@string/save_floor" />
 
             <Space
                 android:layout_width="wrap_content"
@@ -146,7 +152,7 @@
             <Button
                 android:id="@+id/confirm_btn"
                 android:layout_width="120dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:enabled="false"
                 android:text="@string/confirm_floor" />
 
@@ -171,7 +177,7 @@
         <LinearLayout
             android:id="@+id/linearLayout3"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -185,7 +191,7 @@
             <Button
                 android:id="@+id/cancel_btn"
                 android:layout_width="120dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:text="@string/cancel_place" />
 
             <Space
@@ -196,7 +202,7 @@
             <Button
                 android:id="@+id/place_btn"
                 android:layout_width="120dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:text="@string/confirm_place" />
 
             <Space

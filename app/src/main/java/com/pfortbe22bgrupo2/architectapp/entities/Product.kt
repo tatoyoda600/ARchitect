@@ -5,6 +5,7 @@ import android.os.Parcelable
 
 class Product(
     var name: String,
+    var category: String,
     var description: String,
     var price: Double,
     var imageUrl: String,
@@ -18,6 +19,7 @@ class Product(
     constructor(parcel: Parcel) : this(
         parcel.readString()?: "",
         parcel.readString()?: "",
+        parcel.readString()?: "",
         parcel.readDouble() ,
         parcel.readString()?: "",
         parcel.readString()?: "",
@@ -29,6 +31,7 @@ class Product(
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(name)
+        parcel.writeString(category)
         parcel.writeString(description)
         parcel.writeDouble(price)
         parcel.writeString(imageUrl)

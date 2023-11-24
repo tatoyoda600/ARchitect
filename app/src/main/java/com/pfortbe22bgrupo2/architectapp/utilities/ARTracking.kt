@@ -26,7 +26,7 @@ import kotlin.math.sign
 internal const val MAX_CHECKS_PER_SECOND = 5 // Limit how often frames are checked
 internal const val DICT_COORD_ZOOM = 10 // Multiplies points before truncation to increase accuracy (1u ~= 1m, so 10x zoom makes each cell equivalent to ~10cm³; 100x ~= 1cm³/cell)
 internal const val DICT_COORD_UNZOOM = 1.0f / DICT_COORD_ZOOM.toFloat() // Reverses the zoom in order to calculate the world position of a cell
-private const val STARTUP_DELAY = 2f // Amount of seconds to wait before starting the AR scanning (To allow the camera to focus)
+private const val STARTUP_DELAY = 5f // Amount of seconds to wait before starting the AR scanning (To allow the camera to focus)
 
 //     -z (Away from user)
 //      |
@@ -41,6 +41,7 @@ abstract class ARTracking(
     private val switchToDefaultLayout: () -> Unit,
     private val switchToPlacementLayout: () -> Unit
 ) {
+    internal lateinit var database: DatabaseHandler
     internal val renderer: Render3D
 
     private val checksPerSecond: Int // How many frames will be analyzed every second
@@ -71,9 +72,15 @@ abstract class ARTracking(
             )
         }
 
-        /** Converts a position to a set of cell indices. */
+        /** Converts a cell index to its axis version for the center of the cell. */
+        fun convertIndexToCellCenter(pos: Int): Float {
+            // Log.d("FunctionNames", "convertIndexesToCellCenter")
+            return (pos + 0.5f) * DICT_COORD_UNZOOM
+        }
+
+        /** Converts a set of cell indices to a position at the center of the cell. */
         fun convertIndexesToCellCenter(pos: Int3): Float3 {
-            // Log.d("FunctionNames", "convertPosToIndexes")
+            // Log.d("FunctionNames", "convertIndexesToCellCenter")
             return Float3(
                 ((pos.x + 0.5f) * DICT_COORD_UNZOOM),
                 ((pos.y + 0.5f) * DICT_COORD_UNZOOM),
@@ -117,6 +124,7 @@ abstract class ARTracking(
         }
 
         CoroutineScope(Dispatchers.IO).launch {
+            database = DatabaseHandler(sceneView.context)
             delay((STARTUP_DELAY * 1000).toLong())
             setPaused(false)
             setLoading(true)
@@ -131,7 +139,8 @@ abstract class ARTracking(
         pointIds += Int.MIN_VALUE
         points.clear()
         for (p in confirmedPoints) {
-            p.model.destroy()
+            p.model?.detachFromScene(sceneView)
+            p.model?.parent = null
         }
         confirmedPoints.clear()
     }
@@ -254,35 +263,19 @@ abstract class ARTracking(
     internal fun defaultScreenLayout() {
         if (!defaultLayout) {
             defaultLayout = true
-            switchToDefaultLayout()
+            CoroutineScope(Dispatchers.Main).launch {
+                switchToDefaultLayout()
+            }
         }
     }
 
     internal fun placementScreenLayout() {
         if (defaultLayout) {
             defaultLayout = false
-            switchToPlacementLayout()
+            CoroutineScope(Dispatchers.Main).launch {
+                switchToPlacementLayout()
+            }
         }
-    }
-
-    internal fun renderFirebaseModel(
-        modelCategory: String,
-        modelName: String,
-        scale: Float,
-        position: Position,
-        onSuccess: (Node) -> Unit,
-        onFailure: () -> Unit
-    ) {
-        Log.d("FunctionNames", "renderFirebaseModel")
-        renderer.renderFromFirebase(
-            modelCategory,
-            modelName,
-            position,
-            Rotation(),
-            Scale(scale),
-            onSuccess,
-            onFailure
-        )
     }
 
     /** From a cell and a starting direction, tries to find the longest connected series of points.
