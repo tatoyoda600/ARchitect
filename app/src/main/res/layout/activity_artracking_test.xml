@@ -77,6 +77,8 @@
                 android:layout_width="50dp"
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
                 app:srcCompat="@drawable/back_icon" />
 
             <Space

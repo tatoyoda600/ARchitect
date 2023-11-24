@@ -145,10 +145,11 @@ class DatabaseHandler(context: Context) {
                     ) {
                         onSuccess(Product(
                             modelName,
+                            modelCategory,
                             "",
                             0.0,
                             imageURL,
-                            modelCategory,
+                            "",
                             0,
                             "",
                             scale.toFloat(),
