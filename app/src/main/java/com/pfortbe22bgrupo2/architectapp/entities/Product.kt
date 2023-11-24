@@ -8,7 +8,7 @@ class Product(
     var description: String,
     var price: Double,
     var imageUrl: String,
-    var category: String,
+    var tag: String,
     var stock: Int,
     var link: String,
     var scale: Float,
@@ -32,7 +32,7 @@ class Product(
         parcel.writeString(description)
         parcel.writeDouble(price)
         parcel.writeString(imageUrl)
-        parcel.writeString(category)
+        parcel.writeString(tag)
         parcel.writeInt(stock)
         parcel.writeString(link)
         parcel.writeFloat(scale)

@@ -15,7 +15,7 @@ class FurnitureModelData(
     val scale: Float,
     val name: String,
     val description: String,
-    val category: String
+    val tag: String
 ): Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString()?: "",
@@ -48,7 +48,7 @@ class FurnitureModelData(
         parcel.writeFloat(scale)
         parcel.writeString(name)
         parcel.writeString(description)
-        parcel.writeString(category)
+        parcel.writeString(tag)
     }
 
     companion object CREATOR : Parcelable.Creator<FurnitureModelData> {

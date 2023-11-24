@@ -68,20 +68,24 @@ class CatalogueViewModel: ViewModel() {
         val scale = document.getDouble("scale")?: 0.0
         val name = document.getString("name")?: ""
         val description = document.getString("description")?: ""
-        val category = document.getString("category")?: ""
+        val tag = document.getString("tag")?: ""
 
-        return FurnitureModelData(furnitureType, document.id, imageUrl, allowWalls, dimensionX, dimensionY, dimensionZ, link, scale.toFloat(), name, description, category)
+        return FurnitureModelData(furnitureType, document.id, imageUrl, allowWalls, dimensionX, dimensionY, dimensionZ, link, scale.toFloat(), name, description, tag)
     }
 
-    fun filterFurnitureByCategory(category: String) {
+    fun filterFurnitureByTag(category: String) {
         filteredFurnitureList.clear()
-        filteredFurnitureList = furnitureList.filter { item -> item.category.lowercase() == category.lowercase() } as MutableList<FurnitureModelData>
+        filteredFurnitureList = furnitureList.filter { item -> item.tag.lowercase() == category.lowercase() } as MutableList<FurnitureModelData>
         _furnitureOptions.value = filteredFurnitureList
     }
 
-    fun removeElem(name: String) {
+    fun removeElem(furniture: FurnitureModelData) {
         filteredFurnitureList.clear()
-        filteredFurnitureList = furnitureList.filter { item -> item.name.lowercase() != name.lowercase() } as MutableList<FurnitureModelData>
+        db.collection("models").document(furniture.furnitureType).collection("datos").document(furniture.id)
+            .delete()
+            .addOnSuccessListener { Log.d(TAG, "DocumentSnapshot successfully deleted!") }
+            .addOnFailureListener { e -> Log.w(TAG, "Error deleting document", e) }
+        filteredFurnitureList = furnitureList.filter { item -> item.name.lowercase() != furniture.name.lowercase() } as MutableList<FurnitureModelData>
         _furnitureOptions.value = filteredFurnitureList
     }
 
