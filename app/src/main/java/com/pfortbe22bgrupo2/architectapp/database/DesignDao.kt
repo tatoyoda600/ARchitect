@@ -14,6 +14,9 @@ interface DesignDao {
     @Query("SELECT * FROM designs WHERE id = :id")
     fun getDesignByID(id: Int): DesignEntity?
 
+    @Query("SELECT * FROM designs")
+    fun getAllDesigns(): List<DesignEntity>
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertDesign(design: DesignEntity): Long
 }

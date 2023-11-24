@@ -39,12 +39,20 @@
     <string name="hello_view_node">Hello ViewNode</string>
     <string name="put">Colocar</string>
 
-    <string name="rescan_floor">Rescan</string>
-    <string name="confirm_floor">Confirm</string>
-    <string name="cancel_place">Cancel</string>
-    <string name="confirm_place">Place</string>
-    <string name="save_floor">Save</string>
-    <string name="load_floor">Load</string>
+    <string name="rescan_floor">Reiniciar</string>
+    <string name="confirm_floor">Rellenar</string>
+    <string name="cancel_place">Cancelar</string>
+    <string name="confirm_place">Ubicar</string>
+    <string name="save_floor">Guardar</string>
+    <string name="load_floor">Cargar</string>
+    <string name="floor_list">Pisos</string>
+    <string name="design_list">Diseños</string>
+    <string name="save_floor_popup_title">Guardar Piso</string>
+    <string name="save_floor_popup_yes">Guardar</string>
+    <string name="save_floor_popup_no">Cancelar</string>
+    <string name="save_design_popup_title">Guardar Diseño</string>
+    <string name="save_design_popup_yes">Guardar</string>
+    <string name="save_design_popup_no">Cancelar</string>
 
     <string name="products_text">Productos</string>
     <string name="greetings">¡Hola!</string>

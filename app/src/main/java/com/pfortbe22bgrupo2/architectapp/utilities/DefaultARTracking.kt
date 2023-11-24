@@ -8,9 +8,11 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import android.view.ViewManager
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.ar.core.PointCloud
+import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.databinding.ModelPopupMenuBinding
 import com.pfortbe22bgrupo2.architectapp.types.DesignSession
 import com.pfortbe22bgrupo2.architectapp.types.DesignSessionProduct
@@ -135,6 +137,9 @@ class DefaultARTracking(
         lastExcessCleanUpStep = 0
         lastConfirmedCleanUpStep = 0
         lastConfirmedFloorCheckStep = 0
+
+        //TODO("Clear all models")
+
         super.reset()
     }
 
@@ -474,7 +479,13 @@ class DefaultARTracking(
             if (designSession != null) {
                 setPaused(true)
                 CoroutineScope(Dispatchers.IO).launch {
-                    database.updateDesign(arProduct, detectedFloor, designSession!!)
+                    database.updateDesign(arProduct, detectedFloor, designSession!!, {},
+                        {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                Toast.makeText(sceneView.context, "Failed to save", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    )
 
                     setPaused(false)
                 }
@@ -484,10 +495,10 @@ class DefaultARTracking(
                 input.inputType = InputType.TYPE_CLASS_TEXT
 
                 val dialog = AlertDialog.Builder(sceneView.context)
-                    .setTitle("Save Design")
+                    .setTitle(R.string.save_design_popup_title)
                     .setView(input)
-                    .setPositiveButton("Save", null)
-                    .setNegativeButton("Cancel") { dialog, which -> dialog.cancel() }
+                    .setPositiveButton(R.string.save_design_popup_yes, null)
+                    .setNegativeButton(R.string.save_design_popup_no) { dialog, which -> dialog.cancel() }
                     .show()
 
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
@@ -496,12 +507,20 @@ class DefaultARTracking(
                         setPaused(true)
                         CoroutineScope(Dispatchers.IO).launch {
                             // The camera's -X rotation is its yaw rotation
-                            designSession = database.saveDesign(
+                            database.saveDesign(
                                 text,
                                 arProduct,
                                 detectedFloor,
                                 lastFrame!!.camera.pose.position,
-                                -lastFrame!!.camera.pose.rotation.x
+                                -lastFrame!!.camera.pose.rotation.x,
+                                {
+                                    designSession = it
+                                },
+                                {
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        Toast.makeText(sceneView.context, "Failed to save", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
                             )
 
                             setPaused(false)

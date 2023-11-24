@@ -305,6 +305,7 @@ abstract class FloorBasedTracking(
         setPaused(true)
         CoroutineScope(Dispatchers.IO).launch {
             // The camera's -X rotation is its yaw rotation
+            Log.e("FLOOR", "Try to save floor (${floorName})")
             database.insertFloor(detectedFloor, lastFrame!!.camera.pose.position, -lastFrame!!.camera.pose.rotation.x, floorName)
 
             setPaused(false)

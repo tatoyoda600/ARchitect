@@ -27,7 +27,6 @@ abstract class AppDatabase: RoomDatabase() {
                         AppDatabase::class.java,
                         "architectDB"
                     ).fallbackToDestructiveMigration().build()
-                    INSTANCE?.clearAllTables()
                 }
             }
 
