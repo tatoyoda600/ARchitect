@@ -38,21 +38,15 @@ class Render3D(
         scale: Scale = Scale(1f),
         centerOrigin: Position = Position(-0.5f)
     ): Node {
-        // Log.d("FunctionNames", "render")
         val modelNode: ModelNode = ModelNode(sceneView.engine).apply {
-            // Log.d("FunctionNames", "renderPosition")
             this.position = position
-            // Log.d("FunctionNames", "renderRotation")
             this.rotation = rotation
-            // Log.d("FunctionNames", "renderScale")
             this.scale = scale
-            // Log.d("FunctionNames", "renderLoadGLB")
             this.loadModelGlbAsync(
                 glbFileLocation = modelPath,
                 scaleToUnits = null,
                 centerOrigin = centerOrigin
             ) {}
-            // Log.d("FunctionNames", "renderEnd")
         }
 
         return sceneView.addChild(modelNode)

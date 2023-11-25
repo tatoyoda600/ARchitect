@@ -50,7 +50,7 @@
             android:name=".activities.Menu"
             android:exported="false" />
         <activity
-            android:name=".activities.ARTrackingTest"
+            android:name=".activities.ARTrackingActivity"
             android:exported="true"
             android:screenOrientation="portrait" />
         <activity

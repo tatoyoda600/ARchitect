@@ -58,13 +58,11 @@ abstract class ARTracking(
     companion object {
         /** Converts an axis (X, Y, or Z) to its cell index version. */
         fun convertAxisToIndex(axis: Float): Int {
-            // Log.d("FunctionNames", "convertAxisToIndex")
             return floor(axis * DICT_COORD_ZOOM).toInt()
         }
 
         /** Converts a position to a set of cell indices. */
         fun convertPosToIndexes(pos: Float3): Int3 {
-            // Log.d("FunctionNames", "convertPosToIndexes")
             return Int3(
                 floor(pos.x * DICT_COORD_ZOOM).toInt(),
                 floor(pos.y * DICT_COORD_ZOOM).toInt(),
@@ -74,13 +72,11 @@ abstract class ARTracking(
 
         /** Converts a cell index to its axis version for the center of the cell. */
         fun convertIndexToCellCenter(pos: Int): Float {
-            // Log.d("FunctionNames", "convertIndexesToCellCenter")
             return (pos + 0.5f) * DICT_COORD_UNZOOM
         }
 
         /** Converts a set of cell indices to a position at the center of the cell. */
         fun convertIndexesToCellCenter(pos: Int3): Float3 {
-            // Log.d("FunctionNames", "convertIndexesToCellCenter")
             return Float3(
                 ((pos.x + 0.5f) * DICT_COORD_UNZOOM),
                 ((pos.y + 0.5f) * DICT_COORD_UNZOOM),
@@ -90,7 +86,6 @@ abstract class ARTracking(
     }
 
     init {
-        // Log.d("FunctionNames", "init")
         setPaused(true)
         this.checksPerSecond = Math.min(checksPerSecond, MAX_CHECKS_PER_SECOND)
         renderer = Render3D(sceneView, progressBar)
@@ -105,7 +100,6 @@ abstract class ARTracking(
 
     /** Takes care of setting up the AR scene. */
     internal open fun setup() {
-        // Log.d("FunctionNames", "setup")
         val supportsDepth = sceneView.arSession != null && sceneView.arSession!!.isDepthModeSupported(Config.DepthMode.AUTOMATIC)
 
         sceneView.apply {
@@ -133,7 +127,6 @@ abstract class ARTracking(
 
     /** Resets the AR state. */
     open fun reset() {
-        // Log.d("FunctionNames", "reset")
         paused = false
         pointIds.clear()
         pointIds += Int.MIN_VALUE
@@ -147,19 +140,15 @@ abstract class ARTracking(
 
     /** Given a cell, finds the first confirmed point that's located in that cell. */
     internal fun findFirstConfirmedPointInCell(cellIndex: Int3): Int? {
-        // Log.d("FunctionNames", "findFirstConfirmedPointInCell")
         val cellPoints = points.get(cellIndex.x)?.get(cellIndex.y)?.get(cellIndex.z)
 
         if (cellPoints != null && cellPoints.size > 0) {
             for (i in 0..confirmedPoints.lastIndex) {
-                //// Log.d("FunctionNames", "iterateConfirmedPoints ${i} / ${confirmedPoints.lastIndex} (${confirmedPoints.size})")
                 val point = confirmedPoints.get(i)
-                // Log.d("FunctionNames", "point: ${point}")
                 if (convertAxisToIndex(point.position.x) == cellIndex.x
                     && convertAxisToIndex(point.position.y) == cellIndex.y
                     && convertAxisToIndex(point.position.z) == cellIndex.z
                 ) {
-                    //// Log.d("FunctionNames", "foundConfirmedPoint ${i} / ${confirmedPoints.lastIndex} (${confirmedPoints.size})")
                     return i
                 }
             }
@@ -170,7 +159,6 @@ abstract class ARTracking(
 
     /** Handles AR frame updates, executing the 'frameUpdateFunction' when applicable. */
     private fun onArFrame(arFrame: ArFrame) {
-        // Log.d("FunctionNames", "onArFrame")
         // 'Frame.fps(Frame)' gets the time in seconds between the 2 frames, then divides 1 by that, giving you the current fps, if using consecutive frames
         // Here frames are discarded, without saving them, until one gives an fps under the desired amount, effectively limiting the fps
         if (arFrame.fps(lastFrame) < checksPerSecond && !paused) {
@@ -180,7 +168,6 @@ abstract class ARTracking(
 
     /** Scans the grid of cells and removes any cells with no points in them. */
     private fun deleteEmptyCells() {
-        // Log.d("FunctionNames", "deleteEmptyCells")
         for (xi in (points.keys.size?: 0) - 1 downTo 0) {
             val xKey = points.keys.elementAt(xi)
 
@@ -209,7 +196,6 @@ abstract class ARTracking(
      *
      * Afterwards makes sure to clean up empty cells. */
     internal fun cleanUpCells(pointDelete: (Int,Int,Int) -> Int): Int {
-        // Log.d("FunctionNames", "cleanUpCells")
         var cleanUpCount = 0
         // Iterate through every cell in the dictionary
         for (xKey in points.keys) {
@@ -227,7 +213,6 @@ abstract class ARTracking(
 
     /** Clear all non-confirmed points. */
     internal open fun clearExcessPoints(xKey: Int, yKey: Int, zKey: Int): Int {
-        // Log.d("FunctionNames", "clearExcessPoints")
         var cleanUpCount = 0
 
         val cellPoints = points.get(xKey)?.get(yKey)?.get(zKey)
@@ -247,14 +232,12 @@ abstract class ARTracking(
 
     /** Pauses / Unpauses the AR. */
     internal fun setPaused(value: Boolean) {
-        // Log.d("FunctionNames", "setPaused")
         paused = value
         setLoading(value)
     }
 
     /** Shows / Hides a spinning circle for when something is loading. */
     internal fun setLoading(value: Boolean) {
-        // Log.d("FunctionNames", "setLoading")
         CoroutineScope(Dispatchers.Main).launch {
             progressBar.isVisible = value
         }
@@ -284,7 +267,6 @@ abstract class ARTracking(
      *
      * Returns a list of all the points that were found, along with the direction before and after the point. */
     internal fun findConnectedPoints(startingCell: Int3, startingDirection: Int3): List<PosDir> {
-        // Log.d("FunctionNames", "findConnectedPoints")
         val startPoint: Point? = points.get(startingCell.x)?.get(startingCell.y)?.get(startingCell.z)?.first()
         if (startPoint != null) {
             val pointList = mutableListOf<PosDir>()
@@ -322,7 +304,6 @@ abstract class ARTracking(
      *
      * Never goes backwards or back right, in order to avoid loops when called multiple times. */
     private fun nextConnectedPoint(point: Point, direction: Int3): Point? {
-        // Log.d("FunctionNames", "nextConnectedPoint")
         // Using the given point, find a point in an adjacent cell
         //      First check away from the center respective to the direction
         //      Then intermediate cells until reaching the one along the direction

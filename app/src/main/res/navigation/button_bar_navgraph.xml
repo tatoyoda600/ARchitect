@@ -22,9 +22,9 @@
     </fragment>
     <activity
         android:id="@+id/ARTrackingTest"
-        android:name="com.pfortbe22bgrupo2.architectapp.activities.ARTrackingTest"
+        android:name="com.pfortbe22bgrupo2.architectapp.activities.ARTrackingActivity"
         android:label="activity_artracking_test"
-        tools:layout="@layout/activity_artracking_test" />
+        tools:layout="@layout/activity_artracking" />
     <fragment
         android:id="@+id/detailsFragment"
         android:name="com.pfortbe22bgrupo2.architectapp.fragments.DetailsFragment"

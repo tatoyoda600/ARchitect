@@ -63,7 +63,6 @@ abstract class FloorBasedTracking(
 
     /** Resets the AR state. */
     override fun reset() {
-        // Log.d("FunctionNames", "reset")
         useFloorHeight = false
         floorHeight = Int.MAX_VALUE
         super.reset()
@@ -301,7 +300,7 @@ abstract class FloorBasedTracking(
     }
 
     /** Saves the confirmed floor in the database. */
-    fun saveFloor(context: Context, floorName: String) {
+    fun saveFloor(floorName: String) {
         setPaused(true)
         CoroutineScope(Dispatchers.IO).launch {
             // The camera's -X rotation is its yaw rotation

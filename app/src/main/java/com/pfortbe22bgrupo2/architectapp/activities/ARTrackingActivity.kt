@@ -3,7 +3,6 @@ package com.pfortbe22bgrupo2.architectapp.activities
 
 import android.os.Bundle
 import android.text.InputType
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +16,7 @@ import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.adapters.LoadMenuAdapter
 import com.pfortbe22bgrupo2.architectapp.adapters.ProductHotbarAdapter
 import com.pfortbe22bgrupo2.architectapp.data.HotBarSingleton
-import com.pfortbe22bgrupo2.architectapp.databinding.ActivityArtrackingTestBinding
+import com.pfortbe22bgrupo2.architectapp.databinding.ActivityArtrackingBinding
 import com.pfortbe22bgrupo2.architectapp.databinding.LoadMenuBinding
 import com.pfortbe22bgrupo2.architectapp.entities.Product
 import com.pfortbe22bgrupo2.architectapp.utilities.DatabaseHandler
@@ -27,9 +26,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-
-class ARTrackingTest: AppCompatActivity() {
-    lateinit var binding: ActivityArtrackingTestBinding
+class ARTrackingActivity: AppCompatActivity() {
+    lateinit var binding: ActivityArtrackingBinding
     lateinit var arTracking: DefaultARTracking
     lateinit var database: DatabaseHandler
     lateinit var loadMenu: ViewGroup
@@ -38,26 +36,22 @@ class ARTrackingTest: AppCompatActivity() {
     val designList: MutableMap<String, Int> = mutableMapOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Log.d("FunctionNames", "onCreate")
         super.onCreate(savedInstanceState)
-        binding = ActivityArtrackingTestBinding.inflate(layoutInflater)
+        binding = ActivityArtrackingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         val hotbar = mainScreenSetup()
 
         arTracking = DefaultARTracking(5, binding.sceneView, binding.progressIndicator,
             switchToDefaultLayout = fun() {
-                // Log.d("FunctionNames", "switchToDefaultLayout")
                 binding.defaultLayout.isVisible = true
                 binding.placementLayout.isVisible = false
             },
             switchToPlacementLayout = fun() {
-                // Log.d("FunctionNames", "switchToPlacementLayout")
                 binding.defaultLayout.isVisible = false
                 binding.placementLayout.isVisible = true
             },
             onFloorDetectedFunction = fun() {
-                // Log.d("FunctionNames", "onFloorDetectedFunction")
                 binding.rescanBtn.isEnabled = true
                 binding.confirmBtn.isEnabled = true
                 binding.saveBtn.isEnabled = true
@@ -152,18 +146,15 @@ class ARTrackingTest: AppCompatActivity() {
     }
 
     private val rescan: (View) -> Unit = {
-        // Log.d("FunctionNames", "rescanBtn")
         binding.progressIndicator.isVisible = true
         arTracking.reset()
     }
 
     private val confirm: (View) -> Unit = {
-        // Log.d("FunctionNames", "confirmBtn")
         arTracking.confirm { arTracking.paintFloor() }
     }
 
     private val saveFloor: (View) -> Unit = {
-        // Log.d("FunctionNames", "saveBtn")
         val input = EditText(this)
         input.inputType = InputType.TYPE_CLASS_TEXT
 
@@ -177,25 +168,22 @@ class ARTrackingTest: AppCompatActivity() {
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             val text = input.text.toString()
             if (text.isNotBlank()) {
-                arTracking.saveFloor(binding.root.context, text)
+                arTracking.saveFloor(text)
                 dialog.dismiss()
             }
         }
     }
 
     private val openLoadMenu: (View) -> Unit = {
-        // Log.d("FunctionNames", "loadBtn")
         loadMenu.isVisible = true
         arTracking.setPaused(true)
     }
 
     private val place: (View) -> Unit = {
-        // Log.d("FunctionNames", "placeBtn")
         arTracking.place()
     }
 
     private val cancelPlace: (View) -> Unit = {
-        // Log.d("FunctionNames", "cancelPlaceBtn")
         arTracking.placementNode?.let {
             it.destroy()
             arTracking.placementNode = null

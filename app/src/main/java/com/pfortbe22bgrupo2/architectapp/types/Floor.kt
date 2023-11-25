@@ -22,7 +22,6 @@ class Floor(
      *
      * By default adds a receiving edge, but can add an emitting edge. */
     fun addPoint(x: Int, z: Int, emitEdge: Boolean = false) {
-        // Log.d("FunctionNames", "addPoint")
         grid.getOrPut(x) {mutableMapOf()}
             .getOrPut(z) { if (emitEdge) CellState.EMIT_EDGE else CellState.RECEIVE_EDGE }
 
@@ -33,7 +32,6 @@ class Floor(
 
     /** Analyzes the registered emitting and receiving edges to try and fill in gaps in the grid. */
     suspend fun fillFloor() {
-        // Log.d("FunctionNames", "fillFloor")
         if (grid.keys.size > 0) {
             val maxX = grid.keys.max()
             val xKeys = grid.keys.toSet()
@@ -58,7 +56,6 @@ class Floor(
      *
      * Lines starting from receiving edges are only valid if they collide with another receiving edge. */
     private suspend fun recursiveFill(x: Int, z: Int, maxX: Int, startState: CellState): Boolean {
-        // Log.d("FunctionNames", "recursiveFill")
         delay(10)
         if (x > maxX) {
             return false
@@ -85,7 +82,6 @@ class Floor(
 
     /** Creates an unmutable deep copy of the grid */
     fun getGridCopy(): Map<Int, Map<Int, CellState>> {
-        // Log.d("FunctionNames", "getGridCopy")
         val output: MutableMap<Int, Map<Int, CellState>> = mutableMapOf()
         for (x in grid) {
             val row: MutableMap<Int, CellState> = mutableMapOf()

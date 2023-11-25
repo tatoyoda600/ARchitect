@@ -18,26 +18,22 @@ class MathUtils {
 
         /** Converts radians to the equivalent angle. */
         fun radiansToDegrees(rad: Float): Float {
-            // Log.d("FunctionNames", "radiansToDegrees")
             return rad * 180.0f / PI
         }
 
         /** Calculates the angle of a normalized 2D vector relative to +X. */
         fun angleOf2DVector(x: Float, y: Float): Float {
-            // Log.d("FunctionNames", "angleOf2DVector")
             return if (radiansToDegrees(asin(-y)).sign > 0) 360 - radiansToDegrees(acos(x)) else radiansToDegrees(acos(x))
         }
 
         /** Gets the point of intersection between a ray and a floor at some height. */
         fun rayFloorIntersection(rayOrigin: Float3, rayDir: Float3, floorHeight: Float): Float3? {
-            // Log.d("FunctionNames", "rayFloorIntersection")
             val output = rayPlaneIntersection(rayOrigin, rayDir, Float3(0f, floorHeight, 0f), Float3(0f, 1f, 0f))
             return if (output != null) Float3(output.x, floorHeight, output.z) else output
         }
 
         /** Gets the point of intersection between a ray and a plane. */
         fun rayPlaneIntersection(rayOrigin: Float3, rayDir: Float3, planePoint: Float3, planeNormal: Float3): Float3? {
-            // Log.d("FunctionNames", "rayPlaneIntersection")
             val denom = Vector3.dot(planeNormal.toVector3().normalized(), rayDir.toVector3().normalized())
 
             if (abs(denom) > EPSILON) {
@@ -50,7 +46,6 @@ class MathUtils {
 
         /** Discards the whole part of a number, returning only the decimal portion. */
         fun getDecimal(value: Float): Float {
-            // Log.d("FunctionNames", "getDecimal")
             return value - value.toInt()
         }
 
@@ -60,7 +55,6 @@ class MathUtils {
          *
          * cellFunction(x, y) is run at every grid cell, if it resolves to 'true' then execution ends and (x; y) is returned. */
         fun bresenhamLine(x1: Float, y1: Float, x2: Float, y2: Float, cellFunction: (x: Float, y: Float) -> Boolean): Float2? {
-            // Log.d("FunctionNames", "bresenhamLine")
             val dirX: Int = if (x1 < x2) 1 else -1 // X direction
             val dirZ: Int = if (y1 < y2) 1 else -1 // Z direction
             val distX: Float = x2 - x1 // X distance

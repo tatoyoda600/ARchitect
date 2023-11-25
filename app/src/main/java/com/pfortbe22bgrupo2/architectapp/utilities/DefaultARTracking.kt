@@ -1,6 +1,5 @@
 package com.pfortbe22bgrupo2.architectapp.utilities
 
-import android.content.Context
 import android.text.InputType
 import android.util.Log
 import android.view.LayoutInflater
@@ -54,7 +53,7 @@ private const val CONFIRMED_POINTS_CLEAN_UP_STEP = 500 // After this many confir
 private const val CLEAN_UP_CELL_MIN_POINTS = 2 // Cells with less than this many points will be emptied
 private const val CLEAN_UP_CELL_MAX_POINTS = 4 // Cells with more than this many points will be culled
 
-private const val MIN_CONFIDENCE = 0.3 // How confident the sensors have to be about a point to not discard it (0 - 1)
+private const val MIN_CONFIDENCE = 0.5 // How confident the sensors have to be about a point to not discard it (0 - 1)
 private const val MAX_CELL_DISTANCE = 1 // The radius of cells to check for neighbors
 private const val MAX_DISTANCE = MAX_CELL_DISTANCE.toFloat() / DICT_COORD_ZOOM.toFloat() // MAX_CELL_DISTANCE but in distance units
 private const val MIN_NEIGHBORS = 3 // The amount of neighbors needed for a point to be confirmed
@@ -145,13 +144,11 @@ class DefaultARTracking(
 
     /** Renders a confirmed point. */
     override fun renderConfirmedPoint(position: Position, index: Int) {
-        // Log.d("FunctionNames", "renderConfirmedPoint")
         colorPoint(position, Floor.CellState.UNKNOWN)
     }
 
     /** Adds a point from the floor that's being loaded in. */
     override fun loadFloorPoint(position: Position) {
-        // Log.d("FunctionNames", "loadFloorPoint")
         colorPoint(position, Floor.CellState.FILLED)
     }
 

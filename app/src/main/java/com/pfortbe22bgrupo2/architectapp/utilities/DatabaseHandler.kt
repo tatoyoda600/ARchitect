@@ -38,7 +38,6 @@ class DatabaseHandler(context: Context) {
     private val userId: String
 
     init {
-        // Log.d("FunctionNames", "init")
         database = AppDatabase.getAppDatabase(context)!!
         floorDao = database.floorDao()
         floorPointsDao = database.floorPointsDao()
@@ -49,12 +48,10 @@ class DatabaseHandler(context: Context) {
     }
 
     fun getFloorIDs(): List<Int> {
-        // Log.d("FunctionNames", "getFloorIDs")
         return floorDao.getFloorIDs()
     }
 
     fun getFloorByID(id: Int): Pair<Floor, Float>? {
-        // Log.d("FunctionNames", "getFloorByID")
         val floor = floorDao.getFloorByID(id)
         if (floor != null) {
             val grid = getFloorPointsByID(id)
@@ -64,7 +61,6 @@ class DatabaseHandler(context: Context) {
     }
 
     fun insertFloor(floor: Floor, cameraPosition: Position, rotation: Float, name: String): Int {
-        // Log.d("FunctionNames", "insertFloor")
         try {
             // The camera's -X rotation is its yaw rotation
             val id = floorDao.insertFloor(FloorEntity(0, rotation, name))
@@ -79,7 +75,6 @@ class DatabaseHandler(context: Context) {
     }
 
     private fun getFloorPointsByID(id: Int): MutableMap<Int, MutableMap<Int, Floor.CellState>> {
-        // Log.d("FunctionNames", "getFloorPointsByID")
         val output: MutableMap<Int, MutableMap<Int, Floor.CellState>> = mutableMapOf()
         val entities = floorPointsDao.getFloorPointsByID(id)
 
@@ -92,7 +87,6 @@ class DatabaseHandler(context: Context) {
     }
 
     private fun getFloorPointCountByID(id: Int): Int {
-        // Log.d("FunctionNames", "getFloorPointCountByID")
         return floorPointsDao.getFloorPointCountByID(id)?: 0
     }
 
@@ -101,7 +95,6 @@ class DatabaseHandler(context: Context) {
         grid: MutableMap<Int, MutableMap<Int, Floor.CellState>>,
         cameraPosition: Position
     ) {
-        // Log.d("FunctionNames", "insertFloorPoints")
         var count = getFloorPointCountByID(floorId)
         for (xKey in grid.keys) {
             for (zKey in grid.get(xKey)?.keys?: mutableSetOf()) {
