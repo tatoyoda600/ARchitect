@@ -516,5 +516,33 @@ class DatabaseHandler(context: Context) {
             }
     }
 
+    /**En este metodo se crea un post con todos sus campos y colecciones interiores
+     * @param downloadUrl: String de link para descarga de imagen post
+     * @param descripcion: Descripcion de post
+     * @param title: Titulo, que manualmente se le inicializa como ${tag}_${name}_${numero}
+     * @param user: Nombre de usuario que hace el post*/
+    fun crearPost(downloadUrl: String, descripcion: String, title: String, user: String) {
+        val collectionRef = firestore.collection("posts")
+        val newDocumentRef = collectionRef.document()
+
+        val data = hashMapOf(
+            "description" to descripcion,
+            "title" to title,
+            "user" to user,
+            "image" to downloadUrl,
+            "likesCount" to 0
+        )
+
+        newDocumentRef.set(data)
+            .addOnSuccessListener {
+                // La creación del documento fue exitosa
+
+                // Ahora, agregar una subcolección al documento
+                newDocumentRef.collection("comments")
+
+                newDocumentRef.collection("likes")
+            }
+    }
+
 
 }

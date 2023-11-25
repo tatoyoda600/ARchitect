@@ -3,7 +3,6 @@ package com.pfortbe22bgrupo2.architectapp.activities
 
 import android.os.Bundle
 import android.text.InputType
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +12,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.adapters.LoadMenuAdapter
 import com.pfortbe22bgrupo2.architectapp.adapters.ProductHotbarAdapter
@@ -36,12 +38,14 @@ class ARTrackingTest: AppCompatActivity() {
     lateinit var loadMenuRecycler: RecyclerView
     val floorList: MutableMap<String, Int> = mutableMapOf()
     val designList: MutableMap<String, Int> = mutableMapOf()
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Log.d("FunctionNames", "onCreate")
         super.onCreate(savedInstanceState)
         binding = ActivityArtrackingTestBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        auth = Firebase.auth
 
         val hotbar = mainScreenSetup()
 
@@ -168,19 +172,59 @@ class ARTrackingTest: AppCompatActivity() {
         input.inputType = InputType.TYPE_CLASS_TEXT
 
         val dialog = AlertDialog.Builder(this)
-            .setTitle(R.string.save_floor_popup_title)
+            .setTitle(R.string.post_description)
             .setView(input)
             .setPositiveButton(R.string.save_floor_popup_yes, null)
             .setNegativeButton(R.string.save_floor_popup_no) { dialog, which -> dialog.cancel() }
             .show()
 
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            val text = input.text.toString()
-            if (text.isNotBlank()) {
-                arTracking.saveFloor(binding.root.context, text)
+            val descripcion = input.text.toString()
+            val currentUser = auth.currentUser
+            val userName = if(currentUser != null) currentUser.displayName!! else ""
+            val product = getCurrentModel()
+            val productName = product.name
+            val productTag = product.tag
+            if (descripcion.isNotBlank()) {
+                arTracking.saveFloor2(binding.root, descripcion, userName, productName, productTag)
                 dialog.dismiss()
             }
         }
+    }
+
+    private fun getCurrentModel(): Product{
+        lateinit var producto : Product
+        CoroutineScope(Dispatchers.IO).launch {
+            val hotbar = binding.productHotbar
+            database = DatabaseHandler(binding.root.context)
+
+            if (HotBarSingleton.hotBarItems.size > 0) {
+                var productCount = 0
+                val productList: MutableList<Product> = mutableListOf()
+
+                val productProcessing = { p: Product? ->
+                    p?.let { productList.add(it) }
+                    productCount++
+
+                    if (productCount == HotBarSingleton.hotBarItems.size) {
+                        hotbar.adapter = ProductHotbarAdapter(productList) { product ->
+                             producto = product
+                        }
+                        hotbar.hasPendingAdapterUpdates()
+                    }
+                }
+
+                for (product in HotBarSingleton.hotBarItems) {
+                    database.getProductData(
+                        product.first,
+                        product.second,
+                        productProcessing,
+                        { productProcessing(null) }
+                    )
+                }
+            }
+        }
+        return producto
     }
 
     private val openLoadMenu: (View) -> Unit = {

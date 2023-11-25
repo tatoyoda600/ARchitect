@@ -1,9 +1,14 @@
 package com.pfortbe22bgrupo2.architectapp.utilities
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.util.Log
+import android.view.View
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.ar.sceneform.math.Vector3
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageException
+import com.google.firebase.storage.StorageReference
 import com.pfortbe22bgrupo2.architectapp.types.Floor
 import com.pfortbe22bgrupo2.architectapp.types.Int3
 import com.pfortbe22bgrupo2.architectapp.types.Outline
@@ -23,6 +28,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.io.ByteArrayOutputStream
 import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.max
@@ -31,6 +37,7 @@ internal const val CELL_CURSOR_MODEL = "models/pinkSquare.glb"
 internal const val FLOOR_LOADING_MODEL = "models/outline_square.glb"
 internal const val MIN_FLOOR_POINTS = 20 // A height must have at least this many points to be considered a valid floor
 internal const val DELAY_MULTIPLIER: Long = 10 // Multiplies most async delays
+internal val Storage_ref: StorageReference = FirebaseStorage.getInstance().reference
 
 abstract class FloorBasedTracking(
     checksPerSecond: Int,
@@ -311,7 +318,126 @@ abstract class FloorBasedTracking(
             setPaused(false)
         }
     }
+//      --------------------------------------------
+    /** Creates a Post and sends it to the Firestore Database. */
+    fun saveFloor2(
+        view: View,
+        descripcion: String,
+        userName: String,
+        productName: String,
+        productTag: String
+    ) {
+        setPaused(true)
+        CoroutineScope(Dispatchers.IO).launch {
+            // The camera's -X rotation is its yaw rotation
+            hacerScreenshot(view, userName, productName, productTag, descripcion)
 
+            setPaused(false)
+        }
+    }
+
+
+    private fun hacerScreenshot(
+        view: View,
+        userName: String,
+        productName: String,
+        productTag: String,
+        descripcion: String
+    ) {
+
+        // Obtener la referencia a Firebase Storage --> Ya la obtenemos en el principio en una val global
+        //val storage = FirebaseStorage.getInstance()
+        //val storageRef = storage.reference
+
+        //Modelo ejemplo --> Esto lo conseguimos haciendo product.name y product.tag --> Los obtenemos como parametro
+//        val tag = "habitacion"
+//        val name = "ADDE_Chair"
+
+        // val imageRef = storageRef.child("images/${tag}_${name}.jpg")
+        // Crear una referencia al archivo en Storage (puedes usar un nombre único para cada imagen)
+        val imagePath = doesFileExist("${productTag}_${productName}")
+        val imageRef = Storage_ref.child(imagePath)
+
+
+        // Obtener la Uri de la imagen local en tu dispositivo
+        view.isDrawingCacheEnabled = true
+        view.buildDrawingCache(true)
+        val bitMapImagen = Bitmap.createBitmap(view.drawingCache)
+        view.isDrawingCacheEnabled = false
+
+        // Convertir el bitMapImagen a un ByteArrayOutputStream
+        val byteArrayOutputStream = ByteArrayOutputStream()
+
+        // Comprimir el Bitmap en formato JPEG con calidad del 100% (puedes ajustar la calidad según tus necesidades)
+        bitMapImagen.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+
+        // Convertir el ByteArrayOutputStream a un arreglo de bytes
+        val byteArray = byteArrayOutputStream.toByteArray()
+
+        // Subir la imagen a Storage
+        imageRef.putBytes(byteArray)
+            .addOnSuccessListener { taskSnapshot ->
+                // La imagen se ha cargado con éxito, obtén la URL de descarga
+                imageRef.downloadUrl.addOnSuccessListener { uri ->
+                    val downloadUrl = uri.toString()
+//                    val descripcion = "Descripcion de modelo ${name} del tag ${tag}" --> Lo obtenemos como parametro
+                    val title = "${imagePath.subSequence(13, imagePath.length - 4)}"
+                    //User se obtiene del parametro
+
+                    //Creo y envio post a Firestore Database
+                    database.crearPost(downloadUrl, descripcion, title, userName)
+                }
+            }
+            .addOnFailureListener { exception ->
+                // Handle errors
+            }
+
+    }
+
+
+    /**
+     * Verifica que el path que se esta usando no este ya usado y sino le agrega un numero mas al final.
+     * */
+    private fun doesFileExist(nameFile: String): String {
+        // Obtener la referencia a Firebase Storage --> Ya la obtenemos al principio del archivo
+//        val storage = FirebaseStorage.getInstance()
+//        val storageReference = storage.reference
+
+        var existe = true
+        var i = 1
+        var path = ""
+
+        while (i in 1..5 && existe){
+            path = "postPictures/${nameFile}_${i}.jpg"
+            val storageRef = Storage_ref.child(path)
+
+            storageRef.downloadUrl
+                .addOnSuccessListener { _ ->
+                    // El archivo existe
+                    existe = true
+                    i++
+                }
+                .addOnFailureListener { exception ->
+                    // El archivo no existe
+                    if (exception is StorageException && exception.errorCode == StorageException.ERROR_OBJECT_NOT_FOUND) {
+                        // El archivo no existe y se deja de iterar ya que se queda con el ultimo cambio que se le hizo a @path
+                        existe = false
+                    }
+                }
+        }
+
+        /**
+         * Si @existe termina siendo true es que ya esta lleno de archivos con ese nombre y +5
+         * Sino va a devolver el path que queremos que devuelva
+         * Deberiamos mandar un error si esta lleno ya de esos archivos --> SIN HACER
+         * */
+        if(existe){
+            return ""
+        }else{
+            return path
+        }
+    }
+//     ---------------------------------------------
     /** Retrieves a floor from the database, for placing. */
     fun loadFloor(id: Int) {
         if (useFloorHeight) {

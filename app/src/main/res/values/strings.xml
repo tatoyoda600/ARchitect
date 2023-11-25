@@ -48,6 +48,7 @@
     <string name="floor_list">Pisos</string>
     <string name="design_list">Diseños</string>
     <string name="save_floor_popup_title">Guardar Piso</string>
+    <string name="post_description">Descripcion de Post</string>
     <string name="save_floor_popup_yes">Guardar</string>
     <string name="save_floor_popup_no">Cancelar</string>
     <string name="save_design_popup_title">Guardar Diseño</string>
