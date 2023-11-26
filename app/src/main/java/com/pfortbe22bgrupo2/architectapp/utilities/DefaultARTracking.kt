@@ -135,8 +135,14 @@ class DefaultARTracking(
         lastExcessCleanUpStep = 0
         lastConfirmedCleanUpStep = 0
         lastConfirmedFloorCheckStep = 0
+        designSession = null
+        coloredFloor = null
 
-        //TODO("Clear all models")
+        for (node in arProducts.keys) {
+            node.detachFromScene(sceneView)
+            node.parent = null
+        }
+        arProducts.clear()
 
         super.reset()
     }

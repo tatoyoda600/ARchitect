@@ -65,6 +65,7 @@ abstract class FloorBasedTracking(
     override fun reset() {
         useFloorHeight = false
         floorHeight = Int.MAX_VALUE
+        detectedFloor = Floor()
         super.reset()
     }
 
