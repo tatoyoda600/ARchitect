@@ -66,6 +66,7 @@ class ARTrackingTest: AppCompatActivity() {
                 binding.confirmBtn.isEnabled = true
                 binding.saveBtn.isEnabled = true
                 binding.loadBtn.isEnabled = true
+                binding.postBtn.isEnabled = true
             }
         )
 
@@ -82,6 +83,7 @@ class ARTrackingTest: AppCompatActivity() {
         binding.cancelBtn.setOnClickListener(cancelPlace)
         binding.placeBtn.setOnClickListener(place)
         binding.backBtn.setOnClickListener { onBackPressedDispatcher.onBackPressed() }
+        binding.postBtn.setOnClickListener(post)
 
         val recycler = binding.productHotbar
         recycler.setHasFixedSize(true)
@@ -172,59 +174,46 @@ class ARTrackingTest: AppCompatActivity() {
         input.inputType = InputType.TYPE_CLASS_TEXT
 
         val dialog = AlertDialog.Builder(this)
-            .setTitle(R.string.post_description)
+            .setTitle(R.string.save_floor_popup_title)
             .setView(input)
             .setPositiveButton(R.string.save_floor_popup_yes, null)
             .setNegativeButton(R.string.save_floor_popup_no) { dialog, which -> dialog.cancel() }
             .show()
 
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            val descripcion = input.text.toString()
-            val currentUser = auth.currentUser
-            val userName = if(currentUser != null) currentUser.displayName!! else ""
-            val product = getCurrentModel()
-            val productName = product.name
-            val productTag = product.tag
-            if (descripcion.isNotBlank()) {
-                arTracking.saveFloor2(binding.root, descripcion, userName, productName, productTag)
+            val text = input.text.toString()
+            if (text.isNotBlank()) {
                 dialog.dismiss()
+                arTracking.saveFloor(binding.root.context, text)
             }
         }
     }
 
-    private fun getCurrentModel(): Product{
-        lateinit var producto : Product
-        CoroutineScope(Dispatchers.IO).launch {
-            val hotbar = binding.productHotbar
-            database = DatabaseHandler(binding.root.context)
+    private val post: (View) -> Unit = {
+        val inflater = layoutInflater
+        val dialogLayout = inflater.inflate(R.layout.post_creating_dialogue, binding.root)
 
-            if (HotBarSingleton.hotBarItems.size > 0) {
-                var productCount = 0
-                val productList: MutableList<Product> = mutableListOf()
+        val titleText = dialogLayout.findViewById<EditText>(R.id.title)
+        val descriptionText = dialogLayout.findViewById<EditText>(R.id.description)
 
-                val productProcessing = { p: Product? ->
-                    p?.let { productList.add(it) }
-                    productCount++
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(R.string.post_title)
+            .setView(dialogLayout)
+            .setPositiveButton(R.string.save_floor_popup_yes, null)
+            .setNegativeButton(R.string.save_floor_popup_no) { dialog, which -> dialog.cancel() }
+            .show()
 
-                    if (productCount == HotBarSingleton.hotBarItems.size) {
-                        hotbar.adapter = ProductHotbarAdapter(productList) { product ->
-                             producto = product
-                        }
-                        hotbar.hasPendingAdapterUpdates()
-                    }
-                }
-
-                for (product in HotBarSingleton.hotBarItems) {
-                    database.getProductData(
-                        product.first,
-                        product.second,
-                        productProcessing,
-                        { productProcessing(null) }
-                    )
-                }
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val title = titleText.text.toString()
+            val description = descriptionText.text.toString()
+            val currentUser = auth.currentUser
+            val userName = if(currentUser != null) currentUser.displayName!! else ""
+            if (description.isNotBlank() && title.isNotBlank()) {
+                arTracking.post(binding.root, title, description, userName)
+                dialog.dismiss()
             }
         }
-        return producto
+
     }
 
     private val openLoadMenu: (View) -> Unit = {

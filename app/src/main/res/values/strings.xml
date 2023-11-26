@@ -48,7 +48,7 @@
     <string name="floor_list">Pisos</string>
     <string name="design_list">Diseños</string>
     <string name="save_floor_popup_title">Guardar Piso</string>
-    <string name="post_description">Descripcion de Post</string>
+    <string name="post_title">Ingrese los datos del Post</string>
     <string name="save_floor_popup_yes">Guardar</string>
     <string name="save_floor_popup_no">Cancelar</string>
     <string name="save_design_popup_title">Guardar Diseño</string>
@@ -79,4 +79,5 @@
     <string name="remove_from_db_prod_title">Eliminar de BD</string>
     <string name="remove_from_db_prod_text">¿Estás seguro de que deseas eliminar este producto de la BD?</string>
     <string name="todos">Todos</string>
+    <string name="post_btn">Postear</string>
 </resources>

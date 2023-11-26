@@ -82,6 +82,18 @@
                 app:srcCompat="@drawable/back_icon" />
 
             <Space
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/post_btn"
+                android:layout_width="120dp"
+                android:layout_height="match_parent"
+                android:enabled="false"
+                android:text="@string/post_btn" />
+
+            <Space
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />

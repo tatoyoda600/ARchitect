@@ -23,7 +23,6 @@ import com.pfortbe22bgrupo2.architectapp.types.DesignSession
 import com.pfortbe22bgrupo2.architectapp.types.DesignSessionProduct
 import com.pfortbe22bgrupo2.architectapp.types.Floor
 import io.github.sceneview.math.Position
-import io.github.sceneview.math.compareTo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -518,15 +517,15 @@ class DatabaseHandler(context: Context) {
 
     /**En este metodo se crea un post con todos sus campos y colecciones interiores
      * @param downloadUrl: String de link para descarga de imagen post
-     * @param descripcion: Descripcion de post
-     * @param title: Titulo, que manualmente se le inicializa como ${tag}_${name}_${numero}
-     * @param user: Nombre de usuario que hace el post*/
-    fun crearPost(downloadUrl: String, descripcion: String, title: String, user: String) {
+     * @param description: Descripcion de post
+     * @param title: Titulo de Post
+     * @param user: Nombre del usuario que hace el post*/
+    fun crearPost(downloadUrl: String, description: String, title: String, user: String) {
         val collectionRef = firestore.collection("posts")
         val newDocumentRef = collectionRef.document()
 
         val data = hashMapOf(
-            "description" to descripcion,
+            "description" to description,
             "title" to title,
             "user" to user,
             "image" to downloadUrl,
