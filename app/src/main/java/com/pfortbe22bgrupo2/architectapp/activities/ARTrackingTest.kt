@@ -1,6 +1,7 @@
 package com.pfortbe22bgrupo2.architectapp.activities
 //https://github.com/SceneView/sceneview-android/blob/main/samples/ar-model-viewer/src/main/java/io/github/sceneview/sample/armodelviewer/MainActivity.kt
 
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.text.InputType
 import android.view.MotionEvent
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.StorageException
 import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.adapters.LoadMenuAdapter
 import com.pfortbe22bgrupo2.architectapp.adapters.ProductHotbarAdapter
@@ -24,10 +26,12 @@ import com.pfortbe22bgrupo2.architectapp.databinding.LoadMenuBinding
 import com.pfortbe22bgrupo2.architectapp.entities.Product
 import com.pfortbe22bgrupo2.architectapp.utilities.DatabaseHandler
 import com.pfortbe22bgrupo2.architectapp.utilities.DefaultARTracking
+import com.pfortbe22bgrupo2.architectapp.utilities.Storage_ref
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 
 
 class ARTrackingTest: AppCompatActivity() {
@@ -183,8 +187,8 @@ class ARTrackingTest: AppCompatActivity() {
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             val text = input.text.toString()
             if (text.isNotBlank()) {
-                dialog.dismiss()
                 arTracking.saveFloor(binding.root.context, text)
+                dialog.dismiss()
             }
         }
     }
@@ -209,8 +213,8 @@ class ARTrackingTest: AppCompatActivity() {
             val currentUser = auth.currentUser
             val userName = if(currentUser != null) currentUser.displayName!! else ""
             if (description.isNotBlank() && title.isNotBlank()) {
-                arTracking.post(binding.root, title, description, userName)
                 dialog.dismiss()
+                postear(binding.root, title, description, userName)
             }
         }
 
@@ -261,5 +265,113 @@ class ARTrackingTest: AppCompatActivity() {
             }
         }
         return output
+    }
+
+    /** Creates a Post and sends it to the Firestore Database. */
+    fun postear(
+        view: View,
+        title: String,
+        description: String,
+        userName: String
+    ) {
+//        setPaused(true)
+        CoroutineScope(Dispatchers.IO).launch {
+            // The camera's -X rotation is its yaw rotation
+            hacerScreenshot(view, userName, description, title)
+
+//            setPaused(false)
+        }
+    }
+
+    private fun hacerScreenshot(
+        view: View,
+        userName: String,
+        description: String,
+        title: String
+    ) {
+        // Crear una referencia al archivo en Storage (puedes usar un nombre único para cada imagen)
+        val imagePath = doesFileExist(title)
+        val imageRef = Storage_ref.child(imagePath)
+
+        val byteArray = takeScreenshot(view)
+
+
+        // Subir la imagen a Storage
+        imageRef.putBytes(byteArray)
+            .addOnSuccessListener { taskSnapshot ->
+                // La imagen se ha cargado con éxito, obtén la URL de descarga
+                imageRef.downloadUrl.addOnSuccessListener { uri ->
+                    val downloadUrl = uri.toString()
+
+                    //Creo y envio post a Firestore Database
+                    database.crearPost(downloadUrl, description, title, userName)
+                }
+            }
+            .addOnFailureListener { exception ->
+                // Handle errors
+            }
+
+    }
+
+    /**
+     * Muestra solamente el ArSceneView para que se pueda tomar una buena imagen.*/
+    private fun takeScreenshot(view: View): ByteArray{
+        binding.linearLayout2.isVisible = false
+        binding.productHotbar.isVisible = false
+        binding.linearLayout.isVisible = false
+        binding.linearLayout3.isVisible = false
+
+        // Obtener la Uri de la imagen local en tu dispositivo
+        view.isDrawingCacheEnabled = true
+        view.buildDrawingCache(true)
+        val bitMapImagen = Bitmap.createBitmap(view.drawingCache)
+        view.isDrawingCacheEnabled = false
+
+        // Convertir el bitMapImagen a un ByteArrayOutputStream
+        val byteArrayOutputStream = ByteArrayOutputStream()
+
+        // Comprimir el Bitmap en formato JPEG con calidad del 100% (puedes ajustar la calidad según tus necesidades)
+        bitMapImagen.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+
+        // Convertir el ByteArrayOutputStream a un arreglo de bytes
+        val byteArray = byteArrayOutputStream.toByteArray()
+
+        binding.linearLayout2.isVisible = true
+        binding.productHotbar.isVisible = true
+        binding.linearLayout.isVisible = true
+        binding.linearLayout3.isVisible = true
+
+        return byteArray
+
+    }
+
+
+    /**
+     * Verifica que el path que se esta usando no este ya usado y sino le agrega un numero mas al final.
+     * */
+    private fun doesFileExist(nameFile: String): String {
+
+        var existe = true
+        var i = 1
+        var path = ""
+
+        while (existe){
+            path = "postPictures/${nameFile}_${i}.jpg"
+            val storageRef = Storage_ref.child(path)
+
+            storageRef.downloadUrl
+                .addOnSuccessListener { _ ->
+                    // El archivo existe
+                    i++
+                }
+                .addOnFailureListener { exception ->
+                    // El archivo no existe
+                    if (exception is StorageException && exception.errorCode == StorageException.ERROR_OBJECT_NOT_FOUND) {
+                        // El archivo no existe y se deja de iterar ya que se queda con el ultimo cambio que se le hizo a @path
+                        existe = false
+                    }
+                }
+        }
+        return path
     }
 }
