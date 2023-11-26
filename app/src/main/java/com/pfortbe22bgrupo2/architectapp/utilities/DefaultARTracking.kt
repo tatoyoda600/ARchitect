@@ -62,7 +62,6 @@ private const val FLOOR_HEIGHT_CELL_LEEWAY = 1 // Make use of points that aren't
 private const val FLOOR_LEEWAY_MIN_NEIGHBORS = 5 // The amount of neighbors that the points given leeway must have to be used
 
 private const val CONFIRMED_POINTS_FLOOR_CHECK_STEP = 50 // After this many confirmed points are registered, a floor check ocurrs
-private const val FRAMES_PER_CURSOR_UPDATE = 3 // Limit how often the cell cursor is updated
 
 class DefaultARTracking(
     checksPerSecond: Int,
@@ -76,7 +75,6 @@ class DefaultARTracking(
     private var lastConfirmedCleanUpStep = 0
     private var lastConfirmedFloorCheckStep = 0
     private var coloredFloor: Map<Int, Map<Int, Floor.CellState>>? = null // A grid representing the current colored floor area
-    private var cursorFrameCount = 0
 
     private var designSession: DesignSession? = null
     private var arProducts: MutableMap<Node, DesignSessionProduct> = mutableMapOf()
@@ -99,6 +97,7 @@ class DefaultARTracking(
                 popupNode?.let {
                     startPlacement(it, popupNodeAllowWalls) { node ->
                         val allowWalls = popupNodeAllowWalls
+                        cellCrosshair?.isVisible = false
                         node.onTap = { motionEvent: MotionEvent, renderable: Renderable? ->
                             popupNode = node
                             popupNodeAllowWalls = allowWalls
@@ -160,13 +159,6 @@ class DefaultARTracking(
     override fun frameUpdate(arFrame: ArFrame) {
         // If an object is currently trying to be placed, update the position of the object along with the camera
         placementNode?.let { updatePlacementPos?.invoke(it) }
-
-        if (useFloorHeight) {
-            cursorFrameCount = (cursorFrameCount + 1) % FRAMES_PER_CURSOR_UPDATE
-            if (cursorFrameCount == 0) {
-                val lookPoint = getLookPoint(showCellCursor = true, useOnWall = true)
-            }
-        }
 
         val pointCloud: PointCloud = arFrame.frame.acquirePointCloud()
         if (pointCloud.ids != null && pointCloud.timestamp != lastFrame?.frame?.timestamp) {
@@ -458,6 +450,7 @@ class DefaultARTracking(
         allowWalls: Boolean
     ) {
         super.renderModel(modelCategory, modelName, scale, allowWalls) { node ->
+            cellCrosshair?.isVisible = false
             node.onTap = { motionEvent: MotionEvent, renderable: Renderable? ->
                 popupNode = node
                 popupNodeAllowWalls = allowWalls
