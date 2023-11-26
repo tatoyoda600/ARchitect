@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.StorageException
 import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.adapters.LoadMenuAdapter
 import com.pfortbe22bgrupo2.architectapp.adapters.ProductHotbarAdapter
@@ -31,6 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
 
 
@@ -289,8 +289,11 @@ class ARTrackingTest: AppCompatActivity() {
         description: String,
         title: String
     ) {
+        var imagePath = ""
         // Crear una referencia al archivo en Storage (puedes usar un nombre único para cada imagen)
-        val imagePath = doesFileExist(title)
+        CoroutineScope(Dispatchers.Main).launch {
+           imagePath = doesFileExist(title)
+        }
         val imageRef = Storage_ref.child(imagePath)
 
         val byteArray = takeScreenshot(view)
@@ -349,29 +352,25 @@ class ARTrackingTest: AppCompatActivity() {
     /**
      * Verifica que el path que se esta usando no este ya usado y sino le agrega un numero mas al final.
      * */
-    private fun doesFileExist(nameFile: String): String {
+    private suspend fun doesFileExist(nameFile: String): String {
 
-        var existe = true
         var i = 1
         var path = ""
 
-        while (existe){
+        while (true) {
             path = "postPictures/${nameFile}_${i}.jpg"
             val storageRef = Storage_ref.child(path)
 
-            storageRef.downloadUrl
-                .addOnSuccessListener { _ ->
-                    // El archivo existe
-                    i++
-                }
-                .addOnFailureListener { exception ->
-                    // El archivo no existe
-                    if (exception is StorageException && exception.errorCode == StorageException.ERROR_OBJECT_NOT_FOUND) {
-                        // El archivo no existe y se deja de iterar ya que se queda con el ultimo cambio que se le hizo a @path
-                        existe = false
-                    }
-                }
+            try {
+                storageRef.downloadUrl.await()
+                // El archivo existe, incrementa el índice y continúa iterando
+                i++
+            } catch (e: Exception) {
+                // El archivo no existe, se rompe el bucle
+                break
+            }
         }
+
         return path
     }
 }
