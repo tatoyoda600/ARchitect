@@ -543,5 +543,27 @@ class DatabaseHandler(context: Context) {
             }
     }
 
+    fun getUserName(
+        uid: String,
+        onSuccess: (String) -> Unit,
+        onFailure: () -> Unit)
+    {
+        val docRef = firestore.collection("users").document(uid)
+
+        docRef.get()
+            .addOnSuccessListener { document: DocumentSnapshot ->
+                val data = document.data
+                if (data != null) {
+                    val userName = data.get("userName").toString()
+                    onSuccess(userName)
+                }
+            }
+            .addOnFailureListener {err ->
+                Log.e("FIRESTORE", err.toString())
+                err.message?.let { Log.e("FIRESTORE", it) }
+                onFailure()
+            }
+    }
+
 
 }

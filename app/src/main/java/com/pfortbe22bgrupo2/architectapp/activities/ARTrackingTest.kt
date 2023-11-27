@@ -22,6 +22,7 @@ import com.pfortbe22bgrupo2.architectapp.adapters.ProductHotbarAdapter
 import com.pfortbe22bgrupo2.architectapp.data.HotBarSingleton
 import com.pfortbe22bgrupo2.architectapp.databinding.ActivityArtrackingTestBinding
 import com.pfortbe22bgrupo2.architectapp.databinding.LoadMenuBinding
+import com.pfortbe22bgrupo2.architectapp.databinding.PostCreatingDialogueBinding
 import com.pfortbe22bgrupo2.architectapp.entities.Product
 import com.pfortbe22bgrupo2.architectapp.utilities.DatabaseHandler
 import com.pfortbe22bgrupo2.architectapp.utilities.DefaultARTracking
@@ -194,15 +195,14 @@ class ARTrackingTest: AppCompatActivity() {
     }
 
     private val post: (View) -> Unit = {
-        val inflater = layoutInflater
-        val dialogLayout = inflater.inflate(R.layout.post_creating_dialogue, binding.root)
+        val dialogBinding = PostCreatingDialogueBinding.inflate(layoutInflater)
 
-        val titleText = dialogLayout.findViewById<EditText>(R.id.title)
-        val descriptionText = dialogLayout.findViewById<EditText>(R.id.description)
+        val titleText = dialogBinding.title
+        val descriptionText = dialogBinding.description
 
         val dialog = AlertDialog.Builder(this)
             .setTitle(R.string.post_title)
-            .setView(dialogLayout)
+            .setView(dialogBinding.root)
             .setPositiveButton(R.string.save_floor_popup_yes, null)
             .setNegativeButton(R.string.save_floor_popup_no) { dialog, which -> dialog.cancel() }
             .show()
@@ -210,14 +210,16 @@ class ARTrackingTest: AppCompatActivity() {
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             val title = titleText.text.toString()
             val description = descriptionText.text.toString()
-            val currentUser = auth.currentUser
-            val userName = if(currentUser != null) currentUser.displayName!! else ""
-            if (description.isNotBlank() && title.isNotBlank()) {
-                dialog.dismiss()
-                postear(binding.root, title, description, userName)
+            val userNameProcessing = { u: String? ->
+                var userName = ""
+                u?.let { userName = it}
+                if (description.isNotBlank() && title.isNotBlank()) {
+                    dialog.dismiss()
+                    postear(binding.root, title, description, userName)
+                }
             }
+            database.getUserName(auth.currentUser!!.uid, userNameProcessing, {userNameProcessing(null)})
         }
-
     }
 
     private val openLoadMenu: (View) -> Unit = {
@@ -289,63 +291,77 @@ class ARTrackingTest: AppCompatActivity() {
         description: String,
         title: String
     ) {
-        var imagePath = ""
-        // Crear una referencia al archivo en Storage (puedes usar un nombre único para cada imagen)
-        CoroutineScope(Dispatchers.Main).launch {
-           imagePath = doesFileExist(title)
-        }
-        val imageRef = Storage_ref.child(imagePath)
-
-        val byteArray = takeScreenshot(view)
-
-
-        // Subir la imagen a Storage
-        imageRef.putBytes(byteArray)
-            .addOnSuccessListener { taskSnapshot ->
-                // La imagen se ha cargado con éxito, obtén la URL de descarga
-                imageRef.downloadUrl.addOnSuccessListener { uri ->
-                    val downloadUrl = uri.toString()
-
-                    //Creo y envio post a Firestore Database
-                    database.crearPost(downloadUrl, description, title, userName)
+        CoroutineScope(Dispatchers.IO).launch {
+            var imagePath = ""
+            var i = 1
+            var searching = true
+            while (searching) {
+                imagePath = "postPictures/${title}_${i}.jpg"
+                try {
+                    Storage_ref.child(imagePath).downloadUrl.await()
+                    i++
+                }
+                catch (e: Exception) {
+                    searching = false
                 }
             }
-            .addOnFailureListener { exception ->
-                // Handle errors
-            }
 
+            val imageRef = Storage_ref.child(imagePath)
+            takeScreenshot(view) { byteArray ->
+                // Subir la imagen a Storage
+                imageRef.putBytes(byteArray)
+                    .addOnSuccessListener { taskSnapshot ->
+                        // La imagen se ha cargado con éxito, obtén la URL de descarga
+                        imageRef.downloadUrl.addOnSuccessListener { uri ->
+                            val downloadUrl = uri.toString()
+
+                            //Creo y envio post a Firestore Database
+                            database.crearPost(downloadUrl, description, title, userName)
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        // Handle errors
+                    }
+            }
+        }
     }
 
     /**
      * Muestra solamente el ArSceneView para que se pueda tomar una buena imagen.*/
-    private fun takeScreenshot(view: View): ByteArray{
-        binding.linearLayout2.isVisible = false
-        binding.productHotbar.isVisible = false
-        binding.linearLayout.isVisible = false
-        binding.linearLayout3.isVisible = false
+    private suspend fun takeScreenshot(view: View, callback: (ByteArray) -> Unit) {
+        CoroutineScope(Dispatchers.Main).launch {
+            binding.linearLayout2.isVisible = false
+            binding.productHotbar.isVisible = false
+            binding.linearLayout.isVisible = false
+            binding.linearLayout3.isVisible = false
 
-        // Obtener la Uri de la imagen local en tu dispositivo
-        view.isDrawingCacheEnabled = true
-        view.buildDrawingCache(true)
-        val bitMapImagen = Bitmap.createBitmap(view.drawingCache)
-        view.isDrawingCacheEnabled = false
+            CoroutineScope(Dispatchers.IO).launch {
 
-        // Convertir el bitMapImagen a un ByteArrayOutputStream
-        val byteArrayOutputStream = ByteArrayOutputStream()
+                delay(1000)
 
-        // Comprimir el Bitmap en formato JPEG con calidad del 100% (puedes ajustar la calidad según tus necesidades)
-        bitMapImagen.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+                // Obtener la Uri de la imagen local en tu dispositivo
+                view.isDrawingCacheEnabled = true
+                view.buildDrawingCache(true)
+                val bitMapImagen = Bitmap.createBitmap(view.drawingCache)
+                view.isDrawingCacheEnabled = false
 
-        // Convertir el ByteArrayOutputStream a un arreglo de bytes
-        val byteArray = byteArrayOutputStream.toByteArray()
+                // Convertir el bitMapImagen a un ByteArrayOutputStream
+                val byteArrayOutputStream = ByteArrayOutputStream()
 
-        binding.linearLayout2.isVisible = true
-        binding.productHotbar.isVisible = true
-        binding.linearLayout.isVisible = true
-        binding.linearLayout3.isVisible = true
+                // Comprimir el Bitmap en formato JPEG con calidad del 100% (puedes ajustar la calidad según tus necesidades)
+                bitMapImagen.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
 
-        return byteArray
-
+                // Convertir el ByteArrayOutputStream a un arreglo de bytes
+                val byteArray = byteArrayOutputStream.toByteArray()
+                CoroutineScope(Dispatchers.Main).launch {
+                    binding.linearLayout2.isVisible = true
+                    binding.productHotbar.isVisible = true
+                    binding.linearLayout.isVisible = true
+                    binding.linearLayout3.isVisible = true
+                }
+                callback(byteArray)
+            }
+        }
     }
 
 
