@@ -10,9 +10,6 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import android.graphics.Canvas
-import android.graphics.Color
-import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -36,6 +33,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
+import android.os.Handler
+import android.os.HandlerThread
+import android.os.Looper
+import android.util.Log
+import android.view.PixelCopy
+import androidx.annotation.RequiresApi
+import androidx.fragment.app.findFragment
+import androidx.lifecycle.coroutineScope
+import kotlinx.coroutines.withContext
 
 
 class ARTrackingTest: AppCompatActivity() {
@@ -311,60 +317,98 @@ class ARTrackingTest: AppCompatActivity() {
 
             val imageRef = Storage_ref.child(imagePath)
             takeScreenshot(binding.sceneView) { byteArray ->
-                // Subir la imagen a Storage
-                imageRef.putBytes(byteArray)
-                    .addOnSuccessListener { taskSnapshot ->
-                        // La imagen se ha cargado con éxito, obtén la URL de descarga
-                        imageRef.downloadUrl.addOnSuccessListener { uri ->
-                            val downloadUrl = uri.toString()
 
-                            //Creo y envio post a Firestore Database
-                            database.crearPost(downloadUrl, description, title, userName)
+                if(byteArray != null){
+                    // Subir la imagen a Storage
+                    imageRef.putBytes(byteArray)
+                        .addOnSuccessListener { taskSnapshot ->
+                            // La imagen se ha cargado con éxito, obtén la URL de descarga
+                            imageRef.downloadUrl.addOnSuccessListener { uri ->
+                                val downloadUrl = uri.toString()
+
+                                //Creo y envio post a Firestore Database
+                                database.crearPost(downloadUrl, description, title, userName)
+                            }
                         }
-                    }
-                    .addOnFailureListener { exception ->
-                        // Handle errors
-                    }
+                        .addOnFailureListener { exception ->
+                            // Handle errors
+                        }
+                }else{
+                    Log.e("IMAGEN", "takeScreenshot() devuelve null")
+                }
             }
         }
     }
 
     /**
      * Muestra solamente el ArSceneView para que se pueda tomar una buena imagen.*/
-    private suspend fun takeScreenshot(view: View, callback: (ByteArray) -> Unit) {
+    private suspend fun takeScreenshot(view: View, callback: (ByteArray?) -> Unit) {
 
         //NUEVO
-        view.doOnLayout {
-            binding.linearLayout2.isVisible = false
-            binding.productHotbar.isVisible = false
-            binding.linearLayout.isVisible = false
-            binding.linearLayout3.isVisible = false
+        /*
+        binding.linearLayout2.isVisible = false
+        binding.productHotbar.isVisible = false
+        binding.linearLayout.isVisible = false
+        binding.linearLayout3.isVisible = false
+         */
 
-            val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(bitmap)
-            val bgDrawable = view.background
-            if (bgDrawable != null) {
-                bgDrawable.draw(canvas)
-            } else {
-                canvas.drawColor(Color.WHITE)
+        binding.sceneView.lifecycle?.coroutineScope?.launch {
+            withContext(Dispatchers.IO){
+                // Crear un bitmap con el tamaño de la vista sceneView
+                val bitmap = Bitmap.createBitmap(
+                    binding.sceneView.width,
+                    binding.sceneView.height,
+                    Bitmap.Config.ARGB_8888
+                )
+/*
+                binding.linearLayout2.isVisible = true
+                binding.productHotbar.isVisible = true
+                binding.linearLayout.isVisible = true
+                binding.linearLayout3.isVisible = true
+
+ */
+
+                // Utilizar PixelCopy para copiar la vista sceneView al bitmap
+                PixelCopy.request(
+                    binding.sceneView, bitmap, { result ->
+                        if (result == PixelCopy.SUCCESS) {
+                            // Devolver el bitmap a través del callback
+                            // Convertir el bitmap a un arreglo de bytes después de que PixelCopy ha terminado
+                            val stream = ByteArrayOutputStream()
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+                            callback(stream.toByteArray())
+                        } else {
+                            // Si hay algún error, devolver null a través del callback
+                            callback(null)
+                        }
+                    },
+                    Handler(Looper.getMainLooper())
+                )
             }
-            view.draw(canvas)
-
-            val byteArrayOutputStream = ByteArrayOutputStream()
-
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
-
-            val byteArray = byteArrayOutputStream.toByteArray()
-
-
-            binding.linearLayout2.isVisible = true
-            binding.productHotbar.isVisible = true
-            binding.linearLayout.isVisible = true
-            binding.linearLayout3.isVisible = true
-
-
-            callback(byteArray)
         }
+
+        /*
+        val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+        val handlerThread = HandlerThread("PixelCopyThread")
+        handlerThread.start()
+
+        PixelCopy.request(binding.sceneView, bitmap, { copyResult ->
+            if (copyResult == PixelCopy.SUCCESS) {
+                val bitArray = bitmap.compress(Bitmap.CompressFormat.JPEG, 100, view.context.contentResolver.openOutputStream(view.context.contentResolver.insert()))
+                callback(bitmap)
+            } else {
+                callback(null)
+            }
+
+            handlerThread.quitSafely()
+        }, view.handler)
+        val byteArrayOutputStream = ByteArrayOutputStream()
+
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+
+        val byteArray = byteArrayOutputStream.toByteArray()
+
+         */
 
         /*Metodo Viejo
         CoroutineScope(Dispatchers.Main).launch {
