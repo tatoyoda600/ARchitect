@@ -10,6 +10,9 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import android.graphics.Canvas
+import android.graphics.Color
+import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -307,7 +310,7 @@ class ARTrackingTest: AppCompatActivity() {
             }
 
             val imageRef = Storage_ref.child(imagePath)
-            takeScreenshot(view) { byteArray ->
+            takeScreenshot(binding.sceneView) { byteArray ->
                 // Subir la imagen a Storage
                 imageRef.putBytes(byteArray)
                     .addOnSuccessListener { taskSnapshot ->
@@ -329,6 +332,41 @@ class ARTrackingTest: AppCompatActivity() {
     /**
      * Muestra solamente el ArSceneView para que se pueda tomar una buena imagen.*/
     private suspend fun takeScreenshot(view: View, callback: (ByteArray) -> Unit) {
+
+        //NUEVO
+        view.doOnLayout {
+            binding.linearLayout2.isVisible = false
+            binding.productHotbar.isVisible = false
+            binding.linearLayout.isVisible = false
+            binding.linearLayout3.isVisible = false
+
+            val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            val bgDrawable = view.background
+            if (bgDrawable != null) {
+                bgDrawable.draw(canvas)
+            } else {
+                canvas.drawColor(Color.WHITE)
+            }
+            view.draw(canvas)
+
+            val byteArrayOutputStream = ByteArrayOutputStream()
+
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+
+            val byteArray = byteArrayOutputStream.toByteArray()
+
+
+            binding.linearLayout2.isVisible = true
+            binding.productHotbar.isVisible = true
+            binding.linearLayout.isVisible = true
+            binding.linearLayout3.isVisible = true
+
+
+            callback(byteArray)
+        }
+
+        /*Metodo Viejo
         CoroutineScope(Dispatchers.Main).launch {
             binding.linearLayout2.isVisible = false
             binding.productHotbar.isVisible = false
@@ -337,7 +375,7 @@ class ARTrackingTest: AppCompatActivity() {
 
             CoroutineScope(Dispatchers.IO).launch {
 
-                delay(1000)
+               delay(1000)
 
                 // Obtener la Uri de la imagen local en tu dispositivo
                 view.isDrawingCacheEnabled = true
@@ -362,6 +400,7 @@ class ARTrackingTest: AppCompatActivity() {
                 callback(byteArray)
             }
         }
+         */
     }
 
 
