@@ -70,7 +70,7 @@ class ProfileFragment: Fragment() {
             if (address.isNullOrEmpty()) address = ""
             binding.profileDirectionTextView.text = "Direccion: ${address}"
             Glide.with(requireContext())
-            .load(it?.profileImageUrl)
+            .load(it?.photoURL)
             .apply(RequestOptions().placeholder(R.drawable.profile_pic).transform(CircleCrop()))
             .into(binding.profileUserPicImageView)
         })
