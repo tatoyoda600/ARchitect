@@ -23,11 +23,4 @@
         android:title="@string/catalogue"
         android:icon="@drawable/catalogue_icon"/>
 
-    <item
-        android:id="@+id/AR_Model"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:title="Ver Modelo"
-        android:icon="@drawable/img"
-        />
 </menu>

@@ -3,39 +3,43 @@ package com.pfortbe22bgrupo2.architectapp.entities
 import android.os.Parcel
 import android.os.Parcelable
 
-class Product(name: String?, description: String?, price: Double?, imageUrl: Int, category: String?, stock: Int?) : Parcelable {
-    var name: String = ""
-    var description: String = ""
-    var price: Double = 0.0
-    var imageUrl: Int = 0
-    var category: String = ""
-    var stock: Int = 0
+class Product(
+    var name: String,
+    var category: String,
+    var description: String,
+    var price: Double,
+    var imageUrl: String,
+    var tag: String,
+    var stock: Int,
+    var link: String,
+    var scale: Float,
+    var allowWalls: Boolean
+) : Parcelable {
 
     constructor(parcel: Parcel) : this(
-        parcel.readString(),
-        parcel.readString(),
+        parcel.readString()?: "",
+        parcel.readString()?: "",
+        parcel.readString()?: "",
         parcel.readDouble() ,
+        parcel.readString()?: "",
+        parcel.readString()?: "",
         parcel.readInt(),
-        parcel.readString(),
-        parcel.readInt()
+        parcel.readString()?: "",
+        parcel.readFloat(),
+        parcel.readInt() > 0
     )
-
-    init {
-        this.name = name!!
-        this.description = description!!
-        this.price = price!!
-        this.imageUrl = imageUrl!!
-        this.category = category!!
-        this.stock = stock!!
-    }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(name)
+        parcel.writeString(category)
         parcel.writeString(description)
         parcel.writeDouble(price)
-        parcel.writeInt(imageUrl)
-        parcel.writeString(category)
+        parcel.writeString(imageUrl)
+        parcel.writeString(tag)
         parcel.writeInt(stock)
+        parcel.writeString(link)
+        parcel.writeFloat(scale)
+        parcel.writeInt(if (allowWalls) 1 else -1)
     }
 
     override fun describeContents(): Int {
@@ -52,10 +56,3 @@ class Product(name: String?, description: String?, price: Double?, imageUrl: Int
         }
     }
 }
-
-
-/*
-*
-*
-*
-* */

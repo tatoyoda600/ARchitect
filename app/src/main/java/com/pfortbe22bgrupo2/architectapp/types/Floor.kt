@@ -9,6 +9,8 @@ class Floor(
 ) {
     constructor(): this(mutableMapOf(), Int.MAX_VALUE)
 
+    constructor(grid: MutableMap<Int, MutableMap<Int, CellState>>): this(grid, Int.MAX_VALUE)
+
     enum class CellState {
         UNKNOWN,
         EMIT_EDGE,
@@ -20,7 +22,6 @@ class Floor(
      *
      * By default adds a receiving edge, but can add an emitting edge. */
     fun addPoint(x: Int, z: Int, emitEdge: Boolean = false) {
-        Log.e("POINT", "ADD POINT")
         grid.getOrPut(x) {mutableMapOf()}
             .getOrPut(z) { if (emitEdge) CellState.EMIT_EDGE else CellState.RECEIVE_EDGE }
 
@@ -31,20 +32,20 @@ class Floor(
 
     /** Analyzes the registered emitting and receiving edges to try and fill in gaps in the grid. */
     suspend fun fillFloor() {
-        Log.e("FILL", "Started floor algorithm")
-        val maxX = grid.keys.max()
-        val xKeys = grid.keys.toSet()
-        for (x in xKeys) {
-            val zKeys = grid.get(x)?.keys?.toSet()
-            for (z in zKeys?: mutableSetOf()) {
-                val state: CellState? = grid.get(x)?.get(z)
-                if (state == CellState.EMIT_EDGE || state == CellState.RECEIVE_EDGE) {
-                    Log.e("FILL", "Start at (${x}, ${z})")
-                    if (recursiveFill(x + 1, z, maxX, state)) {
-                        grid.get(x)?.put(z, CellState.FILLED)
+        if (grid.keys.size > 0) {
+            val maxX = grid.keys.max()
+            val xKeys = grid.keys.toSet()
+            for (x in xKeys) {
+                val zKeys = grid.get(x)?.keys?.toSet()
+                for (z in zKeys?: mutableSetOf()) {
+                    val state: CellState? = grid.get(x)?.get(z)
+                    if (state == CellState.EMIT_EDGE || state == CellState.RECEIVE_EDGE) {
+                        if (recursiveFill(x + 1, z, maxX, state)) {
+                            grid.get(x)?.put(z, CellState.FILLED)
+                        }
                     }
+                    delay(10)
                 }
-                delay(10)
             }
         }
     }
@@ -57,7 +58,6 @@ class Floor(
     private suspend fun recursiveFill(x: Int, z: Int, maxX: Int, startState: CellState): Boolean {
         delay(10)
         if (x > maxX) {
-            Log.d("RECURSIVE", "Past max X")
             return false
         }
 
@@ -69,12 +69,10 @@ class Floor(
                 )
             )
         ) {
-            Log.d("RECURSIVE", "End at (${x}, ${z})")
             return true
         }
 
         if (recursiveFill(x + 1, z, maxX, startState)) {
-            Log.d("RECURSIVE", "Set filled (${x}, ${z})")
             grid.getOrPut(x) {mutableMapOf()}
                 .put(z, CellState.FILLED)
             return true

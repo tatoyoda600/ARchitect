@@ -53,6 +53,7 @@
                 android:layout_height="50dp"
                 android:layout_gravity="center"
                 android:background="@drawable/input_text"
+                android:inputType="text"
                 />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -70,7 +71,8 @@
                 android:layout_gravity="center"
                 android:background="@drawable/input_text"
                 android:hint="@string/email"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:inputType="textEmailAddress"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout

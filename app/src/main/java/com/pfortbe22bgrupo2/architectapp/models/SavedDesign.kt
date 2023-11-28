@@ -4,7 +4,10 @@ import android.os.Parcel
 import android.os.Parcelable
 
 class SavedDesign(description: String?): Parcelable {
-    var description: String = ""
+    var id: String = ""
+    var name: String = ""
+    var image: String = ""
+    var userId: String = ""
 
 
     constructor(parcel: Parcel) : this(
@@ -13,11 +16,12 @@ class SavedDesign(description: String?): Parcelable {
     constructor() : this("")
 
     init {
-        this.description = description!!
+        this.name = description!!
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(description)
+        parcel.writeString(name)
+        parcel.writeString(image)
     }
 
     override fun describeContents(): Int {
