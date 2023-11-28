@@ -32,7 +32,9 @@ class SignUpViewModel: ViewModel() {
             "id" to userUid,
             "isAdmin" to false,
             "address" to null,
-            "phoneNumber" to null
+            "phoneNumber" to null,
+            "displayName" to userName,
+            "photoURL" to "https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg"
         )
         db.collection("users").document(userUid).set(user)
     }

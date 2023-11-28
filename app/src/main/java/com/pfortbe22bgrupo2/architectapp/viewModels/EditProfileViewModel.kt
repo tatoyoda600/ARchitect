@@ -41,7 +41,7 @@ class EditProfileViewModel: ViewModel() {
                     val email = document.data?.get("email") as? String
                     val address = document.data?.get("address") as? String
                     val phone = document.data?.get("phoneNumber") as? String
-                    val uri = document.data?.get("profileImageUrl") as String
+                    val uri = document.data?.get("photoURL") as String
                     val isAdmin = document.data?.get("isAdmin") as? Boolean
 
                     val data = UserProfileData(userName,email,address,phone,uri,isAdmin)
@@ -65,7 +65,7 @@ class EditProfileViewModel: ViewModel() {
                 storageReference.downloadUrl.addOnSuccessListener { uri ->
                     val imageUrl = uri.toString()
                     val docRef = db.collection("users").document(currentUser.uid)
-                    docRef.update("profileImageUrl", imageUrl)
+                    docRef.update("photoURL", imageUrl)
                     fetchUserData()
                 }
             }
@@ -87,7 +87,7 @@ class EditProfileViewModel: ViewModel() {
                 storageReference.downloadUrl.addOnSuccessListener { uri ->
                     val imageUrl = uri.toString()
                     val docRef = db.collection("users").document(currentUser.uid)
-                    docRef.update("profileImageUrl", imageUrl)
+                    docRef.update("photoURL", imageUrl)
                     fetchUserData()
                 }
             }

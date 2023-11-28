@@ -95,7 +95,7 @@ class EditProfileFragment: Fragment() {
             editProfileViewModel.currentUserData.observe(this, Observer {
                 //VER QUE SE CARGUE MAS RAPIDO O EL PROGRES BAR
                 binding.progressBar.visibility = View.VISIBLE
-                Glide.with(requireContext()).load(it?.profileImageUrl).into(binding.editUserPicImageView)
+                Glide.with(requireContext()).load(it?.photoURL).into(binding.editUserPicImageView)
                 binding.progressBar.visibility = View.GONE
             })
 
@@ -106,7 +106,7 @@ class EditProfileFragment: Fragment() {
 
         editProfileViewModel.uploadImageFromCamara(imageBitmap)
         editProfileViewModel.currentUserData.observe(this, Observer {
-            Glide.with(requireContext()).load(it?.profileImageUrl).apply(RequestOptions().placeholder(R.drawable.profile_pic)).into(binding.editUserPicImageView)
+            Glide.with(requireContext()).load(it?.photoURL).apply(RequestOptions().placeholder(R.drawable.profile_pic)).into(binding.editUserPicImageView)
         })
 
     }
@@ -159,7 +159,7 @@ class EditProfileFragment: Fragment() {
             if (address.isNullOrEmpty()) address = ""
             binding.addressEditEditText.text = Editable.Factory.getInstance().newEditable(address)
             Glide.with(requireContext())
-                .load(it?.profileImageUrl)
+                .load(it?.photoURL)
                 .apply(RequestOptions().placeholder(R.drawable.profile_pic).transform(CircleCrop()))
                 .into(binding.editUserPicImageView)
         })
