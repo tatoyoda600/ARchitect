@@ -18,7 +18,7 @@
     <string name="login">Iniciar Sesión</string>
     <string name="login_fragment">Log In</string>
     <string name="saved_design">Diseños Guardados</string>
-    <string name="custom_wall">Paredes Custom Guardados</string>
+    <string name="custom_wall">Paredes Custom Guardadas</string>
     <string name="email">Email</string>
     <string name="user_name">Nombre de Usuario</string>
     <string name="password">Contraseña</string>
@@ -38,8 +38,24 @@
     <string name="HomeFragment">Home Page</string>
     <string name="hello_view_node">Hello ViewNode</string>
     <string name="put">Colocar</string>
-    <string name="rescan_floor">Rescan</string>
-    <string name="confirm_floor">Confirm</string>
+
+    <string name="rescan_floor">Reiniciar</string>
+    <string name="confirm_floor">Rellenar</string>
+    <string name="cancel_place">Cancelar</string>
+    <string name="confirm_place">Ubicar</string>
+    <string name="save_floor">Guardar</string>
+    <string name="load_floor">Cargar</string>
+    <string name="floor_list">Pisos</string>
+    <string name="design_list">Diseños</string>
+    <string name="save_floor_popup_title">Guardar Piso</string>
+    <string name="save_floor_popup_yes">Guardar</string>
+    <string name="save_floor_popup_no">Cancelar</string>
+    <string name="save_design_popup_title">Guardar Diseño</string>
+    <string name="save_design_popup_yes">Guardar</string>
+    <string name="save_design_popup_no">Cancelar</string>
+    <string name="post_btn">Postear</string>
+    <string name="post_title">Ingrese los datos del Post</string>
+
     <string name="products_text">Productos</string>
     <string name="greetings">¡Hola!</string>
     <string name="subtitle_login">Nos alegra que hayas vuelto!</string>
@@ -59,4 +75,9 @@
     <string name="new_password">Contraseña Nueva</string>
     <string name="confirm_change_password">Cambiar Contraseña</string>
     <string name="edit_change_password">Cambiar mi Contraseña</string>
+    <string name="no_saved_design_yet">No tiene diseños guardados aun</string>
+    <string name="no_custom_walls_yet">No tiene paredes guardadas aun</string>
+    <string name="remove_from_db_prod_title">Eliminar de BD</string>
+    <string name="remove_from_db_prod_text">¿Estás seguro de que deseas eliminar este producto de la BD?</string>
+    <string name="todos">Todos</string>
 </resources>

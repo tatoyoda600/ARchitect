@@ -10,10 +10,8 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentForgotPasswordBinding
+import com.pfortbe22bgrupo2.architectapp.listeners.AuthResultListener
 import com.pfortbe22bgrupo2.architectapp.viewModels.ForgotPasswordViewModel
 
 class ForgotPasswordFragment : Fragment() {
@@ -22,16 +20,15 @@ class ForgotPasswordFragment : Fragment() {
         fun newInstance() = ForgotPasswordFragment()
     }
 
-    private lateinit var viewModel: ForgotPasswordViewModel
+    private lateinit var forgotPasswordViewModel: ForgotPasswordViewModel
     lateinit var binding: FragmentForgotPasswordBinding
-    private lateinit var auth: FirebaseAuth
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentForgotPasswordBinding.inflate(inflater,container,false)
-        auth = Firebase.auth
+        forgotPasswordViewModel = ViewModelProvider(this).get(ForgotPasswordViewModel::class.java)
         return binding.root
     }
 
@@ -53,20 +50,15 @@ class ForgotPasswordFragment : Fragment() {
 
     private fun sendChangePasswordEmail() {
         val emailAddress = binding.resetPasswordEmailEditText.text.toString()
-        auth.sendPasswordResetEmail(emailAddress)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Log.d(TAG, "Email sent.")
-                    Toast.makeText(requireActivity(), "Email enviado, verifica tu casilla", Toast.LENGTH_LONG).show()
-                    goToLoginFragment()
-                }
+        forgotPasswordViewModel.sendPasswordResetEmail(emailAddress, object : AuthResultListener{
+            override fun onAuthSuccess() {
+                Toast.makeText(requireActivity(), "Email enviado, verifica tu casilla", Toast.LENGTH_LONG).show()
+                goToLoginFragment()
             }
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(ForgotPasswordViewModel::class.java)
-        // TODO: Use the ViewModel
+            override fun onAuthFailure(errorMessage: String) {
+                Log.d(TAG, errorMessage)
+            }
+        })
     }
 
 }

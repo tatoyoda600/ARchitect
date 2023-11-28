@@ -1,7 +1,6 @@
 package com.pfortbe22bgrupo2.architectapp.holders
 
 import android.view.View
-import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -20,8 +19,7 @@ class FurnitureHolder(binding: FurnitureItemBinding): RecyclerView.ViewHolder(bi
         binding.furnitureNameTextView.text = nombre
     }
 
-    fun setImageUrl(imageUrl : Int, context: View) {
-       // binding.itemImageViewId.setImageResource(imageUrl)
+    fun setImage(imageUrl: String, context: View){
         Glide.with(context).load(imageUrl).into(binding.itemImageViewId)
     }
 

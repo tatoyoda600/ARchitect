@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentLoginBinding
+import com.pfortbe22bgrupo2.architectapp.listeners.AuthResultListener
 import com.pfortbe22bgrupo2.architectapp.viewModels.LoginViewModel
 
 class LoginFragment: Fragment() {
@@ -23,7 +24,7 @@ class LoginFragment: Fragment() {
         fun newInstance() = LoginFragment()
     }
 
-    private lateinit var viewModel: LoginViewModel
+    private lateinit var loginViewModel: LoginViewModel
     private lateinit var binding: FragmentLoginBinding
     private lateinit var auth: FirebaseAuth
 
@@ -33,6 +34,7 @@ class LoginFragment: Fragment() {
     ): View? {
         binding = FragmentLoginBinding.inflate(inflater, container,false)
         auth = Firebase.auth
+        loginViewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
         return binding.root
     }
 
@@ -74,27 +76,25 @@ class LoginFragment: Fragment() {
     private fun loginUser() {
         val email = binding.logingEmailEditText.text.toString()
         val password = binding.loginPasswordEditText.text.toString()
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener(requireActivity()) { task ->
-                if (task.isSuccessful) {
-                    Log.d(TAG, "signInWithEmail:success")
-                    //val user = auth.currentUser
-                    goToCatalogoActivity()
-                } else {
-                    Log.w(TAG, "signInWithEmail:failure", task.exception)
-                    Toast.makeText(requireActivity(), "Email o Contraseñas incorrectas", Toast.LENGTH_SHORT).show()
-                }
-            }
-    }
 
-    private fun goToCatalogoActivity() {
+        loginViewModel.loginUser(email,password,object : AuthResultListener{
+            override fun onAuthSuccess() {
+                Log.d(TAG, "signInWithEmail:success")
+                goToCatalogueActivity()
+            }
+
+            override fun onAuthFailure(errorMessage: String) {
+                Log.w(TAG, "signInWithEmail:failure")
+                Toast.makeText(requireActivity(), errorMessage, Toast.LENGTH_SHORT).show()
+            }
+
+        })
+    }
+    
+    private fun goToCatalogueActivity() {
         val action = LoginFragmentDirections.actionLoginFragmentToCatalogoActivity()
         findNavController().navigate(action)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
-        // TODO: Use the ViewModel
-    }
+
 }

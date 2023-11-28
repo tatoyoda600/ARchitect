@@ -1,21 +1,25 @@
 package com.pfortbe22bgrupo2.architectapp.fragments
 
-import android.content.Context
+
+//import com.pfortbe22bgrupo2.architectapp.models.Furniture
+//import com.pfortbe22bgrupo2.architectapp.viewModels.CatalogueDetailsViewModel
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.pfortbe22bgrupo2.architectapp.activities.CatalogueActivity
 import com.pfortbe22bgrupo2.architectapp.adapters.FurnitureAdapter
-import com.pfortbe22bgrupo2.architectapp.data.FurnitureList
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentCatalogueBinding
+import com.pfortbe22bgrupo2.architectapp.entities.FurnitureModelData
 import com.pfortbe22bgrupo2.architectapp.listeners.ShowDetailsFurniture
-import com.pfortbe22bgrupo2.architectapp.models.Furniture
 import com.pfortbe22bgrupo2.architectapp.viewModels.CatalogueViewModel
+
 
 
 class CatalogueFragment: Fragment(), ShowDetailsFurniture {
@@ -23,11 +27,14 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
         fun newInstance() = CatalogueFragment()
     }
 
-    private lateinit var viewModel: CatalogueViewModel
+
+    private lateinit var furnitures: MutableList<FurnitureModelData>
+
+
+    lateinit var viewModel: CatalogueViewModel
 
     private lateinit var binding: FragmentCatalogueBinding
     private lateinit var furnitureAdapter: FurnitureAdapter
-    private var furnitures: FurnitureList = FurnitureList()
     private lateinit var linearLayoutManager: LinearLayoutManager
 
     override fun onCreateView(
@@ -35,65 +42,99 @@ class CatalogueFragment: Fragment(), ShowDetailsFurniture {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentCatalogueBinding.inflate(inflater, container,false)
+        viewModel = (activity as CatalogueActivity).tuViewModel
         initFilter()
+
         return binding.root
     }
 
     override fun onStart() {
         super.onStart()
-        initRecyclerView()
+        loadData()
         finishFiltering()
     }
 
     private fun initFilter(){
+        binding.homeFilterButton.setOnClickListener{
+            viewModel.loadFurnitureList()
+        }
         binding.livingFilterButton.setOnClickListener{
-            filterDataByCategory("living")
+            filterDataByTag("living")
             startFiltering()
         }
         binding.roomFilterButton.setOnClickListener {
-            filterDataByCategory("habitacion")
+
+            filterDataByTag("habitacion")
             startFiltering()
         }
         binding.kitchenFilterButton.setOnClickListener {
-            filterDataByCategory("cocina")
+
+            filterDataByTag("cocina")
             startFiltering()
         }
         binding.bathroomFilterButton.setOnClickListener {
-            filterDataByCategory("baño")
+            filterDataByTag("baño")
             startFiltering()
         }
         binding.diningroomFilterButton.setOnClickListener {
-            filterDataByCategory("comedor")
+            filterDataByTag("comedor")
             startFiltering()
         }
         binding.outsideFilterButton.setOnClickListener {
-            filterDataByCategory("exterior")
+
+            filterDataByTag("exterior")
             startFiltering()
         }
     }
 
+
+   private fun loadData() {
+       val loadingCircle = binding.loadingView
+       viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+           if (!isLoading) {
+               loadingCircle.isVisible = false
+               viewModel.furnitureOptions.observe(viewLifecycleOwner) { furnitureList ->
+                   if (furnitureList.isNotEmpty()) {
+                       this.furnitures = furnitureList.toMutableList()
+                       initRecyclerView()
+                   }
+               }
+           }
+           else{
+               loadingCircle.isVisible = true
+           }
+       }
+    }
+
+
     private fun initRecyclerView(){
         binding.catalogueRecyclerView.setHasFixedSize(true)
-        furnitureAdapter = FurnitureAdapter(context, furnitures.furnitures, this)
+        binding.catalogueRecyclerView.layoutManager = LinearLayoutManager(context)
+        furnitureAdapter = FurnitureAdapter(this.furnitures, this)
         linearLayoutManager = LinearLayoutManager(context)
         binding.catalogueRecyclerView.layoutManager = linearLayoutManager
         binding.catalogueRecyclerView.adapter = furnitureAdapter
     }
 
 
-    private fun filterDataByCategory(category:String) {
-        val filteredList = furnitures.furnitures.filter{ item -> item.category.lowercase() == category.lowercase() }
-        furnitureAdapter.updatesFurnitures(filteredList)
+    private fun filterDataByTag(tag:String) {
+
+        viewModel.filterFurnitureByTag(tag)
+        viewModel.furnitureOptions.observe(viewLifecycleOwner, Observer {
+            furnitureAdapter.updatesFurnitures(it)
+        })
+
+
     }
 
-    override fun showDetails(furniture: Furniture) {
+    override fun showDetails(furniture: FurnitureModelData) {
         val action = CatalogueFragmentDirections.actionCatalogueFragmentToDetailsFragment(furniture)
         this.findNavController().navigate(action)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(CatalogueViewModel::class.java)
+//        viewModel = ViewModelProvider(this).get(CatalogueDetailsViewModel::class.java)
         // TODO: Use the ViewModel
     }
 
