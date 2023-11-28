@@ -224,7 +224,7 @@ class ARTrackingTest: AppCompatActivity() {
                 u?.let { userName = it}
                 if (description.isNotBlank() && title.isNotBlank()) {
                     dialog.dismiss()
-                    postear(binding.root, title, description, userName)
+                    postear(title, description, userName)
                 }
             }
             database.getUserName(auth.currentUser!!.uid, userNameProcessing, {userNameProcessing(null)})
@@ -280,22 +280,17 @@ class ARTrackingTest: AppCompatActivity() {
 
     /** Creates a Post and sends it to the Firestore Database. */
     fun postear(
-        view: View,
         title: String,
         description: String,
         userName: String
     ) {
-//        setPaused(true)
         CoroutineScope(Dispatchers.IO).launch {
             // The camera's -X rotation is its yaw rotation
-            hacerScreenshot(view, userName, description, title)
-
-//            setPaused(false)
+            hacerScreenshot(userName, description, title)
         }
     }
 
     private fun hacerScreenshot(
-        view: View,
         userName: String,
         description: String,
         title: String
@@ -316,7 +311,7 @@ class ARTrackingTest: AppCompatActivity() {
             }
 
             val imageRef = Storage_ref.child(imagePath)
-            takeScreenshot(binding.sceneView) { byteArray ->
+            takeScreenshot() { byteArray ->
 
                 if(byteArray != null){
                     // Subir la imagen a Storage
@@ -342,15 +337,7 @@ class ARTrackingTest: AppCompatActivity() {
 
     /**
      * Muestra solamente el ArSceneView para que se pueda tomar una buena imagen.*/
-    private suspend fun takeScreenshot(view: View, callback: (ByteArray?) -> Unit) {
-
-        //NUEVO
-        /*
-        binding.linearLayout2.isVisible = false
-        binding.productHotbar.isVisible = false
-        binding.linearLayout.isVisible = false
-        binding.linearLayout3.isVisible = false
-         */
+    private suspend fun takeScreenshot(callback: (ByteArray?) -> Unit) {
 
         binding.sceneView.lifecycle?.coroutineScope?.launch {
             withContext(Dispatchers.IO){
@@ -360,13 +347,6 @@ class ARTrackingTest: AppCompatActivity() {
                     binding.sceneView.height,
                     Bitmap.Config.ARGB_8888
                 )
-/*
-                binding.linearLayout2.isVisible = true
-                binding.productHotbar.isVisible = true
-                binding.linearLayout.isVisible = true
-                binding.linearLayout3.isVisible = true
-
- */
 
                 // Utilizar PixelCopy para copiar la vista sceneView al bitmap
                 PixelCopy.request(
@@ -386,90 +366,5 @@ class ARTrackingTest: AppCompatActivity() {
                 )
             }
         }
-
-        /*
-        val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-        val handlerThread = HandlerThread("PixelCopyThread")
-        handlerThread.start()
-
-        PixelCopy.request(binding.sceneView, bitmap, { copyResult ->
-            if (copyResult == PixelCopy.SUCCESS) {
-                val bitArray = bitmap.compress(Bitmap.CompressFormat.JPEG, 100, view.context.contentResolver.openOutputStream(view.context.contentResolver.insert()))
-                callback(bitmap)
-            } else {
-                callback(null)
-            }
-
-            handlerThread.quitSafely()
-        }, view.handler)
-        val byteArrayOutputStream = ByteArrayOutputStream()
-
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
-
-        val byteArray = byteArrayOutputStream.toByteArray()
-
-         */
-
-        /*Metodo Viejo
-        CoroutineScope(Dispatchers.Main).launch {
-            binding.linearLayout2.isVisible = false
-            binding.productHotbar.isVisible = false
-            binding.linearLayout.isVisible = false
-            binding.linearLayout3.isVisible = false
-
-            CoroutineScope(Dispatchers.IO).launch {
-
-               delay(1000)
-
-                // Obtener la Uri de la imagen local en tu dispositivo
-                view.isDrawingCacheEnabled = true
-                view.buildDrawingCache(true)
-                val bitMapImagen = Bitmap.createBitmap(view.drawingCache)
-                view.isDrawingCacheEnabled = false
-
-                // Convertir el bitMapImagen a un ByteArrayOutputStream
-                val byteArrayOutputStream = ByteArrayOutputStream()
-
-                // Comprimir el Bitmap en formato JPEG con calidad del 100% (puedes ajustar la calidad según tus necesidades)
-                bitMapImagen.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
-
-                // Convertir el ByteArrayOutputStream a un arreglo de bytes
-                val byteArray = byteArrayOutputStream.toByteArray()
-                CoroutineScope(Dispatchers.Main).launch {
-                    binding.linearLayout2.isVisible = true
-                    binding.productHotbar.isVisible = true
-                    binding.linearLayout.isVisible = true
-                    binding.linearLayout3.isVisible = true
-                }
-                callback(byteArray)
-            }
-        }
-         */
-    }
-
-
-    /**
-     * Verifica que el path que se esta usando no este ya usado y sino le agrega un numero mas al final.
-     * */
-    private suspend fun doesFileExist(nameFile: String): String {
-
-        var i = 1
-        var path = ""
-
-        while (true) {
-            path = "postPictures/${nameFile}_${i}.jpg"
-            val storageRef = Storage_ref.child(path)
-
-            try {
-                storageRef.downloadUrl.await()
-                // El archivo existe, incrementa el índice y continúa iterando
-                i++
-            } catch (e: Exception) {
-                // El archivo no existe, se rompe el bucle
-                break
-            }
-        }
-
-        return path
     }
 }

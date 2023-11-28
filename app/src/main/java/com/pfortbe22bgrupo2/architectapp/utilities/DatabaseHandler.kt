@@ -528,19 +528,12 @@ class DatabaseHandler(context: Context) {
             "description" to description,
             "title" to title,
             "user" to user,
+            "userId" to userId,
             "image" to downloadUrl,
             "likesCount" to 0
         )
-
+        //Agrego los campos al nuevo doc
         newDocumentRef.set(data)
-            .addOnSuccessListener {
-                // La creación del documento fue exitosa
-
-                // Ahora, agregar una subcolección al documento
-                newDocumentRef.collection("comments")
-
-                newDocumentRef.collection("likes")
-            }
     }
 
     fun getUserName(
