@@ -53,6 +53,8 @@
     <string name="save_design_popup_title">Guardar Diseño</string>
     <string name="save_design_popup_yes">Guardar</string>
     <string name="save_design_popup_no">Cancelar</string>
+    <string name="post_btn">Postear</string>
+    <string name="post_title">Ingrese los datos del Post</string>
 
     <string name="products_text">Productos</string>
     <string name="greetings">¡Hola!</string>

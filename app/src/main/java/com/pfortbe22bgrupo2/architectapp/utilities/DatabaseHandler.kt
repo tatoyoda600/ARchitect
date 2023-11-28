@@ -35,7 +35,7 @@ class DatabaseHandler(context: Context) {
     private val designDao: DesignDao
     private val designProductsDao: DesignProductsDao
     private val firestore: FirebaseFirestore
-    private val userId: String
+    internal val userId: String
 
     init {
         database = AppDatabase.getAppDatabase(context)!!
@@ -506,6 +506,49 @@ class DatabaseHandler(context: Context) {
             .addOnFailureListener { err ->
                 Log.e("FIRESTORE", err.toString())
                 err.message?.let { Log.e("FIRESTORE", it) }
+            }
+    }
+
+    /**En este metodo se crea un post con todos sus campos y colecciones interiores
+     * @param downloadUrl: String de link para descarga de imagen post
+     * @param description: Descripcion de post
+     * @param title: Titulo de Post
+     * @param user: Nombre del usuario que hace el post*/
+    fun crearPost(downloadUrl: String, description: String, title: String, user: String) {
+        val collectionRef = firestore.collection("posts")
+        val newDocumentRef = collectionRef.document()
+
+        val data = hashMapOf(
+            "description" to description,
+            "title" to title,
+            "user" to user,
+            "userId" to userId,
+            "image" to downloadUrl,
+            "likesCount" to 0
+        )
+        //Agrego los campos al nuevo doc
+        newDocumentRef.set(data)
+    }
+
+    fun getUserName(
+        uid: String,
+        onSuccess: (String) -> Unit,
+        onFailure: () -> Unit)
+    {
+        val docRef = firestore.collection("users").document(uid)
+
+        docRef.get()
+            .addOnSuccessListener { document: DocumentSnapshot ->
+                val data = document.data
+                if (data != null) {
+                    val userName = data.get("userName").toString()
+                    onSuccess(userName)
+                }
+            }
+            .addOnFailureListener {err ->
+                Log.e("FIRESTORE", err.toString())
+                err.message?.let { Log.e("FIRESTORE", it) }
+                onFailure()
             }
     }
 
