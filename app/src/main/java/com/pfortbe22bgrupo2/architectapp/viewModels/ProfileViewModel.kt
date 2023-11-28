@@ -4,10 +4,12 @@ import android.content.ContentValues
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.pfortbe22bgrupo2.architectapp.entities.UserProfileData
+import kotlinx.coroutines.launch
 
 
 class ProfileViewModel: ViewModel() {
@@ -15,7 +17,7 @@ class ProfileViewModel: ViewModel() {
 
     private val db = Firebase.firestore
     private val auth = Firebase.auth
-    private val currentUser = auth.currentUser!!
+    private var currentUser = auth.currentUser!!
 
     val currentUserData = MutableLiveData<UserProfileData?>()
 
@@ -45,9 +47,10 @@ class ProfileViewModel: ViewModel() {
     }
 
     fun deleteUser() {
-        deleteUserFromAuth()
-        deleteUserFromFirestore()
-
+        viewModelScope.launch(){
+            deleteUserFromAuth()
+            deleteUserFromFirestore()
+        }
     }
 
     private fun deleteUserFromAuth() {

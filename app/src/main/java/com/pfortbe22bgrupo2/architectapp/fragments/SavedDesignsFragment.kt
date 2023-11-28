@@ -8,13 +8,16 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.pfortbe22bgrupo2.architectapp.adapters.SavedDesignFiresstoreAdapter
+import com.pfortbe22bgrupo2.architectapp.adapters.SavedDesignFirestoreAdapter
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentDesignsSavedBinding
 import com.pfortbe22bgrupo2.architectapp.listeners.DeleteUserSavedDesign
+import com.pfortbe22bgrupo2.architectapp.listeners.ShowSavedDesign
+import com.pfortbe22bgrupo2.architectapp.models.SavedDesign
 import com.pfortbe22bgrupo2.architectapp.viewModels.SavedDesignsViewModel
 
-class SavedDesignsFragment : Fragment(), DeleteUserSavedDesign {
+class SavedDesignsFragment : Fragment(), DeleteUserSavedDesign, ShowSavedDesign {
 
     companion object {
         fun newInstance() = SavedDesignsFragment()
@@ -50,7 +53,7 @@ class SavedDesignsFragment : Fragment(), DeleteUserSavedDesign {
                 binding.savedDesignRecyclerView.visibility = View.GONE
                 binding.emptySavedDesignTextView.visibility = View.VISIBLE
             } else {
-                val adapter = SavedDesignFiresstoreAdapter(designsList, this)
+                val adapter = SavedDesignFirestoreAdapter(designsList, this, this)
                 binding.savedDesignRecyclerView.adapter = adapter
                 adapter.startListening()
             }
@@ -65,6 +68,12 @@ class SavedDesignsFragment : Fragment(), DeleteUserSavedDesign {
             savedDesignViewModel.deleteSavedDesign(savedDesignId)
         }
         builder.create().show()
+    }
+
+
+    override fun showSavedDesign(savedDesign: SavedDesign) {
+        val action = DesignWallContainerFragmentDirections.actionDesignWallContainerFragmentToSavedDesignDetailsFragment(savedDesign)
+        findNavController().navigate(action)
     }
 
 }

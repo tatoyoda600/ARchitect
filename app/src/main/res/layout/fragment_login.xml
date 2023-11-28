@@ -70,7 +70,8 @@
                 android:layout_weight="1"
                 android:background="@drawable/input_text"
                 android:hint="@string/email"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:inputType="text"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 

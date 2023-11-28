@@ -22,9 +22,9 @@
     </fragment>
     <activity
         android:id="@+id/ARTrackingTest"
-        android:name="com.pfortbe22bgrupo2.architectapp.activities.ARTrackingTest"
+        android:name="com.pfortbe22bgrupo2.architectapp.activities.ARTrackingActivity"
         android:label="activity_artracking_test"
-        tools:layout="@layout/activity_artracking_test" />
+        tools:layout="@layout/activity_artracking" />
     <fragment
         android:id="@+id/detailsFragment"
         android:name="com.pfortbe22bgrupo2.architectapp.fragments.DetailsFragment"
@@ -35,7 +35,12 @@
             app:destination="@id/ARTrackingTest" />
         <argument
             android:name="furniture_element"
-            app:argType="com.pfortbe22bgrupo2.architectapp.models.Furniture" />
+            app:argType="com.pfortbe22bgrupo2.architectapp.entities.FurnitureModelData" />
+        <action
+            android:id="@+id/action_detailsFragment_to_catalogueFragment"
+            app:destination="@id/catalogueFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"/>
+
     </fragment>
     <fragment
         android:id="@+id/catalogueFragment"
@@ -55,7 +60,11 @@
         android:id="@+id/designWallContainerFragment"
         android:name="com.pfortbe22bgrupo2.architectapp.fragments.DesignWallContainerFragment"
         android:label="fragment_design_wall_container"
-        tools:layout="@layout/fragment_design_wall_container" />
+        tools:layout="@layout/fragment_design_wall_container" >
+        <action
+            android:id="@+id/action_designWallContainerFragment_to_savedDesignDetailsFragment"
+            app:destination="@id/savedDesignDetailsFragment" />
+    </fragment>
     <activity
         android:id="@+id/AR_Model"
         android:name="com.pfortbe22bgrupo2.architectapp.activities.AR_Model"
@@ -75,4 +84,13 @@
         android:name="com.pfortbe22bgrupo2.architectapp.fragments.ForgotPasswordFragment"
         android:label="fragment_forgot_password"
         tools:layout="@layout/fragment_forgot_password" />
+    <fragment
+        android:id="@+id/savedDesignDetailsFragment"
+        android:name="com.pfortbe22bgrupo2.architectapp.fragments.SavedDesignDetailsFragment"
+        android:label="fragment_saved_design_details"
+        tools:layout="@layout/fragment_saved_design_details" >
+        <argument
+            android:name="saved_design_selected"
+            app:argType="com.pfortbe22bgrupo2.architectapp.models.SavedDesign" />
+    </fragment>
 </navigation>

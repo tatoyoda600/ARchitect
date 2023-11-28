@@ -11,6 +11,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.pfortbe22bgrupo2.architectapp.entities.UserProfileData
+import com.pfortbe22bgrupo2.architectapp.listeners.AuthResultListener
 import java.io.ByteArrayOutputStream
 
 class EditProfileViewModel: ViewModel() {
@@ -57,9 +58,9 @@ class EditProfileViewModel: ViewModel() {
             }
     }
 
-    fun uploadImageFromGallery(imageUri: Uri) {
+    fun uploadImageFromGallery(imageUri: Uri, authResultListener: AuthResultListener) {
         val imageFileName = "${currentUser.uid}.jpg"
-        val storageReference = FirebaseStorage.getInstance().reference.child("images/$imageFileName")
+        val storageReference = FirebaseStorage.getInstance().reference.child("profileImages/$imageFileName")
         storageReference.putFile(imageUri)
             .addOnSuccessListener { taskSnapshot ->
                 storageReference.downloadUrl.addOnSuccessListener { uri ->
@@ -67,6 +68,7 @@ class EditProfileViewModel: ViewModel() {
                     val docRef = db.collection("users").document(currentUser.uid)
                     docRef.update("photoURL", imageUrl)
                     fetchUserData()
+                    authResultListener.onAuthSuccess()
                 }
             }
             .addOnFailureListener { e ->
@@ -75,9 +77,9 @@ class EditProfileViewModel: ViewModel() {
 
     }
 
-    fun uploadImageFromCamara(imageBitmap: Bitmap) {
+    fun uploadImageFromCamara(imageBitmap: Bitmap, authResultListener: AuthResultListener) {
         val imageFileName = "${currentUser.uid}.jpg"
-        val storageReference = FirebaseStorage.getInstance().reference.child("images/$imageFileName.jpg")
+        val storageReference = FirebaseStorage.getInstance().reference.child("profileImages/$imageFileName.jpg")
         // Comprime la imagen y convierte en un arreglo de bytes
         val byteArrayOutputStream = ByteArrayOutputStream()
         imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
@@ -89,6 +91,7 @@ class EditProfileViewModel: ViewModel() {
                     val docRef = db.collection("users").document(currentUser.uid)
                     docRef.update("photoURL", imageUrl)
                     fetchUserData()
+                    authResultListener.onAuthSuccess()
                 }
             }
             .addOnFailureListener { e ->

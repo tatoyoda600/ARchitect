@@ -3,32 +3,38 @@ package com.pfortbe22bgrupo2.architectapp.models
 import android.os.Parcel
 import android.os.Parcelable
 
-class Furniture(name: String?, category: String?, urlImage:Int?, description: String?): Parcelable{
-
-    var nombre:String = ""
-    var category:String = ""
+class Furniture(name: String?, tag: String?, urlImage:Int?, description: String?, image_url:String?): Parcelable{
+    var name:String = ""
+    var tag:String = ""
     var urlImage:Int = 0
     var description:String = ""
+    var image_url: String = ""
+
+    constructor() : this("", "", 0, "","")
+
 
     constructor(parcel: Parcel): this (
         parcel.readString(),
         parcel.readString(),
         parcel.readInt(),
+        parcel.readString(),
         parcel.readString()
     )
 
     init {
-        this.nombre = name!!
-        this.category = category!!
+        this.name = name!!
+        this.tag = tag!!
         this.urlImage = urlImage!!
         this.description = description!!
+        this.image_url = image_url!!
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(nombre)
-        parcel.writeString(category)
+        parcel.writeString(name)
+        parcel.writeString(tag)
         parcel.writeInt(urlImage)
         parcel.writeString(description)
+        //parcel.writeString(image_url)
     }
 
     override fun describeContents(): Int {

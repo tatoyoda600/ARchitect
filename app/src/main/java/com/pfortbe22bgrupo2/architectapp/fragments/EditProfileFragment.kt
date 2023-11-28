@@ -13,6 +13,7 @@ import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -22,6 +23,7 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.databinding.FragmentEditProfileBinding
+import com.pfortbe22bgrupo2.architectapp.listeners.AuthResultListener
 import com.pfortbe22bgrupo2.architectapp.viewModels.EditProfileViewModel
 
 
@@ -91,24 +93,31 @@ class EditProfileFragment: Fragment() {
 
     private fun uploadToFirebaseGallery(imageUri: Uri?) {
         if (imageUri != null) {
-            editProfileViewModel.uploadImageFromGallery(imageUri)
-            editProfileViewModel.currentUserData.observe(this, Observer {
-                //VER QUE SE CARGUE MAS RAPIDO O EL PROGRES BAR
-                binding.progressBar.visibility = View.VISIBLE
-                Glide.with(requireContext()).load(it?.photoURL).into(binding.editUserPicImageView)
-                binding.progressBar.visibility = View.GONE
+            binding.progressBar.visibility = View.VISIBLE
+            editProfileViewModel.uploadImageFromGallery(imageUri, object : AuthResultListener{
+                override fun onAuthSuccess() {
+                    binding.progressBar.visibility = View.GONE
+                }
+                override fun onAuthFailure(errorMessage: String) {
+                    binding.progressBar.visibility = View.GONE
+                    Toast.makeText(requireContext(), "No se pudo cargar la imagen", Toast.LENGTH_SHORT).show()
+                }
             })
 
         }
     }
 
     private fun uploadToFirebaseCamara(imageBitmap: Bitmap) {
-
-        editProfileViewModel.uploadImageFromCamara(imageBitmap)
-        editProfileViewModel.currentUserData.observe(this, Observer {
-            Glide.with(requireContext()).load(it?.photoURL).apply(RequestOptions().placeholder(R.drawable.profile_pic)).into(binding.editUserPicImageView)
+        binding.progressBar.visibility = View.VISIBLE
+        editProfileViewModel.uploadImageFromCamara(imageBitmap, object : AuthResultListener{
+            override fun onAuthSuccess() {
+                binding.progressBar.visibility = View.GONE
+            }
+            override fun onAuthFailure(errorMessage: String) {
+                binding.progressBar.visibility = View.GONE
+                Toast.makeText(requireContext(), "No se pudo cargar la imagen", Toast.LENGTH_SHORT).show()
+            }
         })
-
     }
 
     private fun updateUser(): Boolean {

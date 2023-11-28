@@ -1,29 +1,38 @@
 package com.pfortbe22bgrupo2.architectapp.utilities
 
+import android.text.InputType
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.ViewGroup
+import android.view.ViewManager
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.ar.core.PointCloud
+import com.pfortbe22bgrupo2.architectapp.R
+import com.pfortbe22bgrupo2.architectapp.databinding.ModelPopupMenuBinding
+import com.pfortbe22bgrupo2.architectapp.types.DesignSession
+import com.pfortbe22bgrupo2.architectapp.types.DesignSessionProduct
 import com.pfortbe22bgrupo2.architectapp.types.Floor
 import com.pfortbe22bgrupo2.architectapp.types.Int3
 import com.pfortbe22bgrupo2.architectapp.types.ModelPoint
-import com.pfortbe22bgrupo2.architectapp.types.Outline
 import com.pfortbe22bgrupo2.architectapp.types.Point
-import com.pfortbe22bgrupo2.architectapp.types.PosDir
 import io.github.sceneview.ar.ArSceneView
 import io.github.sceneview.ar.arcore.ArFrame
+import io.github.sceneview.ar.arcore.position
+import io.github.sceneview.ar.arcore.rotation
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.Rotation
+import io.github.sceneview.math.Scale
 import io.github.sceneview.math.toVector3
 import io.github.sceneview.node.Node
+import io.github.sceneview.renderable.Renderable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlin.math.abs
-import kotlin.math.sign
-
 
 private const val CONFIRMED_POINT_MODEL = "models/square.glb"
 private const val OUTLINE_POINT_MODEL = "models/outline_square.glb"
@@ -34,10 +43,10 @@ private const val ONE_POINT_PER_CELL = true // Points that fall into an occupied
 
 // After this many non-confirmed points are registered, they are all purged
 // 3000 when 1 point/cell, 5000 otherwise (Kotlin doesn't allow preprocessing branches for constants)
-private const val MAX_EXCESS_POINTS = ONE_POINT_PER_CELL.compareTo(false) * 
-                                            3000 + 
-                                        (1 - ONE_POINT_PER_CELL.compareTo(false)) * 
-                                            5000 
+private const val MAX_EXCESS_POINTS = ONE_POINT_PER_CELL.compareTo(false) *
+        3000 +
+        (1 - ONE_POINT_PER_CELL.compareTo(false)) *
+        5000
 
 private const val EXCESS_POINTS_CLEAN_UP_STEP = 1000 // After this many non-confirmed points are registered, a clean up ocurrs
 private const val CONFIRMED_POINTS_CLEAN_UP_STEP = 500 // After this many confirmed points are registered, a clean up ocurrs
@@ -52,30 +61,73 @@ private const val MIN_NEIGHBORS = 3 // The amount of neighbors needed for a poin
 private const val FLOOR_HEIGHT_CELL_LEEWAY = 1 // Make use of points that aren't at the floor height, but are close enough
 private const val FLOOR_LEEWAY_MIN_NEIGHBORS = 5 // The amount of neighbors that the points given leeway must have to be used
 
-private const val MIN_FLOOR_POINTS = 20 // A height must have at least this many points to be considered a valid floor
 private const val CONFIRMED_POINTS_FLOOR_CHECK_STEP = 50 // After this many confirmed points are registered, a floor check ocurrs
 
-private const val DELAY_MULTIPLIER: Long = 10 // Multiplies most async delays
-
-class DefaultARTracking : ARTracking {
+class DefaultARTracking(
+    checksPerSecond: Int,
+    sceneView: ArSceneView,
+    progressBar: CircularProgressIndicator,
+    switchToDefaultLayout: () -> Unit,
+    switchToPlacementLayout: () -> Unit,
+    private var onFloorDetectedFunction: () -> Unit = fun() {} // A function to run when a floor height is discovered
+) : FloorBasedTracking(checksPerSecond, sceneView, progressBar, switchToDefaultLayout, switchToPlacementLayout) {
     private var lastExcessCleanUpStep = 0
     private var lastConfirmedCleanUpStep = 0
     private var lastConfirmedFloorCheckStep = 0
-
-    private var useFloorHeight = false // Changes point verification after a floor height has been discovered
-    private var floorHeight = Int.MAX_VALUE // The cell height of the floor
-    private var onFloorDetectedFunction: () -> Unit // A function to run when a floor height is discovered
-
-    private var detectedFloor: Floor = Floor() // A grid representing the current confirmed floor area
     private var coloredFloor: Map<Int, Map<Int, Floor.CellState>>? = null // A grid representing the current colored floor area
 
-    /** Sets up the AR state. */
-    constructor(checksPerSecond: Int, sceneView: ArSceneView, progressBar: CircularProgressIndicator, onFloorDetectedFunction: () -> Unit = fun(){}) : super(checksPerSecond, sceneView, progressBar) {
-        setup(
-            this@DefaultARTracking::pointScanning,
-            this@DefaultARTracking::onConfirmedPoint
-        )
-        this.onFloorDetectedFunction = onFloorDetectedFunction
+    private var designSession: DesignSession? = null
+    private var arProducts: MutableMap<Node, DesignSessionProduct> = mutableMapOf()
+
+    lateinit internal var actionsPopup: ViewGroup
+    private var popupNode: Node? = null
+    private var popupNodeAllowWalls: Boolean = false
+
+    /** Takes care of setting up the AR scene. */
+    override fun setup() {
+        super.setup()
+        val popupBinding = ModelPopupMenuBinding.inflate(LayoutInflater.from(sceneView.context))
+        actionsPopup = popupBinding.root
+        val root = sceneView.rootView
+        if (root is ViewManager) {
+            val wrapContent = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            root.addView(actionsPopup, wrapContent)
+            hideActionsPopup()
+            popupBinding.moveProductBtn.setOnClickListener {
+                popupNode?.let {
+                    startPlacement(it, popupNodeAllowWalls) { node ->
+                        val allowWalls = popupNodeAllowWalls
+                        cellCrosshair?.isVisible = false
+                        node.onTap = { motionEvent: MotionEvent, renderable: Renderable? ->
+                            popupNode = node
+                            popupNodeAllowWalls = allowWalls
+                            showActionsPopup(motionEvent.x, motionEvent.y)
+                        }
+                    }
+                }
+            }
+            popupBinding.deleteProductBtn.setOnClickListener {
+                popupNode?.let {
+                    val product = arProducts.get(it)
+                    if (product != null) {
+                        designSession?.let {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                database.removeProductFromDesign(product, it)
+                            }
+                        }
+                    }
+
+                    it.detachFromScene(sceneView)
+                    it.parent = null
+                    popupNode = null
+                }
+            }
+            popupBinding.saveProductBtn.setOnClickListener {
+                popupNode?.let {
+                    saveDesign(it)
+                }
+            }
+        }
     }
 
     /** Resets the AR state. */
@@ -83,43 +135,26 @@ class DefaultARTracking : ARTracking {
         lastExcessCleanUpStep = 0
         lastConfirmedCleanUpStep = 0
         lastConfirmedFloorCheckStep = 0
-        useFloorHeight = false
-        floorHeight = Int.MAX_VALUE
+        designSession = null
+        coloredFloor = null
+
+        for (node in arProducts.keys) {
+            node.detachFromScene(sceneView)
+            node.parent = null
+        }
+        arProducts.clear()
+
         super.reset()
     }
 
-    /** Confirm the current scan and start the conversion to a Floor, or update a previous Floor with the scan. */
-    fun confirm() {
-        CoroutineScope(Dispatchers.IO).launch {
-            paused = true
-            val outlineAsync = async{ getFloorOutline() }
-            val outlines: Outline = outlineAsync.await()
-            delay(10 * DELAY_MULTIPLIER)
+    /** Renders a confirmed point. */
+    override fun renderConfirmedPoint(position: Position, index: Int) {
+        colorPoint(position, Floor.CellState.UNKNOWN)
+    }
 
-            var floor: Floor = if (detectedFloor.height != Int.MAX_VALUE) detectedFloor else Floor(mutableMapOf(), floorHeight)
-
-            for (s in outlines.segments) {
-                for (p in s) {
-                    val rightToInside: Int3 = -p.prevDir
-                    val angle1: Float = MathUtils.angleOf2DVector(rightToInside.x.toFloat(), rightToInside.z.toFloat())
-                    val leftToInside: Int3 = p.nextDir
-                    val angle2: Float = MathUtils.angleOf2DVector(leftToInside.x.toFloat(), leftToInside.z.toFloat()) - 360
-                    floor.addPoint(convertAxisToIndex(p.position.x), convertAxisToIndex(p.position.z), emitEdge= (angle1 != 0f && angle2 != 0f && angle1 - angle2 < 360))
-                }
-            }
-
-            delay(10 * DELAY_MULTIPLIER)
-
-            val floorAsync = async{ floor.fillFloor() }
-            floorAsync.await()
-
-            delay(10 * DELAY_MULTIPLIER)
-            detectedFloor = floor
-            callMainFunction = {
-                paintFloor()
-                paused = false
-            }
-        }
+    /** Adds a point from the floor that's being loaded in. */
+    override fun loadFloorPoint(position: Position) {
+        colorPoint(position, Floor.CellState.FILLED)
     }
 
     /** Process each AR frame.
@@ -127,7 +162,10 @@ class DefaultARTracking : ARTracking {
      * Discard repeated and not confident points. Classify points with enough neighbors as confirmed points.
      *
      * If a floor height has been found, use it to further filter the points that were detected. */
-    fun pointScanning(arFrame: ArFrame) {
+    override fun frameUpdate(arFrame: ArFrame) {
+        // If an object is currently trying to be placed, update the position of the object along with the camera
+        placementNode?.let { updatePlacementPos?.invoke(it) }
+
         val pointCloud: PointCloud = arFrame.frame.acquirePointCloud()
         if (pointCloud.ids != null && pointCloud.timestamp != lastFrame?.frame?.timestamp) {
             lastFrame = arFrame
@@ -147,17 +185,17 @@ class DefaultARTracking : ARTracking {
                         if (!useFloorHeight || convertAxisToIndex(position.y) == floorHeight) {
                             val point = Point(pointCloud.ids[i], position)
                             if (addPoint(point) >= MIN_NEIGHBORS) {
-                                onConfirmedPointFunction(point)
+                                onConfirmedPoint(point)
                             }
                         }
                         // Not at floor height
                         else {
                             // Within leeway range
                             if (abs(convertAxisToIndex(position.y) - floorHeight).toFloat() < FLOOR_HEIGHT_CELL_LEEWAY) {
-                                position.y = floorHeight.toFloat() * DICT_COORD_UNZOOM
+                                position.y = convertIndexToCellCenter(floorHeight)
                                 val point = Point(pointCloud.ids[i], position)
                                 if (addPoint(point, leeway = true) >= FLOOR_LEEWAY_MIN_NEIGHBORS) {
-                                    onConfirmedPointFunction(point)
+                                    onConfirmedPoint(point)
                                 }
                                 else {
                                     val keys = convertPosToIndexes(position)
@@ -185,7 +223,6 @@ class DefaultARTracking : ARTracking {
             }
 
             if (pointIds.size - confirmedPoints.size > lastExcessCleanUpStep + EXCESS_POINTS_CLEAN_UP_STEP) {
-
                 if (!ONE_POINT_PER_CELL) {
                     cleanUpCells(this@DefaultARTracking::cleanUpExcessPoints)
                     if (pointIds.size - confirmedPoints.size > lastExcessCleanUpStep + EXCESS_POINTS_CLEAN_UP_STEP) {
@@ -201,18 +238,31 @@ class DefaultARTracking : ARTracking {
     }
 
     /** When a verified point is found, add it to the confirmed points list and render the cell's tile. */
-    fun onConfirmedPoint(point: Point) {
+    override fun onConfirmedPoint(point: Point) {
         confirmedPoints += ModelPoint(
-            renderer.render(
-                modelPath = CONFIRMED_POINT_MODEL,
-                position = convertPosToIndexes(point.position).toFloat3() * DICT_COORD_UNZOOM,
-                rotation = Rotation()
-            ),
+            if (!useFloorHeight)
+                null
+            else
+                renderer.render(
+                    modelPath = CONFIRMED_POINT_MODEL,
+                    position = convertIndexesToCellCenter(convertPosToIndexes(point.position)),
+                    rotation = Rotation()
+                ),
             point.id,
             point.position
         )
 
-        if (confirmedPoints.size > lastConfirmedFloorCheckStep + CONFIRMED_POINTS_FLOOR_CHECK_STEP) {
+        if (useFloorHeight) {
+        }
+        else {
+            confirmedPoints += ModelPoint(
+                null,
+                point.id,
+                point.position
+            )
+        }
+
+        if (!useFloorHeight && confirmedPoints.size > lastConfirmedFloorCheckStep + CONFIRMED_POINTS_FLOOR_CHECK_STEP) {
             lastConfirmedFloorCheckStep += CONFIRMED_POINTS_FLOOR_CHECK_STEP
             val floor = calculateFloorHeight()
             if (floor.second > MIN_FLOOR_POINTS) {
@@ -220,14 +270,13 @@ class DefaultARTracking : ARTracking {
                 useFloorHeight = true
                 clearNonFloorPoints()
                 onFloorDetectedFunction()
-                paused = false
-                Log.w("ARTracking", "Floor Height: ${floorHeight}")
+                setPaused(false)
             }
         }
     }
 
     /** When a point is found, add it to the list and calculate its neighbor count. */
-    fun addPoint(point: Point, leeway: Boolean = false, skipNeighbors: Boolean = false): Int {
+    private fun addPoint(point: Point, leeway: Boolean = false, skipNeighbors: Boolean = false): Int {
         if (point.id != Int.MIN_VALUE) {
             pointIds += point.id
         }
@@ -283,8 +332,8 @@ class DefaultARTracking : ARTracking {
         return neighborCount
     }
 
-    /** Clean up a cell too many points, or clear one with too few. */
-    fun cleanUpExcessPoints(xKey: Int, yKey: Int, zKey: Int): Int {
+    /** Clean up a cell with too many points, or clear one with too few. */
+    private fun cleanUpExcessPoints(xKey: Int, yKey: Int, zKey: Int): Int {
         var cleanUpCount = 0
 
         val cellPoints = points.get(xKey)?.get(yKey)?.get(zKey)
@@ -305,27 +354,8 @@ class DefaultARTracking : ARTracking {
         return cleanUpCount
     }
 
-    /** Clear all non-confirmed points. */
-    fun clearExcessPoints(xKey: Int, yKey: Int, zKey: Int): Int {
-        var cleanUpCount = 0
-
-        val cellPoints = points.get(xKey)?.get(yKey)?.get(zKey)
-        for (p in (cellPoints?.lastIndex?: -1)downTo 0) {
-            val cellPointsId = cellPoints?.get(p)?.id
-            // If this point is not a confirmed one
-            if (cellPointsId != Int.MIN_VALUE && confirmedPoints.find { it.id == cellPointsId } == null) {
-                // Remove the point
-                pointIds.remove(cellPointsId)
-                points.get(xKey)?.get(yKey)?.get(zKey)?.removeAt(p)
-                cleanUpCount++
-            }
-        }
-
-        return cleanUpCount
-    }
-
     /** Clean up cells with more than 1 confirmed point. */
-    fun cleanUpConfirmedPoints(): Int {
+    private fun cleanUpConfirmedPoints(): Int {
         if (ONE_POINT_PER_CELL) return 0
 
         var cleanUpCount = 0
@@ -345,7 +375,8 @@ class DefaultARTracking : ARTracking {
                         pointIds.remove(cellPointsId)
                     }
                     points.get(pointIndex.x)?.get(pointIndex.y)?.get(pointIndex.z)?.removeAll { it.id == cellPointsId }
-                    confirmedPoints.get(point).model.destroy()
+                    confirmedPoints.get(point).model?.detachFromScene(sceneView)
+                    confirmedPoints.get(point).model?.parent = null
                     confirmedPoints.removeAt(point)
                     cleanUpCount++
                 }
@@ -358,293 +389,28 @@ class DefaultARTracking : ARTracking {
         return cleanUpCount
     }
 
-    /** Clear all points not at floor height. */
-    fun clearNonFloorPoints(): Int {
-        if (!paused) {
-            paused = true
-            runBlocking {
-                delay(10 * DELAY_MULTIPLIER)
-            }
-        }
-
-        var cleanUpCount = cleanUpCells(this@DefaultARTracking::clearExcessPoints)
-
-        runBlocking {
-            delay(10 * DELAY_MULTIPLIER)
-        }
-
-        // Loop through every confirmed point
-        for (point in confirmedPoints.lastIndex downTo 0) {
-            val position = confirmedPoints[point].position
-            val pointIndex = convertPosToIndexes(position)
-            val cellPoints = points.get(pointIndex.x)?.get(pointIndex.y)?.get(pointIndex.z)
-
-            // If this point is not at floorHeight
-            if (pointIndex.y != floorHeight) {
-                for (p in (cellPoints?.lastIndex?: -1)downTo 0) {
-                    val cellPointsId = confirmedPoints[point].id
-                    if (cellPointsId == cellPoints?.get(p)?.id) {
-                        // Remove the point
-                        if (cellPointsId != Int.MIN_VALUE) {
-                            pointIds.remove(cellPointsId)
-                        }
-                        points.get(pointIndex.x)?.get(pointIndex.y)?.get(pointIndex.z)?.removeAt(p)
-                        confirmedPoints.get(point).model.destroy()
-                        confirmedPoints.removeAt(point)
-                        cleanUpCount++
-                        break
-                    }
-                    runBlocking {
-                        delay(1)
-                    }
-                }
-            }
-        }
-
-        runBlocking {
-            delay(10 * DELAY_MULTIPLIER)
-        }
-
-        // Remove all cells with Y different from the floor height
-        for (xi in (points.keys.size?: 0) -1 downTo 0) {
-            val xKey = points.keys.elementAt(xi)
-
-            for (yi in (points.get(xKey)?.keys?.size?: 0) -1 downTo 0) {
-                val yKey = points.get(xKey)?.keys?.elementAt(yi)
-
-                if (yKey != floorHeight) {
-                    for (zi in (points.get(xKey)?.get(yKey)?.keys?.size?: 0) -1 downTo 0) {
-                        val zKey = points.get(xKey)?.get(yKey)?.keys?.elementAt(zi)
-                        if ((points.get(xKey)?.get(yKey)?.get(zKey)?.size?: 0) -1 == 0) {
-                            points.get(xKey)?.get(yKey)?.remove(zKey)
-                        }
-                    }
-
-                    if ((points.get(xKey)?.get(yKey)?.size ?: 0) == 0) {
-                        points.get(xKey)?.remove(yKey)
-                    }
-                }
-            }
-
-            if ((points.get(xKey)?.size ?: 0) == 0) {
-                points.remove(xKey)
-            }
-        }
-
-        return cleanUpCount
-    }
-
-    /** Get the floor height.
-     *
-     * Calculates the amount of confirmed points at each height.
-     *
-     * Returns a pair containing (Height with the most points; Amount of points at that height). */
-    fun calculateFloorHeight(): Pair<Int,Int> {
-        val pointsPerHeight = mutableMapOf<Int,Int>()
-        for (p in confirmedPoints) {
-            val y = convertAxisToIndex(p.position.y)
-            if (!pointsPerHeight.containsKey(y)) {
-                pointsPerHeight[y] = confirmedPointsAtHeight(y)
-            }
-        }
-
-        var curMax: Int = -1
-        var curHeight: Int = Int.MAX_VALUE
-        for (p in pointsPerHeight) {
-            if (p.value > curMax) {
-                curMax = p.value
-                curHeight = p.key
-            }
-            else if (p.value == curMax && p.key < curHeight) {
-                curHeight = p.key
-            }
-        }
-
-        return Pair(curHeight, curMax)
-    }
-
-    /** Given a height, calculates how many confirmed points are in cells at that height. */
-    fun confirmedPointsAtHeight(height: Int): Int {
-        var floorChance = 0
-        // Loop through every confirmed point
-        for (point in confirmedPoints.lastIndex downTo 0) {
-            // If the point's height is the same as the provided height
-            if (convertAxisToIndex(confirmedPoints[point].position.y) == height) {
-                floorChance++
-            }
-        }
-        return floorChance
-    }
-
-    /** Calculates 4 partial/completed outlines, each starting from a different extreme of the grid.
-     *
-     * Completed outlines have the same first and last point. */
-    suspend fun getFloorOutline(): Outline {
-        if (!useFloorHeight || floorHeight == Int.MAX_VALUE || confirmedPoints.size < MIN_FLOOR_POINTS) {
-            Log.e("ARTracking", "Floor outline requires the floor height to be active")
-            return Outline(emptyList())
-        }
-
-        clearNonFloorPoints()
-        delay(10 * DELAY_MULTIPLIER)
-
-        val minX = Int3(
-            points.keys.min(),
-            floorHeight,
-            points.get(points.keys.min())?.get(floorHeight)?.keys?.first() ?: Int.MAX_VALUE
-        )
-        val maxX = Int3(
-            points.keys.max(),
-            floorHeight,
-            points.get(points.keys.max())?.get(floorHeight)?.keys?.first() ?: Int.MAX_VALUE
-        )
-
-        var minZ: Int3 = Int3(0, floorHeight, Int.MAX_VALUE)
-        var maxZ: Int3 = Int3(0, floorHeight, Int.MIN_VALUE)
-        for (xKey in points.keys) {
-            if ((points.get(xKey)?.get(floorHeight)?.keys?.min() ?: minZ.z) < minZ.z) {
-                minZ = Int3(
-                    xKey,
-                    floorHeight,
-                    points.get(xKey)?.get(floorHeight)?.keys?.min() ?: minZ.z
-                )
-            }
-            if ((points.get(xKey)?.get(floorHeight)?.keys?.max() ?: maxZ.z) > maxZ.z) {
-                maxZ = Int3(
-                    xKey,
-                    floorHeight,
-                    points.get(xKey)?.get(floorHeight)?.keys?.max() ?: maxZ.z
-                )
-            }
-        }
-
-        delay(10 * DELAY_MULTIPLIER)
-
-        // Using the furthest point on each end of the X and Z axis
-        //      find as many contiguous points as possible
-        //      If the points all connect, then that's a completed outline
-
-        // Minimum X point, moving towards -Z
-        val pointList1: List<PosDir> = findConnectedPoints(
-            minX,
-            Int3(0,0,-1)
-        )
-        delay(10 * DELAY_MULTIPLIER)
-
-        // Maximum X point, moving towards +Z
-        val pointList2: List<PosDir> = findConnectedPoints(
-            maxX,
-            Int3(0,0,+1)
-        )
-        delay(10 * DELAY_MULTIPLIER)
-
-        // Minimum Z point, moving towards -X
-        val pointList3: List<PosDir> = findConnectedPoints(
-            minZ,
-            Int3(-1,0,0)
-        )
-        delay(10 * DELAY_MULTIPLIER)
-
-        // Maximum Z point, moving towards +X
-        val pointList4: List<PosDir> = findConnectedPoints(
-            maxZ,
-            Int3(+1,0,0)
-        )
-
-        return Outline(listOf(pointList1, pointList2, pointList3, pointList4))
-    }
-
-    /** From a cell and a starting direction, tries to find the longest connected series of points.
-     *
-     * The algorithm always tries to keep the interior towards the left-hand side, opting to go away from it whenever possible.
-     *
-     * Returns a list of all the points that were found, along with the direction before and after the point. */
-    private fun findConnectedPoints(startingCell: Int3, startingDirection: Int3): List<PosDir> {
-        val startPoint: Point? = points.get(startingCell.x)?.get(startingCell.y)?.get(startingCell.z)?.first()
-        if (startPoint != null) {
-            val pointList = mutableListOf<PosDir>()
-
-            val startIndex = convertPosToIndexes(startPoint.position)
-
-            var direction: Int3 = startingDirection
-            var prevPoint: Point = startPoint
-            var nextPoint: Point? = nextConnectedPoint(prevPoint, direction)
-
-            while (nextPoint != null) {
-                val prevDir: Int3 = direction
-                val dir = convertPosToIndexes(nextPoint.position) - convertPosToIndexes(prevPoint.position)
-                direction = Int3(dir.x.sign, 0, dir.z.sign)
-
-                pointList.add(PosDir(prevPoint.position,  prevDir, direction))
-
-                if (pointList.size > 1 && convertAxisToIndex(prevPoint.position.x) == startIndex.x && convertAxisToIndex(prevPoint.position.z) == startIndex.z) {
-                    // Looped around back to the starting point
-                    break
-                }
-
-                prevPoint = nextPoint
-                nextPoint = nextConnectedPoint(prevPoint, direction)
-            }
-
-            return pointList
-        }
-        return emptyList()
-    }
-
-    /** Given a point and a direction, returns the following connected point.
-     *
-     * Always tries to go towards the right from the starting direction, heading away from the left.
-     *
-     * Never goes backwards or back right, in order to avoid loops when called multiple times. */
-    private fun nextConnectedPoint(point: Point, direction: Int3): Point? {
-        // Using the given point, find a point in an adjacent cell
-        //      First check away from the center respective to the direction
-        //      Then intermediate cells until reaching the one along the direction
-        //      Finally intermediate cells until reaching the opposite of the direction
-        // Once a point has been found, return it
-        // If no point is found, return null
-
-        val startCellX: (Int, Int) -> Int = {x: Int, z: Int -> z}
-        val startCellZ: (Int, Int) -> Int = {x: Int, z: Int -> -x}
-
-        // Functions to get the next cell offset in the cycle
-        //      Sign inputs and outputs (Values always 1, 0, or -1)
-        val nextCellX: (Int, Int) -> Int = {x: Int, z: Int -> ((x - z) * (1 + abs(x + z)) * 0.5f).toInt()}
-        val nextCellZ: (Int, Int) -> Int = {x: Int, z: Int -> nextCellX(x, -z)}
-
-        val pointIndex = convertPosToIndexes(point.position)
-        var checkCell: Int3 = Int3(startCellX(direction.x, direction.z), 0, startCellZ(direction.x, direction.z))
-
-        for (i in 1..6) {
-            val cellIndex: Int3 = Int3(pointIndex.x + checkCell.x, pointIndex.y, pointIndex.z + checkCell.z)
-            val confirmedIndex: Int? = findFirstConfirmedPointInCell(cellIndex)
-
-            if (confirmedIndex != null) {
-                return confirmedPoints[confirmedIndex]
-            }
-
-            checkCell = Int3(nextCellX(checkCell.x, checkCell.z), 0, nextCellZ(checkCell.x, checkCell.z))
-        }
-
-        return null
-    }
-
     /** Colors the cell tile that contains the given position.
      *
      * If the cell has no points, adds a new confirmed point (ID: INT_MIN) there. */
-    fun colorPoint(point: Position, state: Floor.CellState) {
-        val confirmedIndex: Int? = findFirstConfirmedPointInCell(convertPosToIndexes(point))
+    private fun colorPoint(point: Position, state: Floor.CellState) {
+        val pointIndexes = convertPosToIndexes(point)
+        val confirmedIndex: Int? = findFirstConfirmedPointInCell(pointIndexes)
 
         if (confirmedIndex != null) {
+            val position = confirmedPoints.get(confirmedIndex).model?.position?: convertIndexesToCellCenter(pointIndexes)
+            val rotation = confirmedPoints.get(confirmedIndex).model?.rotation?: Rotation()
+
             val newModel: Node = renderer.render(
-                //modelPath = OUTLINE_POINT_MODEL, // Regular
-                modelPath = if (state === Floor.CellState.FILLED) OUTLINE_POINT_MODEL
-                    else (if (state === Floor.CellState.EMIT_EDGE) PINK_POINT_MODEL
-                    else ORANGE_POINT_MODEL), // For painting cells according to their floor cell states, for debugging
-                position = confirmedPoints.get(confirmedIndex).model.position,
-                rotation = confirmedPoints.get(confirmedIndex).model.rotation
+                modelPath = if (state === Floor.CellState.UNKNOWN)
+                        CONFIRMED_POINT_MODEL
+                    else
+                        OUTLINE_POINT_MODEL,
+                position = position,
+                rotation = rotation
             )
-            confirmedPoints.get(confirmedIndex).model.destroy()
+
+            confirmedPoints.get(confirmedIndex).model?.detachFromScene(sceneView)
+            confirmedPoints.get(confirmedIndex).model?.parent = null
             confirmedPoints.get(confirmedIndex).model = newModel
         }
         // If there are no confirmed points in the given cell
@@ -655,11 +421,11 @@ class DefaultARTracking : ARTracking {
 
             confirmedPoints += ModelPoint(
                 renderer.render(
-                    //modelPath = OUTLINE_POINT_MODEL, // Regular
-                    modelPath = if (state === Floor.CellState.FILLED) OUTLINE_POINT_MODEL
-                        else (if (state === Floor.CellState.EMIT_EDGE) PINK_POINT_MODEL
-                        else ORANGE_POINT_MODEL), // For painting cells according to their floor cell states, for debugging
-                    position = convertPosToIndexes(point).toFloat3() * DICT_COORD_UNZOOM,
+                    modelPath = if (state === Floor.CellState.UNKNOWN)
+                        CONFIRMED_POINT_MODEL
+                    else
+                        OUTLINE_POINT_MODEL,
+                    position = convertIndexesToCellCenter(pointIndexes),
                     rotation = Rotation()
                 ),
                 Int.MIN_VALUE,
@@ -676,10 +442,206 @@ class DefaultARTracking : ARTracking {
                     //|| (coloredFloor?.get(x.key)?.get(z.key)?: Floor.CellState.UNKNOWN) == Floor.CellState.UNKNOWN // Regular
                     || (coloredFloor?.get(x.key)?.get(z.key)?: Floor.CellState.UNKNOWN) != z.value // For painting cells according to their floor cell state, for debugging purposes
                 ) {
-                    colorPoint(Int3(x.key, floorHeight, z.key).toFloat3() * DICT_COORD_UNZOOM, z.value)
+                    colorPoint(convertIndexesToCellCenter(Int3(x.key, floorHeight, z.key)), z.value)
                 }
             }
         }
         coloredFloor = detectedFloor.getGridCopy()
+    }
+
+    fun renderModel(
+        modelCategory: String,
+        modelName: String,
+        scale: Float,
+        allowWalls: Boolean
+    ) {
+        super.renderModel(modelCategory, modelName, scale, allowWalls) { node ->
+            cellCrosshair?.isVisible = false
+            node.onTap = { motionEvent: MotionEvent, renderable: Renderable? ->
+                popupNode = node
+                popupNodeAllowWalls = allowWalls
+                showActionsPopup(motionEvent.x, motionEvent.y)
+            }
+
+            arProducts.put(node, DesignSessionProduct(count=0, modelCategory, modelName, node.position, node.rotation.y, scale, allowWalls))
+        }
+    }
+
+    /** Saves/Updates the current design in the database. */
+    private fun saveDesign(productNode: Node) {
+        val arProduct = arProducts.get(productNode)
+
+        if (arProduct != null) {
+            if (designSession != null) {
+                setPaused(true)
+                CoroutineScope(Dispatchers.IO).launch {
+                    database.updateDesign(arProduct, detectedFloor, designSession!!, {},
+                        {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                Toast.makeText(sceneView.context, "Failed to save", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    )
+
+                    setPaused(false)
+                }
+            }
+            else {
+                val input = EditText(sceneView.context)
+                input.inputType = InputType.TYPE_CLASS_TEXT
+
+                val dialog = AlertDialog.Builder(sceneView.context)
+                    .setTitle(R.string.save_design_popup_title)
+                    .setView(input)
+                    .setPositiveButton(R.string.save_design_popup_yes, null)
+                    .setNegativeButton(R.string.save_design_popup_no) { dialog, which -> dialog.cancel() }
+                    .show()
+
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                    val text = input.text.toString()
+                    if (text.isNotBlank()) {
+                        setPaused(true)
+                        CoroutineScope(Dispatchers.IO).launch {
+                            // The camera's -X rotation is its yaw rotation
+                            database.saveDesign(
+                                text,
+                                arProduct,
+                                detectedFloor,
+                                lastFrame!!.camera.pose.position,
+                                -lastFrame!!.camera.pose.rotation.x,
+                                {
+                                    designSession = it
+                                },
+                                {
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        Toast.makeText(sceneView.context, "Failed to save", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            )
+
+                            setPaused(false)
+                        }
+                        dialog.dismiss()
+                    }
+                }
+            }
+        }
+    }
+
+    fun loadDesign(id: Int) {
+        if (useFloorHeight) {
+            setPaused(true)
+
+            placementNode?.let {
+                it.detachFromScene(sceneView)
+                it.parent = null
+                placementNode = null
+            }
+
+            CoroutineScope(Dispatchers.IO).launch {
+                val designData = database.getDesignByID(id)
+                if (designData != null) {
+                    val cameraPosition = convertPosToIndexes(lastFrame!!.camera.pose.position)
+                    val floorPosition = Int3(cameraPosition.x, floorHeight, cameraPosition.z)
+                    // Nodes use their Y rotation for yaw
+                    val floorRotation = Rotation(0f, designData.originalCameraRotation, 0f)
+
+                    val parentNode = renderer.createEmptyNode(
+                        convertIndexesToCellCenter(floorPosition),
+                        floorRotation
+                    )
+
+                    val productHolderNode = renderer.createEmptyNode(Position(), Rotation())
+                    productHolderNode.parent = parentNode
+
+                    // Place the furniture
+                    for (product in designData.savedProducts) {
+                        renderer.renderFromFirebase(
+                            product.category,
+                            product.name,
+                            product.position,
+                            Rotation(0f, product.rotation, 0f),
+                            Scale(product.scale),
+                            { node ->
+                                //On Success
+                                node.parent = productHolderNode
+                                node.onTap = { motionEvent: MotionEvent, renderable: Renderable? ->
+                                    popupNode = node
+                                    popupNodeAllowWalls = product.allowWalls
+                                    showActionsPopup(motionEvent.x, motionEvent.y)
+                                }
+
+                                arProducts.put(node, DesignSessionProduct(count=0, product.category, product.name, node.position, node.rotation.y, product.scale, product.allowWalls))
+                            },
+                            {
+                                Log.e("Firebase", "Failed to render model from Firebase")
+                            }
+                        )
+                    }
+
+                    // Place the floor
+                    for (x in designData.savedFloorIndexes.keys) {
+                        for (z in designData.savedFloorIndexes.get(x)?: listOf()) {
+                            val pointPos = convertIndexesToCellCenter(Int3(x, 0, z))
+                            pointPos.y = 0f
+
+                            // Changing the parent of a node doesn't change its local position, rotation, or scale, so the loaded position can just be used directly
+                            val node: Node = renderer.render(
+                                modelPath = FLOOR_LOADING_MODEL,
+                                position = pointPos,
+                                rotation = Rotation()
+                            )
+                            node.parent = parentNode
+                        }
+                    }
+
+                    placementNode = parentNode
+                    onPlacement = { node ->
+                        for (product in node.children.get(0).children) {
+                            val worldPos = product.worldPosition
+                            val worldRot = product.worldRotation
+                            product.parent = sceneView
+                            product.position = worldPos
+                            product.rotation = worldRot * -1f // For some reason the rotation gets flipped when set, so you've got to pre-flip it
+                        }
+                        for (child in node.children) {
+                            loadFloorPoint(child.worldPosition)
+                        }
+
+                        node.detachFromScene(sceneView)
+                        node.parent = null
+                    }
+                    updatePlacementPos = { node ->
+                        val camPose = lastFrame?.camera?.pose
+                        if (camPose != null) {
+                            node.position = Position(camPose.position.x, convertIndexToCellCenter(floorHeight), camPose.position.z)
+                            // The camera's -X rotation is its yaw rotation, unlike nodes which use their Y rotation for yaw
+                            node.rotation = Rotation(0f, -camPose.rotation.x, 0f)
+                        }
+                    }
+                    placementScreenLayout()
+                }
+                else {
+                    Log.e("ARTracking", "Failed to Find Design")
+                    val ids = database.getDesignIDs()
+                    for (i in ids) {
+                        Log.d("DefaultARTracking", "Design ID: ${i}")
+                    }
+                }
+
+                setPaused(false)
+            }
+        }
+    }
+
+    /** Shows the node actions popup. */
+    fun showActionsPopup(x: Float, y: Float) {
+        actionsPopup.x = x - actionsPopup.width * 0.5f
+        actionsPopup.y = y - actionsPopup.height * 0.5f
+    }
+
+    /** Hides the node actions popup. */
+    fun hideActionsPopup() {
+        showActionsPopup(-1000f, -1000f)
     }
 }

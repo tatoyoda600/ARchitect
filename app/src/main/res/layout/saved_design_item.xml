@@ -14,13 +14,25 @@
         android:orientation="horizontal"
         android:background="@color/light_grey">
 
-        <ImageView
+<!--        <ImageView
             android:id="@+id/item_saved_design_imageView"
             android:layout_width="0dp"
             android:layout_height="250dp"
             android:scaleType="centerInside"
             android:layout_gravity="center"
-            android:layout_weight="1"/>
+            android:layout_weight="1"/>-->
+
+        <TextView
+            android:id="@+id/saved_design_item_text_view"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Nombre del Diseño"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="8dp"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/delete_floatingActionButton"

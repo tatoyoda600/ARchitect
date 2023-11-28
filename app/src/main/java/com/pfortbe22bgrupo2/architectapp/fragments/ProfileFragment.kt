@@ -123,12 +123,10 @@ class ProfileFragment: Fragment() {
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Confirmación")
         builder.setMessage("¿Estás seguro de que deseas eliminar su cuenta?")
-
         builder.setPositiveButton("Sí") { dialog, which ->
             profileViewModel.deleteUser()
             navToMainActivity()
         }
-
         builder.setNegativeButton("No") { dialog, which ->}
         val dialog = builder.create()
         dialog.show()
@@ -137,6 +135,7 @@ class ProfileFragment: Fragment() {
     private fun navToMainActivity() {
         val intent = Intent(requireActivity(), MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        intent.putExtra("activityToLoad", "MainActivity")
         startActivity(intent)
     }
 
