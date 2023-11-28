@@ -168,7 +168,7 @@ class EditProfileFragment: Fragment() {
             if (address.isNullOrEmpty()) address = ""
             binding.addressEditEditText.text = Editable.Factory.getInstance().newEditable(address)
             Glide.with(requireContext())
-                .load(it?.profileImageUrl)
+                .load(it?.photoURL)
                 .apply(RequestOptions().placeholder(R.drawable.profile_pic).transform(CircleCrop()))
                 .into(binding.editUserPicImageView)
         })

@@ -5,7 +5,7 @@ data class UserProfileData(
     val email: String?,
     val address: String?,
     val phone: String?,
-    val profileImageUrl: String?,
+    val photoURL: String?,
     val isAdmin: Boolean?
 )
 
