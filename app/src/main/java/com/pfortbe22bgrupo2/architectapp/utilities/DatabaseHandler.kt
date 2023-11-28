@@ -34,7 +34,7 @@ class DatabaseHandler(context: Context) {
     private val designDao: DesignDao
     private val designProductsDao: DesignProductsDao
     private val firestore: FirebaseFirestore
-    private val userId: String
+    internal val userId: String
 
     init {
         // Log.d("FunctionNames", "init")

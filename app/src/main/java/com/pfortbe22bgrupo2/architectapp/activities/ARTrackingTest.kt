@@ -13,9 +13,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.pfortbe22bgrupo2.architectapp.R
 import com.pfortbe22bgrupo2.architectapp.adapters.LoadMenuAdapter
 import com.pfortbe22bgrupo2.architectapp.adapters.ProductHotbarAdapter
@@ -34,12 +31,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
 import android.os.Handler
-import android.os.HandlerThread
 import android.os.Looper
 import android.util.Log
 import android.view.PixelCopy
-import androidx.annotation.RequiresApi
-import androidx.fragment.app.findFragment
 import androidx.lifecycle.coroutineScope
 import kotlinx.coroutines.withContext
 
@@ -52,14 +46,12 @@ class ARTrackingTest: AppCompatActivity() {
     lateinit var loadMenuRecycler: RecyclerView
     val floorList: MutableMap<String, Int> = mutableMapOf()
     val designList: MutableMap<String, Int> = mutableMapOf()
-    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Log.d("FunctionNames", "onCreate")
         super.onCreate(savedInstanceState)
         binding = ActivityArtrackingTestBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        auth = Firebase.auth
 
         val hotbar = mainScreenSetup()
 
@@ -204,16 +196,21 @@ class ARTrackingTest: AppCompatActivity() {
     }
 
     private val post: (View) -> Unit = {
+        arTracking.setPaused(true)
         val dialogBinding = PostCreatingDialogueBinding.inflate(layoutInflater)
 
         val titleText = dialogBinding.title
+        titleText.setText(arTracking.designSession?.name?: "")
         val descriptionText = dialogBinding.description
 
         val dialog = AlertDialog.Builder(this)
             .setTitle(R.string.post_title)
             .setView(dialogBinding.root)
             .setPositiveButton(R.string.save_floor_popup_yes, null)
-            .setNegativeButton(R.string.save_floor_popup_no) { dialog, which -> dialog.cancel() }
+            .setNegativeButton(R.string.save_floor_popup_no) { dialog, which ->
+                arTracking.setPaused(false)
+                dialog.cancel()
+            }
             .show()
 
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
@@ -227,7 +224,7 @@ class ARTrackingTest: AppCompatActivity() {
                     postear(title, description, userName)
                 }
             }
-            database.getUserName(auth.currentUser!!.uid, userNameProcessing, {userNameProcessing(null)})
+            database.getUserName(database.userId, userNameProcessing, {userNameProcessing(null)})
         }
     }
 
@@ -279,21 +276,10 @@ class ARTrackingTest: AppCompatActivity() {
     }
 
     /** Creates a Post and sends it to the Firestore Database. */
-    fun postear(
+    private fun postear(
         title: String,
         description: String,
         userName: String
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            // The camera's -X rotation is its yaw rotation
-            hacerScreenshot(userName, description, title)
-        }
-    }
-
-    private fun hacerScreenshot(
-        userName: String,
-        description: String,
-        title: String
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             var imagePath = ""
@@ -312,7 +298,6 @@ class ARTrackingTest: AppCompatActivity() {
 
             val imageRef = Storage_ref.child(imagePath)
             takeScreenshot() { byteArray ->
-
                 if(byteArray != null){
                     // Subir la imagen a Storage
                     imageRef.putBytes(byteArray)
@@ -324,12 +309,16 @@ class ARTrackingTest: AppCompatActivity() {
                                 //Creo y envio post a Firestore Database
                                 database.crearPost(downloadUrl, description, title, userName)
                             }
+                            arTracking.setPaused(false)
                         }
                         .addOnFailureListener { exception ->
                             // Handle errors
+                            arTracking.setPaused(false)
                         }
-                }else{
+                }
+                else {
                     Log.e("IMAGEN", "takeScreenshot() devuelve null")
+                    arTracking.setPaused(false)
                 }
             }
         }
@@ -337,34 +326,33 @@ class ARTrackingTest: AppCompatActivity() {
 
     /**
      * Muestra solamente el ArSceneView para que se pueda tomar una buena imagen.*/
-    private suspend fun takeScreenshot(callback: (ByteArray?) -> Unit) {
+    private fun takeScreenshot(callback: (ByteArray?) -> Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            delay(1000)
+            
+            // Crear un bitmap con el tamaño de la vista sceneView
+            val bitmap = Bitmap.createBitmap(
+                binding.sceneView.width,
+                binding.sceneView.height,
+                Bitmap.Config.ARGB_8888
+            )
 
-        binding.sceneView.lifecycle?.coroutineScope?.launch {
-            withContext(Dispatchers.IO){
-                // Crear un bitmap con el tamaño de la vista sceneView
-                val bitmap = Bitmap.createBitmap(
-                    binding.sceneView.width,
-                    binding.sceneView.height,
-                    Bitmap.Config.ARGB_8888
-                )
-
-                // Utilizar PixelCopy para copiar la vista sceneView al bitmap
-                PixelCopy.request(
-                    binding.sceneView, bitmap, { result ->
-                        if (result == PixelCopy.SUCCESS) {
-                            // Devolver el bitmap a través del callback
-                            // Convertir el bitmap a un arreglo de bytes después de que PixelCopy ha terminado
-                            val stream = ByteArrayOutputStream()
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-                            callback(stream.toByteArray())
-                        } else {
-                            // Si hay algún error, devolver null a través del callback
-                            callback(null)
-                        }
-                    },
-                    Handler(Looper.getMainLooper())
-                )
-            }
+            // Utilizar PixelCopy para copiar la vista sceneView al bitmap
+            PixelCopy.request(
+                binding.sceneView, bitmap, { result ->
+                    if (result == PixelCopy.SUCCESS) {
+                        // Devolver el bitmap a través del callback
+                        // Convertir el bitmap a un arreglo de bytes después de que PixelCopy ha terminado
+                        val stream = ByteArrayOutputStream()
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+                        callback(stream.toByteArray())
+                    } else {
+                        // Si hay algún error, devolver null a través del callback
+                        callback(null)
+                    }
+                },
+                Handler(Looper.getMainLooper())
+            )
         }
     }
 }

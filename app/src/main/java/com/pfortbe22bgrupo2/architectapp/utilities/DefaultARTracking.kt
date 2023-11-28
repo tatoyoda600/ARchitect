@@ -79,7 +79,7 @@ class DefaultARTracking(
     private var coloredFloor: Map<Int, Map<Int, Floor.CellState>>? = null // A grid representing the current colored floor area
     private var cursorFrameCount = 0
 
-    private var designSession: DesignSession? = null
+    internal var designSession: DesignSession? = null
     private var arProducts: MutableMap<Node, DesignSessionProduct> = mutableMapOf()
 
     lateinit internal var actionsPopup: ViewGroup
