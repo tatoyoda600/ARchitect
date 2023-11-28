@@ -8,10 +8,6 @@
         android:title="@string/edit_profile_fragment" />
 
     <item
-        android:id="@+id/menu_item_designs"
-        android:title="@string/saved_design" />
-
-    <item
         android:id="@+id/logout_item"
         android:title="@string/logout" />
 

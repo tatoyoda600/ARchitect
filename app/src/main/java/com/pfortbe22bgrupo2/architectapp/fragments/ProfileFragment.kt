@@ -102,10 +102,6 @@ class ProfileFragment: Fragment() {
                 navToEditProfile()
                 true
             }
-            R.id.menu_item_designs -> {
-                navToSavedDesigns()
-                true
-            }
             R.id.logout_item -> {
                 profileViewModel.signOut()
                 navToMainActivity()
@@ -141,10 +137,6 @@ class ProfileFragment: Fragment() {
 
     private fun navToEditProfile(){
         val action = ProfileFragmentDirections.actionProfileFragmentToEditProfileFragment()
-        findNavController().navigate(action)
-    }
-    private fun navToSavedDesigns(){
-        val action = ProfileFragmentDirections.actionProfileFragmentToDesignWallContainerFragment()
         findNavController().navigate(action)
     }
 

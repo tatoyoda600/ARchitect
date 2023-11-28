@@ -65,11 +65,6 @@
             android:id="@+id/action_designWallContainerFragment_to_savedDesignDetailsFragment"
             app:destination="@id/savedDesignDetailsFragment" />
     </fragment>
-    <activity
-        android:id="@+id/AR_Model"
-        android:name="com.pfortbe22bgrupo2.architectapp.activities.AR_Model"
-        android:label="activity_ar_model"
-        tools:layout="@layout/activity_ar_model" />
     <fragment
         android:id="@+id/changePasswordFragment"
         android:name="com.pfortbe22bgrupo2.architectapp.fragments.ChangePasswordFragment"
